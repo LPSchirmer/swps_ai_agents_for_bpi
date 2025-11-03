@@ -1,17 +1,137 @@
-research_task:
+# Phase 1: Unstructured User Input -> Structured Requirements
+analyze_user_input_task:
   description: >
-    Conduct a thorough research about {topic}
-    Make sure you find any interesting and relevant information given
-    the current year is {current_year}.
+    Analyze the textual process description provided by the user.
+    Extract all relevant process elements such as process name, process activities, process paths, process variants, roles, and ressources, if these are given.
+    Also extract the users' process improvement goals, process constraints, organizational compliance restrictions, and risk tolearance, if these are given.
+    If any of those mentioned metrics is not provided in the text, ingore it.
+    Transform the input into a structured JSON format that represents the current as-is process with the metrics described above.
   expected_output: >
-    A list with 10 bullet points of the most relevant information about {topic}
-  agent: researcher
+    A structured as-is process report in JSON,including:
+    - process name
+    - process activities
+    - process paths
+    - process variants
+    - roles
+    - ressources
+    - process improvement goals
+    - process constraints
+    - organizational compliance restrictions
+    - risk tolerance
+  agent: requirements_agent
 
-reporting_task:
+# Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
+plan_analysis:
   description: >
-    Review the context you got and expand each topic into a full section for a report.
-    Make sure the report is detailed and contains any and all relevant information.
+    Based on the structured process input and the calculated process metrics and KPI's, define a clear analysis plan
+    for all specialized agents. Specify which aspects each specialist
+    (Risk, Finance, Compliance, Performance) should analyze and delegate the work to the respective agent.
   expected_output: >
-    A fully fledged report with the main topics, each with a full section of information.
-    Formatted as markdown without '```'
-  agent: reporting_analyst
+    A structured analysis plan in JSON, defining which agents are responsible for which analysis goals,
+    and what data and information they will require.
+  agent: orchestrator_agent
+
+# Phase 3: Structured Analysis Plan and Delegation of Tasks -> Domain-Specific Analysis
+# Here, a decision is needed, whether numerical KPI's are calculated by the agents or by the process engine alone
+# performance_analysis:
+#   description: >
+#     Evaluate the performance of the process using the structured process information and the calculated process KPI's.
+#     Interpret the given data in an appropriate way.
+#     Identify bottlenecks, throughput issues, and high-variance activities.
+#   expected_output: >
+#     A structured performance report in JSON, including:
+#     - bottleneck activities
+#     - throughput times per activity
+#     - case duration statistics
+#     - suggestions for improvement
+#   agent: performance_agent
+
+# finance_analysis:
+#   description: >
+#     Evaluate the financial efficiency of the process using the structured process information and the calculated process KPI's.
+#     Identify the most expensive activities, calculate average case costs,
+#     and determine potential areas for cost savings.
+#   expected_output: >
+#     A structured finance report in JSON, including:
+#     - cost per activity and variant
+#     - total process cost
+#     - suggested cost reduction strategies
+#   agent: finance_agent
+
+# risk_analysis:
+#   description: >
+#     Analyze the process risks based on event logs and structural information.
+#     Identify bottlenecks, rework loops, and control weaknesses that increase
+#     process volatility or cause compliance issues.
+#   expected_output: >
+#     A structured risk report in JSON, including:
+#     - identified risks
+#     - severity (per risk)
+#     - probability of occurence (per risk)
+#     - mitigation suggestions
+#   agent: risk_agent
+
+# compliance_analysis:
+#   description: >
+#     Check the process for policy and regulation adherence.
+#     Identify non-compliant activities, missing controls,
+#     and potential legal or internal policy violations.
+#   expected_output: >
+#     A structured compliance report in JSON, including:
+#     - non-compliant activities
+#     - type of violation
+#     - recommended remediation
+#   agent: compliance_agent
+
+# Phase 4: Domain-specific Analysis -> Aggregate findings
+aggregate_findings:
+  description: >
+    Combine and synthesize the outputs of all specialized analyses (Performance, Finance, Risk, Compliance)
+    into a single integrated understanding of the current process state and its suggested improvement options.
+    Also identify cross-domain insights and the synergies between domain-specific insights.
+  expected_output: >
+    A structured findings and improvement suggestions report in JSON, including:
+    - Findings and improvement suggestions from the performance analysis
+    - Findings and improvement suggestions from the finance analysis
+    - Findings and improvement suggestions from the risk analysis
+    - Findings and improvement suggestions from the compliance analysis
+  agent: orchestrator_agent
+
+# Phase 5: Aggregate findings -> Generate Improvement Recommendations
+generate_improvements:
+  description: >
+    Use the integrated findings and improvement suggestions to generate concrete process improvement proposals.
+    Suggest alternative process paths, automation options,
+    and resequencing of activities to optimize performance and reduce costs in respect to the given organizational compliance restrictions and risk tolerance.
+  expected_output: >
+    A structured process improvement proposal containing proposed process improvements,
+    including a textual rationale for each change.
+  agent: orchestrator_agent
+
+# Phase 6: Generate Improvement Recommendations -> Evaluate Improvement Recommendations
+evaluate_improvements:
+  description: >
+    Simulate and evaluate the proposed process improvements against the current process.
+    Measure changes in key performance indicators and include ethical and morally aspects in the evaluation .
+  expected_output: >
+    A structured JSON report comparing the original and improved processes, including:
+    - KPI deltas (before/after)
+    - Etical and Morally impact of the suggested improvements
+    - Final decision recommendation for the orchestrator, whether the improvement suggestion should finally be recommended or rejected.
+  agent: evaluation_agent
+
+# Phase 7: Final Result
+compile_final_report:
+  description: >
+    Aggregate all analysis findings and improvement suggestions into a comprehensive process improvement report.
+    The report should include three final improvement suggestions, justified by the analysis findings and included, respectively ranked based on the evaluation results.
+    Structure the report clearly for presentation or download.
+  expected_output: >
+    A fully structured Markdown report, containing:
+    - as-is process overview
+    - identified issues
+    - proposed improvements
+    - evaluation results
+    - implementation roadmap
+    Formatted as markdown without '```'.
+  agent: orchestrator_agent
