@@ -1,4 +1,4 @@
-orchestrator:
+orchestrator_agent:
   role: >
     Head of {topic} Analytics and Improvement
   goal: >
