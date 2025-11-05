@@ -21,7 +21,7 @@ analyze_user_input_task:
   agent: requirements_agent
 
 # Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
-plan_analysis:
+plan_analysis_task:
   description: >
     Based on the structured process input and the calculated process metrics and KPI's, define a clear analysis plan
     for all specialized agents. Specify which aspects each specialist
@@ -33,7 +33,7 @@ plan_analysis:
 
 # Phase 3: Structured Analysis Plan and Delegation of Tasks -> Domain-Specific Analysis
 # Here, a decision is needed, whether numerical KPI's are calculated by the agents or by the process engine alone
-# performance_analysis:
+# performance_analysis_task:
 #   description: >
 #     Evaluate the performance of the process using the structured process information and the calculated process KPI's.
 #     Interpret the given data in an appropriate way.
@@ -46,7 +46,7 @@ plan_analysis:
 #     - suggestions for improvement
 #   agent: performance_agent
 
-# finance_analysis:
+# finance_analysis_task:
 #   description: >
 #     Evaluate the financial efficiency of the process using the structured process information and the calculated process KPI's.
 #     Identify the most expensive activities, calculate average case costs,
@@ -58,7 +58,7 @@ plan_analysis:
 #     - suggested cost reduction strategies
 #   agent: finance_agent
 
-# risk_analysis:
+# risk_analysis_task:
 #   description: >
 #     Analyze the process risks based on event logs and structural information.
 #     Identify bottlenecks, rework loops, and control weaknesses that increase
@@ -71,7 +71,7 @@ plan_analysis:
 #     - mitigation suggestions
 #   agent: risk_agent
 
-# compliance_analysis:
+# compliance_analysis_task:
 #   description: >
 #     Check the process for policy and regulation adherence.
 #     Identify non-compliant activities, missing controls,
@@ -84,7 +84,7 @@ plan_analysis:
 #   agent: compliance_agent
 
 # Phase 4: Domain-specific Analysis -> Aggregate findings
-aggregate_findings:
+aggregate_findings_task:
   description: >
     Combine and synthesize the outputs of all specialized analyses (Performance, Finance, Risk, Compliance)
     into a single integrated understanding of the current process state and its suggested improvement options.
@@ -98,7 +98,7 @@ aggregate_findings:
   agent: orchestrator_agent
 
 # Phase 5: Aggregate findings -> Generate Improvement Recommendations
-generate_improvements:
+generate_improvements_task:
   description: >
     Use the integrated findings and improvement suggestions to generate concrete process improvement proposals.
     Suggest alternative process paths, automation options,
@@ -109,7 +109,7 @@ generate_improvements:
   agent: orchestrator_agent
 
 # Phase 6: Generate Improvement Recommendations -> Evaluate Improvement Recommendations
-evaluate_improvements:
+evaluate_improvements_task:
   description: >
     Simulate and evaluate the proposed process improvements against the current process.
     Measure changes in key performance indicators and include ethical and morally aspects in the evaluation .
@@ -121,7 +121,7 @@ evaluate_improvements:
   agent: evaluation_agent
 
 # Phase 7: Final Result
-compile_final_report:
+compile_final_report_task:
   description: >
     Aggregate all analysis findings and improvement suggestions into a comprehensive process improvement report.
     The report should include three final improvement suggestions, justified by the analysis findings and included, respectively ranked based on the evaluation results.
