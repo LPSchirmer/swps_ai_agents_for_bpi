@@ -1,29 +1,44 @@
 import pandas as pd
+import numpy as np
 import pm4py
 
 event_log = None # Mock Code
 
-# Information that describes the basic structure of a given event log and its underlying process
+# Information that describes the basic structure of a given event log and its underlying process, relevant for all agents
 basic_information = {
     "event_log_columns" : list(event_log.columns),
+
     "number_cases" : event_log["case:concept:name"].nunique(),
+
     "variants_frequency" : pm4py.get_variants(event_log),
     "number_variants" : len(pm4py.get_variants(event_log)),
+
     "number_events" : len(event_log),
+
     "activities" : list(event_log["concept:name"].unique()),
     "number_activities" : event_log["concept:name"].nunique(),
     "activities_frequency" : event_log["concept:name"].value_counts().to_dict(),
     "start_activities" : pm4py.get_start_activities(event_log),
-    "end_activities" : pm4py.get_end_activities(event_log)
+    "end_activities" : pm4py.get_end_activities(event_log),
+
+    "number_ressources" : event_log["org:resource"].nunique(),
+    "resources" : list(event_log["org:resource"].unique())
 }
 
 # KPI's for Performance Agent
 # Case Durations in seconds, works for Datasets with 1 Timestamp Column
 def get_case_durations(event_log: pd.DataFrame) -> pd.DataFrame:
     return (event_log.groupby("case:concept:name")["time:timestamp"]
-            .agg(lambda x: (x.max() - x.min()).total_seconds())
-            .reset_index(name="case_duration_seconds")
+            .agg(lambda x: ((x.max() - x.min()).total_seconds())/3600)
+            .reset_index(name="case_duration_[hours]")
     )
+
+def get_case_duration_var_std(event_log: pd.DataFrame) -> dict:
+    case_durations = get_case_durations(event_log)
+    return {
+        "variance" : np.var(case_durations["case_duration_[hours]"]), 
+        "standard_deviation" : np.std(case_durations["case_duration_[hours]"])
+    }
 
 # Variant durations in seconds (overall & mean) with its respective frequency in event log
 def get_variant_durations_frequency(event_log: pd.DataFrame) -> pd.DataFrame:
@@ -86,8 +101,11 @@ def get_rework_stats(event_log: pd.DataFrame) -> dict:
 
 # KPI's for Compliance Agent
 # All process paths with its corresponding variant
-def get_process_paths(event_log: pd.DataFrame):
+def get_process_paths(event_log: pd.DataFrame) -> pd.DataFrame:
     return pm4py.get_variants_paths_duration(event_log)[["concept:name", "concept:name_2", "@@variant_column"]].reset_index(drop=True)
 
-def get_activity_ressources(event_log: pd.DataFrame):
-    pass
+def get_activities_per_ressources(event_log: pd.DataFrame):
+    return event_log.groupby("org:resource")["concept:name"].agg(list).reset_index()
+
+def get_ressources_per_activities(event_log: pd.DataFrame) -> pd.DataFrame:
+    return event_log.groupby("concept:name")["org:ressource"].agg(list).reset_index()
