@@ -20,16 +20,51 @@ class SwpsAiAgentsForBpi():
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
     @agent
-    def researcher(self) -> Agent:
+    def orchestrator_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
+            config=self.agents_config['orchestrator_agent'], # type: ignore[index]
             verbose=True
         )
 
     @agent
-    def reporting_analyst(self) -> Agent:
+    def requirements_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
+            config=self.agents_config['requirements_agent'], # type: ignore[index]
+            verbose=True
+        )
+    
+    @agent
+    def performance_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['performance_agent'], # type: ignore[index]
+            verbose=True
+        )
+    
+    @agent
+    def finance_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['finance_agent'], # type: ignore[index]
+            verbose=True
+        )
+    
+    @agent
+    def risk_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['risk_agent'], # type: ignore[index]
+            verbose=True
+        )
+    
+    @agent
+    def compliance_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['compliance_agent'], # type: ignore[index]
+            verbose=True
+        )
+    
+    @agent
+    def evaluation_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['evaluation_agent'], # type: ignore[index]
             verbose=True
         )
 
@@ -37,15 +72,64 @@ class SwpsAiAgentsForBpi():
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
     @task
-    def research_task(self) -> Task:
+    def analyze_user_input_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            config=self.tasks_config['analyze_user_input_task'], # type: ignore[index]
         )
 
     @task
-    def reporting_task(self) -> Task:
+    def plan_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
+            config=self.tasks_config['plan_analysis_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def performance_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['performance_analysis_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def finance_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['finance_analysis_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def risk_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['risk_analysis_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def compliance_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['compliance_analysis_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def aggregate_findings_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['aggregate_findings_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def generate_improvements_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['generate_improvements_task'], # type: ignore[index]
+            output_file='report.md'
+        )
+    
+    @task
+    def evaluate_improvements_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['evaluate_improvements_task'], # type: ignore[index]
             output_file='report.md'
         )
 
