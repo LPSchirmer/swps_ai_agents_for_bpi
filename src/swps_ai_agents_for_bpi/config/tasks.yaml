@@ -18,7 +18,6 @@ analyze_user_input_task:
     - process constraints
     - organizational compliance restrictions
     - risk tolerance
-  agent: requirements_agent
 
 # Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
 plan_analysis_task:
@@ -29,7 +28,6 @@ plan_analysis_task:
   expected_output: >
     A structured analysis plan in JSON, defining which agents are responsible for which analysis goals,
     and what data and information they will require.
-  agent: orchestrator_agent
 
 # Phase 3: Structured Analysis Plan and Delegation of Tasks -> Domain-Specific Analysis
 # Here, a decision is needed, whether numerical KPI's are calculated by the agents or by the process engine alone
@@ -44,7 +42,6 @@ plan_analysis_task:
 #     - throughput times per activity
 #     - case duration statistics
 #     - suggestions for improvement
-#   agent: performance_agent
 
 # finance_analysis_task:
 #   description: >
@@ -56,7 +53,6 @@ plan_analysis_task:
 #     - cost per activity and variant
 #     - total process cost
 #     - suggested cost reduction strategies
-#   agent: finance_agent
 
 # risk_analysis_task:
 #   description: >
@@ -69,7 +65,6 @@ plan_analysis_task:
 #     - severity (per risk)
 #     - probability of occurence (per risk)
 #     - mitigation suggestions
-#   agent: risk_agent
 
 # compliance_analysis_task:
 #   description: >
@@ -81,7 +76,6 @@ plan_analysis_task:
 #     - non-compliant activities
 #     - type of violation
 #     - recommended remediation
-#   agent: compliance_agent
 
 # Phase 4: Domain-specific Analysis -> Aggregate findings
 aggregate_findings_task:
@@ -95,7 +89,6 @@ aggregate_findings_task:
     - Findings and improvement suggestions from the finance analysis
     - Findings and improvement suggestions from the risk analysis
     - Findings and improvement suggestions from the compliance analysis
-  agent: orchestrator_agent
 
 # Phase 5: Aggregate findings -> Generate Improvement Recommendations
 generate_improvements_task:
@@ -106,7 +99,6 @@ generate_improvements_task:
   expected_output: >
     A structured process improvement proposal containing proposed process improvements,
     including a textual rationale for each change.
-  agent: orchestrator_agent
 
 # Phase 6: Generate Improvement Recommendations -> Evaluate Improvement Recommendations
 evaluate_improvements_task:
@@ -118,7 +110,6 @@ evaluate_improvements_task:
     - KPI deltas (before/after)
     - Etical and Morally impact of the suggested improvements
     - Final decision recommendation for the orchestrator, whether the improvement suggestion should finally be recommended or rejected.
-  agent: evaluation_agent
 
 # Phase 7: Final Result
 compile_final_report_task:
@@ -134,4 +125,3 @@ compile_final_report_task:
     - evaluation results
     - implementation roadmap
     Formatted as markdown without '```'.
-  agent: orchestrator_agent

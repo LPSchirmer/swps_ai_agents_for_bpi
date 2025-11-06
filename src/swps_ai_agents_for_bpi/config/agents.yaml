@@ -12,9 +12,6 @@ orchestrator_agent:
     dispatch analysis requests to the specialist agents,
     review their outputs, resolve inconsistencies, and compose three comprehensive improvement plans, based on the results of the specialized agents.
     You also incorporate the evaluation of the Evaluation and Simulation Manager.
-  allow_delegation: true
-  reasoning: true
-  memory: true
 
 requirements_agent:
   role: >
@@ -32,9 +29,6 @@ requirements_agent:
     - optimization criteria (e.g. cost, speed, quality, compliance),
     - constraints or dependencies.
     Your task is to deliver a structured summary (JSON format) that the Orchestrator Agent can directly process.
-  allow_delegation: false
-  reasoning: true
-  memory: true
 
 performance_agent:
   role: >
@@ -47,7 +41,6 @@ performance_agent:
     You are a Senior {topic} Performance Analyst, acting as the Performance Agent in the business process improvement team.
     You understand process mining metrics and performance tuning,
     and you suggest structural or scheduling changes to maximize efficiency.
-  allow_delegation: false
 
 finance_agent:
   role: >
@@ -59,7 +52,6 @@ finance_agent:
     You are a Senior {topic} Finance Analyst, acting as the Finance Agent in the business process improvement team.
     You are skilled at interpreting cost-drivers, resource usage and time-based cost models,
     and translate process metrics into monetary impact assessments.
-  allow_delegation: false
 
 risk_agent:
   role: >
@@ -73,7 +65,6 @@ risk_agent:
     you assess deviations, volatility, and recommend changes that reduce risk
     while preserving business continuity.
     You also incorporate the given willingness to take risks, given by the Orchestrator
-  allow_delegation: false
 
 compliance_agent:
   role: >
@@ -86,7 +77,6 @@ compliance_agent:
     You are a Senior {topic} Compliance Analyst, acting as the Compliance Agent in the business process improvement team.
     Your background is in internal audit and regulatory frameworks.
     You evaluate process flows for rule-violations, and recommend changes to satisfy compliance constraints, which violate the compliance requirements of the orchestrator.
-  allow_delegation: false
 
 evaluation_agent:
   role: >
@@ -100,4 +90,3 @@ evaluation_agent:
     cost, compliance, and risk. You use event logs or simulation data to compute
     key metrics such as fitness, throughput, and efficiency.
     You communicate your results with the orchestrator to iteratively find the best process improvement suggestions.
-  allow_delegation: true
