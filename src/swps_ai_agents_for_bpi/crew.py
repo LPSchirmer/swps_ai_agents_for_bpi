@@ -20,33 +20,145 @@ class SwpsAiAgentsForBpi():
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
     @agent
-    def researcher(self) -> Agent:
+    def orchestrator_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['researcher'], # type: ignore[index]
+            config=self.agents_config['orchestrator_agent'],
+            allow_delegation=True,
+            reasoning=True,
+            memory=True, # type: ignore[index]
             verbose=True
         )
 
     @agent
-    def reporting_analyst(self) -> Agent:
+    def requirements_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['reporting_analyst'], # type: ignore[index]
-            verbose=True
+            config=self.agents_config['requirements_agent'], # type: ignore[index]
+            verbose=True,
+            allow_delegation = False,
+            reasoning = True,
+            memory = True
+        )
+    
+    @agent
+    def performance_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['performance_agent'], # type: ignore[index]
+            verbose=True,
+            allow_delegation= False
+        )
+    
+    @agent
+    def finance_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['finance_agent'], # type: ignore[index]
+            verbose=True,
+            allow_delegation= False
+        )
+    
+    @agent
+    def risk_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['risk_agent'], # type: ignore[index]
+            verbose=True,
+            allow_delegation= False
+        )
+    
+    @agent
+    def compliance_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['compliance_agent'], # type: ignore[index]
+            verbose=True,
+            allow_delegation= False
+        )
+    
+    @agent
+    def evaluation_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['evaluation_agent'], # type: ignore[index]
+            verbose=True,
+            allow_delegation=True
         )
 
     # To learn more about structured task outputs,
     # task dependencies, and task callbacks, check out the documentation:
     # https://docs.crewai.com/concepts/tasks#overview-of-a-task
     @task
-    def research_task(self) -> Task:
+    def analyze_user_input_task(self) -> Task:
         return Task(
-            config=self.tasks_config['research_task'], # type: ignore[index]
+            config=self.tasks_config['analyze_user_input_task'], # type: ignore[index]
+            agent=self.requirements_agent()
         )
 
     @task
-    def reporting_task(self) -> Task:
+    def plan_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['reporting_task'], # type: ignore[index]
-            output_file='report.md'
+            config=self.tasks_config['plan_analysis_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.orchestrator_agent()
+        )
+    
+    @task
+    def performance_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['performance_analysis_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.performance_agent()
+        )
+    
+    @task
+    def finance_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['finance_analysis_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.finance_agent()
+        )
+    
+    @task
+    def risk_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['risk_analysis_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.risk_agent()
+        )
+    
+    @task
+    def compliance_analysis_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['compliance_analysis_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.compliance_agent()
+        )
+    
+    @task
+    def aggregate_findings_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['aggregate_findings_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.orchestrator_agent()
+        )
+    
+    @task
+    def generate_improvements_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['generate_improvements_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.orchestrator_agent()
+        )
+    
+    @task
+    def evaluate_improvements_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['evaluate_improvements_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.evaluation_agent()
+        )
+    
+    @task
+    def compile_final_report_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['compile_final_report_task'], # type: ignore[index]
+            output_file='report.md',
+            agent=self.orchestrator_agent()
         )
 
     @crew
