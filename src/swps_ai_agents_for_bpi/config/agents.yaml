@@ -29,6 +29,7 @@ requirements_agent:
     - optimization criteria (e.g. cost, speed, quality, compliance),
     - constraints or dependencies.
     Your task is to deliver a structured summary (JSON format) that the Orchestrator Agent can directly process.
+    Your task is therefore simply to process the information provided. If information on certain topics is missing, leave it out and do not make any assumptions.
 
 performance_agent:
   role: >

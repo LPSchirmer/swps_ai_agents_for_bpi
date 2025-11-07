@@ -6,6 +6,7 @@ analyze_user_input_task:
     Also extract the users' process improvement goals, process constraints, organizational compliance restrictions, and risk tolearance, if these are given.
     If any of those mentioned metrics is not provided in the text, ingore it.
     Transform the input into a structured JSON format that represents the current as-is process with the metrics described above.
+    If any metrics or infomation are not given by the textual description, leave them out and do not make any assumptions. Just work with the provided information.
   expected_output: >
     A structured as-is process report in JSON,including:
     - process name
