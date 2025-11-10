@@ -1,0 +1,18 @@
+Der Prozess fängt eigentlich damit an, dass die Kunden irgendeine Anfrage stellen. 
+Meistens per Mail. Dann schaut wer drauf, meistens Anna, manchmal auch Markus,
+kommt drauf an wer Zeit hat. 
+Wenn es eine einfache Sache ist, lösen wir es direkt. 
+Wenn nicht, machen wir ein Ticket im Ticketsystem. 
+Dann warten wir häufig auf Rückmeldungen (kann ziemlich lange dauern). 
+Irgendwann meldet sich der Kunde oder wir müssen nachhaken. 
+Dann entscheiden wir, ob weitere Abteilungen involviert werden müssen (IT, Finance, Legal…). 
+Der Prozess endet, wenn der Kunde zufrieden ist oder wir nach drei erfolglosen Kontaktversuchen aufgeben.
+
+Probleme:
+- Keine klare Zuordnung („wer macht was?“)
+- Viel Warten. Sehr viel Warten.
+- Keine Transparenz
+
+Verbesserungswünsche:
+- Automatisierung von Standardfällen
+- Besseres Tracking

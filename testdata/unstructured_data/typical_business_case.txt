@@ -1,0 +1,19 @@
+Ablauf:
+01. Anfrage kommt rein -> wird irgendwo gespeichert (nicht sicher wo)
+02. Bearbeitung… manchmal dauert das 1–2 Tage, manchmal 3 Wochen
+03. Genehmigung durch Leitung (außer sie ist auf Urlaub)
+04. Danach folgt Umsetzung (Outsourcing oder intern)
+05. Kunde bekommt Info – manchmal zu spät
+
+Rollen:
+- eigentlich alle, die Kapazität haben
+
+Ziele:
+- Effizienz steigern
+- Kosten senken
+- aber bitte nichts kaputt machen
+
+Constraints:
+- Budget limitiert
+- Team überlastet
+- Kunde erwartet maximale Flexibilität

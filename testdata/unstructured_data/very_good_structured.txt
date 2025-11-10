@@ -1,0 +1,31 @@
+Process "Invoice Handling"
+
+Phases:
+1. Invoice Received (mail, portal, paper)
+2. Extract data manually or OCR
+3. Validate invoice (supplier, amount, PO number)
+4. Approval workflow:
+   - up to 5k → Team Lead
+   - 5k–50k → Department Head
+   - >50k → CFO
+5. Post in ERP
+6. Archive document
+7. Send confirmation to supplier
+
+Roles:
+AP clerk, Teamlead, Department Head, CFO, Accountant
+
+Constraints:
+- 4-eyes principle mandatory
+- Audit trail required
+- GDPR compliance required
+
+KPIs:
+- avg processing time: 7 days
+- error rate: 8%
+- invoice backlog: 350 items
+
+Goals:
+- reduce avg processing time
+- automate validation
+- reduce manual touches

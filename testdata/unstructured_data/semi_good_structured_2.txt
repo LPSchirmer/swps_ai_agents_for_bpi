@@ -1,0 +1,22 @@
+Ich brauche Hilfe diesen Prozess zu verbessern, wir kommen einfach nicht hinterher.
+Wir haben zu viele Medienbrüche. Papier, E-Mails, Excel, Teams-Chats – alles gemischt.
+Der Prozess ist historisch gewachsen und keiner steigt mehr durch.
+
+Der Prozess startet eigentlich mit irgendeiner Anfrage. Dann wird gesucht, 
+ob wir die Info schon irgendwo haben. 
+Wenn nicht, fragt jemand nach. Dann geht es weiter zu einer Prüfung, aber wer das macht,
+ist nicht klar definiert. 
+Dann Freigabe (manchmal mündlich). 
+Dann Umsetzung, aber wir wissen nicht, wie lange alles dauert. 
+Wir haben keine Kennzahlen.
+
+Was ich möchte:
+- mehr Transparenz
+- klare Verantwortlichkeiten
+- bessere Messbarkeit
+- weniger Overhead
+
+Risiko:
+wir dürfen keine Daten verlieren
+Compliance:
+wir müssen ISO27001 einhalten

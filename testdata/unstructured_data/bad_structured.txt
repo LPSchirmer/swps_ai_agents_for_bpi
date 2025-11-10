@@ -1,0 +1,16 @@
+Naja, eigentlich läuft es so: 
+erst passiert irgendwas, dann rufen die Leute an, weil sie nicht wissen,
+was genau passiert. Wir schreiben es dann irgendwo auf (meistens im Excel,
+manchmal im Chat, ganz selten im Tool). 
+Dann wird rumtelefoniert, bis wer eine Antwort hat. 
+Oft warten wir Ewigkeiten (!!!) auf Freigaben. 
+Wir haben mal versucht den Prozess zu dokumentieren, aber das war zu kompliziert.
+
+Das Ziel wäre:
+- weniger Chaos
+- weniger manuelle Arbeit
+- irgendwie klarere Abläufe
+
+Risikotoleranz: niedrig – wir wollen lieber vermeiden, dass Fehler passieren.
+Compliance: kein Plan
+Ressourcen: momentan überlastet

@@ -1,0 +1,17 @@
+Aktuelle Herausforderungen im Incident Management:
+
+- zu hohe Ticketdurchlaufzeiten (P1 > 3h, P2 > 24h)
+- Eskalationswege unklar
+- fehlende Automatisierung
+- falsche Routing- Entscheidungen
+- zu viel WIP (Work in Progress)
+
+Der Prozess beginnt mit der Ticketerstellung oder direkten Anruf.
+Dann Screening, dann Kategorisierung (manchmal falsch).
+Weiterleitung an falschen Experten
+→ Rückfragen → Verzögerung → Wiederholung
+
+Zielbild:
+- reduzierte Durchlaufzeit
+- bessere Kategorisierung
+- verringertes WIP

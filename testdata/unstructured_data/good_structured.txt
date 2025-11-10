@@ -1,0 +1,19 @@
+Prozessname: Bestellabwicklung
+
+Beschreibung: Der Prozess startet, wenn ein Kunde eine Bestellung über den Webshop aufgibt. 
+Danach wird die Bestellung automatisch vom System registriert und in die Auftragsliste eingetragen. 
+Ein Mitarbeiter prüft anschließend die Bestellung auf Vollständigkeit. 
+Wenn die Bestellung vollständig ist, wird sie freigegeben und an das Lager weitergeleitet. 
+Dort wird die Ware kommissioniert und verpackt. 
+Nachdem die Ware versendet wurde, erhält der Kunde eine Versandbestätigung.
+
+Rollen: Kunde, Sachbearbeiter, Lagerarbeiter
+
+Ziele:
+- Durchlaufzeit reduzieren
+- weniger manuelle Prüfschritte
+- bessere Transparenz im Status der Bestellungen
+
+Einschränkungen:
+- Compliance: DSGVO beachten
+- SLA: max. 48h Bearbeitungszeit
