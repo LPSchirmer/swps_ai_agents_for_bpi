@@ -1,0 +1,34 @@
+version: '3.8'
+
+services:
+  # 1. PostgreSQL Service (Lokal gehostet, für Strukturdaten)
+  postgres_db:
+    # Wir verwenden ein generisches PostgreSQL-Image, da es keine offizielle v18 Images von Docker Hub gibt.
+    # postgres:16-alpine oder 15-alpine sind üblich und stabil.
+    # Da Sie lokal v18 installiert haben, verwenden wir hier 16 als nächstbeste Version für Konsistenz.
+    image: postgres:16-alpine
+    container_name: postgres_db
+    
+    # Umgebungsvariablen für die Datenbank-Anmeldedaten (WICHTIG!)
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: crewai_app_db # Ihr Datenbankname
+    
+    # Port-Mapping: Container-Port 5432 wird an Ihren lokalen Port 5432 weitergeleitet
+    ports:
+      - "5432:5432"
+    
+    # Volumes: Stellen die Persistenz der Daten und die Initialisierung sicher
+    volumes:
+      # Hier wird Ihre init.sql beim Start ausgeführt
+      - ./init/init.sql:/docker-entrypoint-initdb.d/init.sql
+      # Speichert die Daten persistent, damit sie nicht verloren gehen
+      - postgres_data:/var/lib/postgresql/data
+    
+    # Startet den Container automatisch neu, es sei denn, er wird explizit gestoppt
+    restart: unless-stopped
+
+# Definition der Volumes, um die Datenbankdaten auf Ihrem Rechner zu speichern
+volumes:
+  postgres_data:
