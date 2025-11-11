@@ -54,10 +54,19 @@ For support, questions, or feedback regarding the SwpsAiAgentsForBpi Crew or cre
 Let's create wonders together with the power and simplicity of crewAI.
 
 ----
+
 Use PostgresSQL with docker:
 1. Run docker
 2. Run the command 
 ```
 docker compose up -d
 ```
-3. Run test_postgres.py
+3. Run testdatabase/test_postgres.py
+
+----
+
+Use MongoDB:
+1. MongoDB needs IP address due to security. Please give Ryan your IP address.
+2. Run testdatabase/test_mongodb.py
+
+----
