@@ -11,9 +11,9 @@ services:
     
     # Umgebungsvariablen für die Datenbank-Anmeldedaten (WICHTIG!)
     environment:
-      POSTGRES_USER: user
-      POSTGRES_PASSWORD: password
-      POSTGRES_DB: crewai_app_db # Ihr Datenbankname
+      POSTGRES_USER: ${POSTGRES_USER}      # Liest den Wert aus der HOST-Umgebung (die die .env lädt)
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     
     # Port-Mapping: Container-Port 5432 wird an Ihren lokalen Port 5432 weitergeleitet
     ports:

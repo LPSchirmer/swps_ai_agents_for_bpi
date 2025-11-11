@@ -52,3 +52,12 @@ For support, questions, or feedback regarding the SwpsAiAgentsForBpi Crew or cre
 - [Chat with our docs](https://chatg.pt/DWjSBZn)
 
 Let's create wonders together with the power and simplicity of crewAI.
+
+----
+Use PostgresSQL with docker:
+1. Run docker
+2. Run the command 
+```
+docker compose up -d
+```
+3. Run test_postgres.py
