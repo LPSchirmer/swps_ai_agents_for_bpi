@@ -1,7 +1,39 @@
-from crewai import Agent, Crew, Process, Task
+# CrewAI
+from crewai import LLM, Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from typing import List
+from crewai_tools import SerperDevTool, WebsiteSearchTool, TXTSearchTool
+# Type annotations
+from typing import List, Optional, Union
+# Structuring Agent Output
+from pydantic import BaseModel
+# LLM API Settings
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
+llm_openai = LLM(
+    model=os.getenv("BASE_MODEL_OPENAI"),
+    api_key= os.getenv("API_KEY_OPENAI"),
+    temperature=0.5, # Mock data
+    max_tokens=1000 # Mock data
+)
+# JSON Format for Output of Requirements Agent
+class Requirements(BaseModel):
+    process_name: List[str]
+    process_activities: List[str]
+    process_paths: List[List[str]]
+    process_variants: List[List[str]]
+    roles: List[str]
+    ressources: List[str]
+    process_improvement_goals: List[str]
+    process_constraints: List[str]
+    organizational_compliance_restrictions: List[str]
+    risk_tolerance: Optional[Union[int, str]]
+# Instantiate tools
+web_search_tool = SerperDevTool()
+web_rag_tool = WebsiteSearchTool()
+text_search_tool = TXTSearchTool()
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
@@ -12,10 +44,6 @@ class SwpsAiAgentsForBpi():
 
     agents: List[BaseAgent]
     tasks: List[Task]
-
-    # Learn more about YAML configuration files here:
-    # Agents: https://docs.crewai.com/concepts/agents#yaml-configuration-recommended
-    # Tasks: https://docs.crewai.com/concepts/tasks#yaml-configuration-recommended
     
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
@@ -23,58 +51,69 @@ class SwpsAiAgentsForBpi():
     def orchestrator_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['orchestrator_agent'],
+            llm=llm_openai,
+            verbose=True,
             allow_delegation=True,
             reasoning=True,
-            memory=True, # type: ignore[index]
-            verbose=True
+            memory=True
         )
 
     @agent
     def requirements_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['requirements_agent'], # type: ignore[index]
+            llm=llm_openai,
             verbose=True,
             allow_delegation = False,
-            reasoning = True,
-            memory = True
+            tools = [text_search_tool]
         )
     
     @agent
     def performance_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['performance_agent'], # type: ignore[index]
+            llm=llm_openai,
             verbose=True,
             allow_delegation= False
+            # Eventuell custom Analysis Tools
         )
     
     @agent
     def finance_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['finance_agent'], # type: ignore[index]
+            llm=llm_openai,
             verbose=True,
             allow_delegation= False
+            # Eventuell custom Analysis Tools
         )
     
     @agent
     def risk_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['risk_agent'], # type: ignore[index]
+            llm=llm_openai,
             verbose=True,
             allow_delegation= False
+            # Eventuell custom Analysis Tools
         )
     
     @agent
     def compliance_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['compliance_agent'], # type: ignore[index]
+            llm=llm_openai,
             verbose=True,
-            allow_delegation= False
+            allow_delegation= False,
+            tools=[web_search_tool, web_rag_tool] # Web Search and Extracting Tools, um aktuelle gesetzliche Vorgaben und Normen recherchieren zu können
+            # Eventuell custom Analysis Tools
         )
     
     @agent
     def evaluation_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['evaluation_agent'], # type: ignore[index]
+            llm=llm_openai,
             verbose=True,
             allow_delegation=True
         )
@@ -86,71 +125,79 @@ class SwpsAiAgentsForBpi():
     def analyze_user_input_task(self) -> Task:
         return Task(
             config=self.tasks_config['analyze_user_input_task'], # type: ignore[index]
-            agent=self.requirements_agent()
+            agent=self.requirements_agent(),
+            output_json=Requirements
         )
 
     @task
     def plan_analysis_task(self) -> Task:
         return Task(
             config=self.tasks_config['plan_analysis_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.orchestrator_agent()
+            agent=self.orchestrator_agent(),
+            context=[self.analyze_user_input_task()]
         )
     
     @task
     def performance_analysis_task(self) -> Task:
         return Task(
             config=self.tasks_config['performance_analysis_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.performance_agent()
+            agent=self.performance_agent(),
+            context=[self.plan_analysis_task()],
+            async_execution=True # Task is performed in parallel with finance, risk and compliance analysis
         )
     
     @task
     def finance_analysis_task(self) -> Task:
         return Task(
             config=self.tasks_config['finance_analysis_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.finance_agent()
+            agent=self.finance_agent(), 
+            context=[self.plan_analysis_task()],
+            async_execution=True # Task is performed in parallel with performance, risk and compliance analysis
         )
     
     @task
     def risk_analysis_task(self) -> Task:
         return Task(
             config=self.tasks_config['risk_analysis_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.risk_agent()
+            agent=self.risk_agent(),
+            context=[self.plan_analysis_task()],
+            async_execution=True # Task is performed in parallel with performance, finance and compliance analysis
         )
     
     @task
     def compliance_analysis_task(self) -> Task:
         return Task(
             config=self.tasks_config['compliance_analysis_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.compliance_agent()
+            agent=self.compliance_agent(),
+            context=[self.plan_analysis_task()],
+            async_execution=True # Task is performed in parallel with performance, finance and risk analysis
         )
     
     @task
     def aggregate_findings_task(self) -> Task:
         return Task(
             config=self.tasks_config['aggregate_findings_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.orchestrator_agent()
+            agent=self.orchestrator_agent(),
+            context=[self.performance_analysis_task(), 
+                     self.finance_analysis_task(), 
+                     self.risk_analysis_task(), 
+                     self.compliance_analysis_task()]
         )
     
     @task
     def generate_improvements_task(self) -> Task:
         return Task(
             config=self.tasks_config['generate_improvements_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.orchestrator_agent()
+            agent=self.orchestrator_agent(),
+            context= [self.analyze_user_input_task(), self.aggregate_findings_task()]
         )
     
     @task
     def evaluate_improvements_task(self) -> Task:
         return Task(
             config=self.tasks_config['evaluate_improvements_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.evaluation_agent()
+            agent=self.evaluation_agent(),
+            context=[self.analyze_user_input_task(), self.generate_improvements_task()]
         )
     
     @task
@@ -158,7 +205,9 @@ class SwpsAiAgentsForBpi():
         return Task(
             config=self.tasks_config['compile_final_report_task'], # type: ignore[index]
             output_file='report.md',
-            agent=self.orchestrator_agent()
+            agent=self.orchestrator_agent(),
+            markdown=True,
+            context=[self.generate_improvements_task(), self.evaluate_improvements_task()]
         )
 
     @crew
@@ -170,7 +219,8 @@ class SwpsAiAgentsForBpi():
         return Crew(
             agents=self.agents, # Automatically created by the @agent decorator
             tasks=self.tasks, # Automatically created by the @task decorator
-            process=Process.sequential,
+            process=Process.hierarchical,
+            manager_agent=self.orchestrator_agent(),
             verbose=True,
-            # process=Process.hierarchical, # In case you wanna use that instead https://docs.crewai.com/how-to/Hierarchical/
+            memory=True
         )
