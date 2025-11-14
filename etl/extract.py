@@ -2,6 +2,7 @@ import pandas as pd
 import csv
 import pm4py
 from pathlib import Path
+import pypdf
 
 def extract_process_data(file_path: str) -> pd.DataFrame | pm4py.BPMN:
     path = Path(file_path)
@@ -24,3 +25,27 @@ def get_delimiter(file_path: str) -> str:
     with open(file_path, 'r') as csv_file:
         delimiter = str(csv.Sniffer().sniff(csv_file.read()).delimiter)
         return delimiter
+    
+def extract_textual_data(file_path: str) -> str:
+    path = Path(file_path)
+
+    if not path.exists():
+        raise FileNotFoundError(f"Datei nicht gefunden: {file_path}")
+    
+    ext = path.suffix.lower()
+
+    if ext == ".txt":
+        with open(path, "r", encoding="UTF-8") as txt_file:
+            text = txt_file.read()
+            return text
+    elif ext == ".pdf":
+        reader = pypdf.PdfReader(path)
+        text = ""
+        for page in reader.pages:
+            text += page.extract_text() + "\n"
+        return text
+    elif (ext == ".doc") | (ext == ".docx"):
+        # ToDo: Implement the encoding for word documents
+        pass
+    else:
+        raise ValueError(f"Unsupported file format: .{ext}")
