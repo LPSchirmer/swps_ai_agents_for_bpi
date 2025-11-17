@@ -3,6 +3,10 @@ import sys
 import warnings
 
 from swps_ai_agents_for_bpi.crew import SwpsAiAgentsForBpi
+# Calculated Event Log KPI's and processed textual process data as input for the crew
+from process_analysis_engine.analysis_workflow import result_dict
+# Import for textual data required
+
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
@@ -16,7 +20,9 @@ def run():
     Run the crew.
     """
     inputs = {
-        'topic': 'Process'
+        'topic': 'Process',
+        "event_log_data":result_dict
+        # Textual data
     }
     
     try:
@@ -30,8 +36,10 @@ def train():
     Train the crew for a given number of iterations.
     """
     inputs = {
-        "topic": "Process"
-    }
+        "topic": "Process",
+        "event_log_data":result_dict
+        # Textual data
+        }
     try:
         SwpsAiAgentsForBpi().crew().train(n_iterations=int(sys.argv[1]), filename=sys.argv[2], inputs=inputs)
 
@@ -53,7 +61,9 @@ def test():
     Test the crew execution and returns the results.
     """
     inputs = {
-        "topic": "Process"
+        "topic": "Process",
+        "event_log_data":result_dict
+        # Textual data
     }
     
     try:
