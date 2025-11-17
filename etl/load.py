@@ -14,13 +14,13 @@ DB_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 TRANSFORMED_DB_PASSWORD = quote_plus(DB_PASSWORD)
 
 # Hier muss noch der Chat ID als Spalte hinzugefügt werden
-def load_event_log_to_database(file_path: str, df: pd.DataFrame):
+def load_event_log_to_database(file_path: str, df: pd.DataFrame) -> None:
     engine = create_engine(f"postgresql+psycopg://{DB_USER}:{TRANSFORMED_DB_PASSWORD}@{DB_HOST}:host/{DB_NAME}") # host has to be changed
     table = os.path.splitext(os.path.basename(file_path))[0]
     df.to_sql(table_name=table, engine_name=engine, if_exists="replace", index=False)
 
 # Hier muss noch Chat ID als Foreign Key hinzugefügt werden und der Fall, dass mehrere Dateien hochgeladen werden, abgedeckt werden
-def load_textual_process_data_to_database(text: str):
+def load_textual_process_data_to_database(text: str) -> None:
     conn = psycopg.connect(f"dbname={DB_NAME} user={DB_USER} password={DB_PASSWORD} host={DB_HOST}")
     cur = conn.cursor()
     cur.execute(

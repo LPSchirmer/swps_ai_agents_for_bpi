@@ -16,12 +16,14 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
         for column in df.columns:
             if column.lower().strip() in synonyms:
                 mapped[column] = canonical_col
-    return df.rename(columns=mapped)
+    df.rename(columns=mapped, inplace=True)
+    df = df.loc[:, ~df.columns.duplicated(keep='first')]
+    return df
 
 def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
     for column in df.columns:
         if column == "time:timestamp":
-            df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="ignore")
+            df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="raise")
         else:
             # Set all columns, except timestamp, to numeric values -> All numbers that are stored as a string will be numeric and all text data, which is stored as a string, will remain as a string
             df[column] = pd.to_numeric(df[column], errors="ignore")
