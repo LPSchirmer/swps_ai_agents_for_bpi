@@ -1,128 +1,115 @@
-# Phase 1: Unstructured User Input -> Structured Requirements
+# Phase 1: Unstructured User Input -> Structured Requirements 
 analyze_user_input_task:
   description: >
-    Analyze the textual process description provided by the user.
-    Extract all relevant process elements such as process name, process activities, process paths, process variants, roles, and ressources, if these are given.
-    Also extract the users' process improvement goals, process constraints, organizational compliance restrictions, and risk tolearance, if these are given.
-    If any of those mentioned metrics is not provided in the text, ingore it.
-    Transform the input into a structured JSON format that represents the current as-is process with the metrics described above.
-    If any metrics or infomation are not given by the textual description, leave them out and do not make any assumptions. Just work with the provided information.
+    Process any unstructured input provided by the user, which may include textual
+    process descriptions, compliance documents, regulatory texts, process KPIs, goals,
+    constraints, risk information, roles, resources, or any other domain-relevant data.
+    Extract and normalize all explicit information and transform it into a structured
+    JSON format. Do not make assumptions or infer missing information. Only include
+    fields that are directly provided.
   expected_output: >
-    A structured as-is process report in JSON,including:
-    - process name
-    - process activities
-    - process paths
-    - process variants
-    - roles
-    - ressources
-    - process improvement goals
-    - process constraints
-    - organizational compliance restrictions
-    - risk tolerance
+    A structured JSON object containing all explicitly provided information.
 
 # Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
 plan_analysis_task:
   description: >
-    Based on the structured process input and the calculated process metrics and KPI's, define a clear analysis plan
-    for all specialized agents. Specify which aspects each specialist
-    (Risk, Finance, Compliance, Performance) should analyze and delegate the work to the respective agent.
+    Using all information available, create a clear
+    analysis plan for the specialized agents. Determine which aspects of the input
+    each agent should review or analyze, and allocate the relevant information to them.
+    Ensure that the plan is comprehensive, evidence-based, and based only on the
+    explicitly provided information.
   expected_output: >
-    A structured analysis plan in JSON, defining which agents are responsible for which analysis goals,
-    and what data and information they will require.
+    A structured JSON object representing the analysis plan. This plan defines
+    which specialized agents are responsible for which areas of analysis and
+    specifies the data and information they will use.
 
 # Phase 3: Structured Analysis Plan and Delegation of Tasks -> Domain-Specific Analysis
-# Here, a decision is needed, whether numerical KPI's are calculated by the agents or by the process engine alone
-# performance_analysis_task:
-#   description: >
-#     Evaluate the performance of the process using the structured process information and the calculated process KPI's.
-#     Interpret the given data in an appropriate way.
-#     Identify bottlenecks, throughput issues, and high-variance activities.
-#   expected_output: >
-#     A structured performance report in JSON, including:
-#     - bottleneck activities
-#     - throughput times per activity
-#     - case duration statistics
-#     - suggestions for improvement
+performance_analysis_task:
+  description: >
+    Analyze the performance of the process using all explicitly provided information,
+    including structured data, KPIs, or extracted textual inputs. Identify bottlenecks,
+    delays, rework, and inefficiencies, and propose evidence-based performance
+    improvement options based strictly on the available data.
+  expected_output: >
+    A structured JSON object summarizing the performance analysis. Clearly indicate
+    which input information was used, what findings or results were derived from it,
+    and what performance improvement suggestions are proposed based on these findings.
 
-# finance_analysis_task:
-#   description: >
-#     Evaluate the financial efficiency of the process using the structured process information and the calculated process KPI's.
-#     Identify the most expensive activities, calculate average case costs,
-#     and determine potential areas for cost savings.
-#   expected_output: >
-#     A structured finance report in JSON, including:
-#     - cost per activity and variant
-#     - total process cost
-#     - suggested cost reduction strategies
+finance_analysis_task:
+  description: >
+    Analyze the financial efficiency of the process using all explicitly provided information,
+    including structured data, KPIs, or extracted textual inputs.
+    Identify cost drivers, inefficiencies, and potential savings. Provide evidence-based financial insights without
+    making assumptions, and propose actionable cost-related improvement suggestions.
+  expected_output: >
+    A structured JSON object summarizing the finance analysis. Clearly indicate
+    which input information was used, what findings or results were derived from it,
+    and what finance-related improvement suggestions are proposed based on these findings.
 
-# risk_analysis_task:
-#   description: >
-#     Analyze the process risks based on event logs and structural information.
-#     Identify bottlenecks, rework loops, and control weaknesses that increase
-#     process volatility or cause compliance issues.
-#   expected_output: >
-#     A structured risk report in JSON, including:
-#     - identified risks
-#     - severity (per risk)
-#     - probability of occurence (per risk)
-#     - mitigation suggestions
+risk_analysis_task:
+  description: >
+    Analyze the risks of the process using all explicitly provided information,
+    including structured data, KPIs, or extracted textual inputs. Identify process risks, control
+    weaknesses, and potential sources of volatility. Evaluate risks strictly based
+    on the provided data and recommend mitigation options without assuming missing information.
+  expected_output: >
+    A structured JSON object summarizing the risk analysis. Clearly indicate
+    which input information was used, what risks and findings were identified,
+    and what mitigation or improvement suggestions are proposed based on these findings.
 
-# compliance_analysis_task:
-#   description: >
-#     Check the process for policy and regulation adherence.
-#     Identify non-compliant activities, missing controls,
-#     and potential legal or internal policy violations.
-#   expected_output: >
-#     A structured compliance report in JSON, including:
-#     - non-compliant activities
-#     - type of violation
-#     - recommended remediation
+compliance_analysis_task:
+  description: >
+    Analyze all available compliance-related information from structured data,
+    KPIs, or extracted textual inputs to identify nonconformant process activities or rule violations.
+    Propose improvements that ensure compliance while preserving process stability and performance.
+  expected_output: >
+    A structured JSON object summarizing the compliance analysis. Clearly indicate
+    which input information was used, what compliance issues were identified, and
+    what improvement suggestions are proposed based on these findings.
 
 # Phase 4: Domain-specific Analysis -> Aggregate findings
 aggregate_findings_task:
   description: >
-    Combine and synthesize the outputs of all specialized analyses (Performance, Finance, Risk, Compliance)
-    into a single integrated understanding of the current process state and its suggested improvement options.
-    Also identify cross-domain insights and the synergies between domain-specific insights.
+    Combine and synthesize all outputs from the specialized analysis agents
+    (performance, finance, risk, compliance) into a single, coherent understanding
+    of the analysis findings and improvement suggestions. Identify cross-domain insights, synergies,
+    conflicts, and dependencies between the domain-specific findings.
   expected_output: >
-    A structured findings and improvement suggestions report in JSON, including:
-    - Findings and improvement suggestions from the performance analysis
-    - Findings and improvement suggestions from the finance analysis
-    - Findings and improvement suggestions from the risk analysis
-    - Findings and improvement suggestions from the compliance analysis
+    A structured JSON object summarizing findings and improvement suggestions from the domain-specific analysis (performance, finance, risk, compliance)
 
 # Phase 5: Aggregate findings -> Generate Improvement Recommendations
+# Hier nochmal schauen, ob das ganze wirklich benötigt wird
 generate_improvements_task:
   description: >
-    Use the integrated findings and improvement suggestions to generate concrete process improvement proposals.
-    Suggest alternative process paths, automation options,
-    and resequencing of activities to optimize performance and reduce costs in respect to the given organizational compliance restrictions and risk tolerance.
+    Take all aggregated findings and previously suggested improvement proposals
+    from specialized analysis agents (performance, finance, risk, compliance) as input.
+    Combine and integrate the domain-specific results to generate at least three holistic, coherent
+    descriptions of process improvement suggestions, based on the combineability of previously improvement suggestions
   expected_output: >
-    A structured process improvement proposal containing proposed process improvements,
-    including a textual rationale for each change.
+    A structured JSON object containing at least three holistic process improvement suggestions.
 
 # Phase 6: Generate Improvement Recommendations -> Evaluate Improvement Recommendations
+# Eventuelles Problem, dass die Antwort von dem Agent nicht berücksichtig wird oder dass zu viele Iterationsschleifen gedreht werden
 evaluate_improvements_task:
   description: >
-    Simulate and evaluate the proposed process improvements against the current process.
-    Measure changes in key performance indicators and include ethical and morally aspects in the evaluation .
+    Evaluate the proposed process improvements suggestions from the orchestrator. Assess alignment with goals,
+    constraints, compliance, risk tolerance, and available performance or financial data.
+    Provide an objective comparison with the as-is process and recommend a release or rejection of the improvement ideas.
   expected_output: >
-    A structured JSON report comparing the original and improved processes, including:
-    - KPI deltas (before/after)
-    - Etical and Morally impact of the suggested improvements
-    - Final decision recommendation for the orchestrator, whether the improvement suggestion should finally be recommended or rejected.
+    A structured JSON object summarizing the evaluation of the process improvement suggestions
+    and a recommendation to adopt, modify, or reject each improvement suggestion.
 
 # Phase 7: Final Result
+# Hauptfrage: Was nehmen wir hier alles mit rein?
 compile_final_report_task:
   description: >
-    Aggregate all analysis findings and improvement suggestions into a comprehensive process improvement report.
-    The report should include three final improvement suggestions, justified by the analysis findings and included, respectively ranked based on the evaluation results.
-    Structure the report clearly for presentation or download.
+    Create a final consolidated report that summarizes the most significant
+    cross-domain findings and improvement suggestions. Use the aggregated
+    analyses, the synthesized improvement description, and the evaluation
+    results to produce a clear, coherent, and presentation-ready summary of
+    the overall process assessment and recommended improvements.
   expected_output: >
-    A fully structured Markdown report, containing:
-    - as-is process overview
-    - identified issues
-    - proposed improvements
-    - evaluation results
-    - implementation roadmap
-    Formatted as markdown without '```'.
+    A structured Markdown report containing the key findings, the most
+    relevant improvement suggestions, and their justification based on the
+    provided analyses and evaluation results. The report should be concise,
+    clearly structured, and formatted as Markdown without code fences.
