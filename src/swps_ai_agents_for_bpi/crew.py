@@ -4,9 +4,7 @@ from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
 from crewai_tools import SerperDevTool, WebsiteSearchTool, TXTSearchTool
 # Type annotations
-from typing import List, Optional, Union
-# Structuring Agent Output
-from pydantic import BaseModel
+from typing import List
 # LLM API Settings
 from dotenv import load_dotenv
 import os
@@ -15,21 +13,9 @@ load_dotenv()
 llm_openai = LLM(
     model=os.getenv("BASE_MODEL_OPENAI"),
     api_key= os.getenv("API_KEY_OPENAI"),
-    temperature=0.5, # Mock data
-    max_tokens=1000 # Mock data
+    temperature=0.8, # Mock data
+    max_tokens=2500 # Mock data
 )
-# JSON Format for Output of Requirements Agent
-class Requirements(BaseModel):
-    process_name: List[str]
-    process_activities: List[str]
-    process_paths: List[List[str]]
-    process_variants: List[List[str]]
-    roles: List[str]
-    ressources: List[str]
-    process_improvement_goals: List[str]
-    process_constraints: List[str]
-    organizational_compliance_restrictions: List[str]
-    risk_tolerance: Optional[Union[int, str]]
 # Instantiate tools
 web_search_tool = SerperDevTool()
 web_rag_tool = WebsiteSearchTool()
@@ -126,7 +112,6 @@ class SwpsAiAgentsForBpi():
         return Task(
             config=self.tasks_config['analyze_user_input_task'], # type: ignore[index]
             agent=self.requirements_agent(),
-            output_json=Requirements
         )
 
     @task
