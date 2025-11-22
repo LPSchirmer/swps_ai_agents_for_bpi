@@ -9,7 +9,8 @@ dependencies = [
     "psycopg[binary] == 3.2.13",
     "python-dotenv >= 1.2",
     "pymongo >= 4.6",
-    "langchain-community == 0.4.1"
+    "langchain-community == 0.4.1",
+    "langchain-openai"
 ]
 
 [project.scripts]

@@ -1652,6 +1652,20 @@ wheels = [
 ]
 
 [[package]]
+name = "langchain-openai"
+version = "1.0.3"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "langchain-core" },
+    { name = "openai" },
+    { name = "tiktoken" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/dc/73/6a96bc3a48825317886fa52a2a598286d35cf0384fce5dc3e5da7be06fd0/langchain_openai-1.0.3.tar.gz", hash = "sha256:e9df56540c1118002ab5306208c4845715e9209779c8a7ac9037eded98435fdc", size = 1032676, upload-time = "2025-11-15T00:29:03.774Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ff/de/0cb08f8732f070397233df7ad5ef461d83784ce567e7a57d5de5eb96851f/langchain_openai-1.0.3-py3-none-any.whl", hash = "sha256:18d254dbe946d9e9fe6d31416c60c8fc06513427f6e8d8c372e015345e1e17f6", size = 82536, upload-time = "2025-11-15T00:29:02.573Z" },
+]
+
+[[package]]
 name = "langchain-text-splitters"
 version = "1.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3886,6 +3900,7 @@ source = { editable = "." }
 dependencies = [
     { name = "crewai", extra = ["tools"] },
     { name = "langchain-community" },
+    { name = "langchain-openai" },
     { name = "psycopg", extra = ["binary"] },
     { name = "pymongo" },
     { name = "python-dotenv" },
@@ -3895,6 +3910,7 @@ dependencies = [
 requires-dist = [
     { name = "crewai", extras = ["tools"], specifier = ">=0.203.1,<1.0.0" },
     { name = "langchain-community", specifier = "==0.4.1" },
+    { name = "langchain-openai" },
     { name = "psycopg", extras = ["binary"], specifier = "==3.2.13" },
     { name = "pymongo", specifier = ">=4.6" },
     { name = "python-dotenv", specifier = ">=1.2" },
