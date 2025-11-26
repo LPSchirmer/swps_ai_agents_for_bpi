@@ -41,7 +41,8 @@ class SwpsAiAgentsForBpi():
             verbose=True,
             allow_delegation=True,
             reasoning=True,
-            memory=True
+            memory=True,
+            max_iter=2 # Mock data
         )
 
     @agent
@@ -51,7 +52,8 @@ class SwpsAiAgentsForBpi():
             llm=llm_openai,
             verbose=True,
             allow_delegation = False,
-            tools = [text_search_tool]
+            tools = [text_search_tool],
+            max_iter=2 # Mock data
         )
     
     @agent
@@ -60,7 +62,8 @@ class SwpsAiAgentsForBpi():
             config=self.agents_config['performance_agent'], # type: ignore[index]
             llm=llm_openai,
             verbose=True,
-            allow_delegation= False
+            allow_delegation= False,
+            max_iter=2 # Mock data
             # Eventuell custom Analysis Tools
         )
     
@@ -70,7 +73,8 @@ class SwpsAiAgentsForBpi():
             config=self.agents_config['finance_agent'], # type: ignore[index]
             llm=llm_openai,
             verbose=True,
-            allow_delegation= False
+            allow_delegation= False,
+            max_iter=2 # Mock data
             # Eventuell custom Analysis Tools
         )
     
@@ -80,7 +84,8 @@ class SwpsAiAgentsForBpi():
             config=self.agents_config['risk_agent'], # type: ignore[index]
             llm=llm_openai,
             verbose=True,
-            allow_delegation= False
+            allow_delegation= False,
+            max_iter=2 # Mock data
             # Eventuell custom Analysis Tools
         )
     
@@ -91,7 +96,8 @@ class SwpsAiAgentsForBpi():
             llm=llm_openai,
             verbose=True,
             allow_delegation= False,
-            tools=[web_search_tool, web_rag_tool] # Web Search and Extracting Tools, um aktuelle gesetzliche Vorgaben und Normen recherchieren zu können
+            tools=[web_search_tool, web_rag_tool], # Web Search and Extracting Tools, um aktuelle gesetzliche Vorgaben und Normen recherchieren zu können
+            max_iter=2 # Mock data
             # Eventuell custom Analysis Tools
         )
     
@@ -101,7 +107,8 @@ class SwpsAiAgentsForBpi():
             config=self.agents_config['evaluation_agent'], # type: ignore[index]
             llm=llm_openai,
             verbose=True,
-            allow_delegation=True
+            allow_delegation=True,
+            max_iter=2 # Mock data
         )
 
     # To learn more about structured task outputs,

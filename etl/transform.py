@@ -21,12 +21,8 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
-    for column in df.columns:
-        if column == "time:timestamp":
-            df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="raise")
-        else:
-            # Set all columns, except timestamp, to numeric values -> All numbers that are stored as a string will be numeric and all text data, which is stored as a string, will remain as a string
-            df[column] = pd.to_numeric(df[column], errors="ignore")
+    df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="ignore")
+    df["cost:amount"] = pd.to_numeric(df["cost:amount"], errors="ignore")
     # Be careful with sorting, don't know if we really need that
     df.sort_values(by=["case:concept:name", "time:timestamp"], ascending=[True, True])
     return df
