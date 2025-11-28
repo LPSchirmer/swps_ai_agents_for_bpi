@@ -1,4 +1,4 @@
-# Phase 1: Unstructured User Input -> Structured Requirements 
+# Phase 1.1: Unstructured User Input -> Structured Requirements 
 analyze_user_input_task:
   description: >
     Process any unstructured input provided by the user, which may include textual
@@ -9,6 +9,20 @@ analyze_user_input_task:
     fields that are directly provided.
   expected_output: >
     A structured JSON object containing all explicitly provided information.
+# Phase 1.2: Provided company name -> Enrich the given input with publicly available company-information and macro-data
+analyze_economic_context_task:
+  description: >
+    Analyze the organization named in the user input by gathering contextual company information 
+    and assessing relevant macroeconomic and industry-wide factors. Summarize the company’s current situation, 
+    strategic posture, and external economic conditions that may influence decision-making. Use only information that 
+    is explicitly provided or can be reliably researched.
+  expected_output: >
+    A structured JSON report including:
+    - company overview (based on the provided company name)
+    - organizational characteristics (e.g., financial posture, strategic orientation, market position)
+    - industry context
+    - macroeconomic factors and global/regional economic conditions
+    - how these contextual insights may affect process design or improvement considerations
 
 # Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
 plan_analysis_task:

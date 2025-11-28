@@ -57,6 +57,17 @@ class SwpsAiAgentsForBpi():
         )
     
     @agent
+    def economic_context_agent(self) -> Agent:
+        return Agent(
+            config=self.agents_config['economic_context_agent'], # type: ignore[index]
+            llm=llm_openai,
+            verbose=True,
+            allow_delegation= False,
+            tools=[web_search_tool, web_rag_tool],
+            max_iter=2 # Mock data
+        )
+    
+    @agent
     def performance_agent(self) -> Agent:
         return Agent(
             config=self.agents_config['performance_agent'], # type: ignore[index]
@@ -120,13 +131,21 @@ class SwpsAiAgentsForBpi():
             config=self.tasks_config['analyze_user_input_task'], # type: ignore[index]
             agent=self.requirements_agent(),
         )
+    
+    @task
+    def analyze_economic_context_task(self) -> Task:
+        return Task(
+            config=self.tasks_config['analyze_economic_context_task'], # type: ignore[index]
+            agent=self.economic_context_agent(),
+            context=[self.analyze_user_input_task()]
+        )
 
     @task
     def plan_analysis_task(self) -> Task:
         return Task(
             config=self.tasks_config['plan_analysis_task'], # type: ignore[index]
             agent=self.orchestrator_agent(),
-            context=[self.analyze_user_input_task()]
+            context=[self.analyze_user_input_task(), self.analyze_economic_context_task()]
         )
     
     @task

@@ -4,8 +4,6 @@ import warnings
 
 from swps_ai_agents_for_bpi.crew import SwpsAiAgentsForBpi
 # Calculated Event Log KPI's and processed textual process data as input for the crew
-from process_analysis_engine.analysis_workflow import result_dict
-# Import for textual data required
 
 
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
@@ -21,7 +19,7 @@ def run():
     """
     inputs = {
         'topic': 'Process',
-        "event_log_data":result_dict
+        # "event_log_data":result_dict
         # Textual data
     }
     
@@ -37,7 +35,7 @@ def train():
     """
     inputs = {
         "topic": "Process",
-        "event_log_data":result_dict
+        # "event_log_data":result_dict
         # Textual data
         }
     try:
@@ -62,7 +60,7 @@ def test():
     """
     inputs = {
         "topic": "Process",
-        "event_log_data":result_dict
+        # "event_log_data":result_dict
         # Textual data
     }
     
