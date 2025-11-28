@@ -1,9 +1,32 @@
 from analysis_utils import *
 import json
+import os
+from datetime import datetime
 
-event_log=None # Event Log muss hier reingeladen werden
+def make_json_serializable(obj) -> None:
+    if isinstance(obj, dict):
+        new_dict = {}
+        for key, value in obj.items():
+            # Tuple-Keys zu String konvertieren
+            if isinstance(key, tuple):
+                key = ",".join(key)
+            else:
+                key = str(key)
+            new_dict[key] = make_json_serializable(value)
+        return new_dict
+    elif isinstance(obj, (list, tuple)):
+        return [make_json_serializable(x) for x in obj]
+    elif isinstance(obj, (np.integer, int)):
+        return int(obj)
+    elif isinstance(obj, (np.floating, float)):
+        return float(obj)
+    elif isinstance(obj, (np.ndarray,)):
+        return obj.tolist()
+    else:
+        return obj
 
-result_dict = {
+def calculate_result_dict(event_log: pd.DataFrame) -> dict:
+    dict = {
     "event_log_name":None, # Name vom Event Log bzw. Prozess muss hier reingeladen werden
     "event_log_metadata":get_basic_information(event_log),
     "process_paths_with_its_variants":get_process_paths(event_log).to_dict(orient="records"),
@@ -16,5 +39,9 @@ result_dict = {
     "rework_cases_per_activity":get_rework_stats(event_log),
     "activities_per_resources":get_activities_per_resources(event_log).to_dict(orient="records"),
     "resources_per_activity":get_resources_per_activities(event_log).to_dict(orient="records")
-}
+    }
+    cleaned_dict = make_json_serializable(dict)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    with open(os.path.join("kpi_calculations", f"{timestamp}_{dict["event_log_name"]}_kpis"), "w") as outfile:
+        json.dump(cleaned_dict, outfile, indent=1)
 # Costs per Variant fehlt hier noch
