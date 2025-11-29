@@ -3,6 +3,7 @@ import csv
 import pm4py
 from pathlib import Path
 import pypdf
+import docx2txt
 
 def extract_process_data(file_path: str) -> pd.DataFrame | pm4py.BPMN:
     path = Path(file_path)
@@ -44,8 +45,8 @@ def extract_textual_data(file_path: str) -> str:
         for page in reader.pages:
             text += page.extract_text() + "\n"
         return text
-    elif (ext == ".doc") | (ext == ".docx"):
-        # ToDo: Implement the encoding for word documents
-        pass
+    elif ext == ".docx":
+        text = docx2txt.process(path)
+        return text
     else:
         raise ValueError(f"Unsupported file format: .{ext}")
