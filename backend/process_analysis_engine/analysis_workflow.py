@@ -1,7 +1,5 @@
 from analysis_utils import *
 import json
-import os
-from datetime import datetime
 
 def make_json_serializable(obj) -> None:
     if isinstance(obj, dict):
@@ -41,7 +39,6 @@ def calculate_result_dict(event_log: pd.DataFrame) -> dict:
     "resources_per_activity":get_resources_per_activities(event_log).to_dict(orient="records")
     }
     cleaned_dict = make_json_serializable(dict)
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    with open(os.path.join("kpi_calculations", f"{timestamp}_{dict["event_log_name"]}_kpis"), "w") as outfile:
-        json.dump(cleaned_dict, outfile, indent=1)
+    json_obj = json.dumps(cleaned_dict)
+    return json_obj
 # Costs per Variant fehlt hier noch
