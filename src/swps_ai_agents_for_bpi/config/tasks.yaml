@@ -27,6 +27,7 @@ analyze_economic_context_task:
     - how these contextual insights may affect process design or improvement considerations
 
 # Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
+# Bis jetzt noch nicht ready
 plan_analysis_task:
   description: >
     Using all information available, create a clear
@@ -42,26 +43,31 @@ plan_analysis_task:
 # Phase 3: Structured Analysis Plan and Delegation of Tasks -> Domain-Specific Analysis
 performance_analysis_task:
   description: >
-    Analyze the performance of the process using all explicitly provided information,
-    including structured data, KPIs, extracted textual inputs, information about the company as well as macroeconomic factors. 
-    Identify bottlenecks, delays, rework, and inefficiencies, and propose evidence-based performance
-    improvement options based strictly on the available data. Available process kpi's: {process_kpis}
+    Analyze the performance of the given process using all explicitly provided information,
+    including structured data, KPIs, and extracted textual inputs.
+    Identify process-related performance issues and performance inefficiencies, and propose evidence-based process performance
+    improvement options based strictly on the available data, which are aligned with the given 
+    information about the company as well as the current macroeconomic factors. Avoid generic recommendations (e.g., “implement KPIs”, 
+    “continuous monitoring”, “feedback loops”). Do not analyze or mention costs, just focus on the process performance.
+    Available process kpi's: {process_kpis}
   expected_output: >
-    A structured JSON object summarizing the performance analysis. Clearly indicate
-    which input information was used, what findings or results were derived from it,
-    and what performance improvement suggestions are proposed based on these findings.
+    A structured optimization proposal summarizing the performance analysis. Clearly describe the
+    process performance improvement suggestions and the rationale behind them.
 
 finance_analysis_task:
   description: >
     Analyze the financial efficiency of the process using all explicitly provided information,
-    including structured data, KPIs, extracted textual inputs, information about the company as well as macroeconomic factors. 
-    Identify cost drivers, inefficiencies, and potential savings. Provide evidence-based financial insights without
-    making assumptions, and propose actionable cost-related improvement suggestions. Available process kpi's: {process_kpis}
+    including structured data, KPIs, and extracted textual inputs.
+    Identify process-related cost issues, financial inefficiencies, and propose evidence-based process cost
+    improvement and saving options based strictly on the available data, which are aligned with the given 
+    information about the company as well as the current macroeconomic factors. Avoid generic recommendations (e.g., “implement KPIs”, 
+    “continuous monitoring”, “feedback loops”). Do not analyze or mention performance, just focus on the process costs.
+    Available process kpi's: {process_kpis}
   expected_output: >
-    A structured JSON object summarizing the finance analysis. Clearly indicate
-    which input information was used, what findings or results were derived from it,
-    and what finance-related improvement suggestions are proposed based on these findings.
+    A structured optimization proposal summarizing the financial analysis. Clearly describe the
+    process cost improvement suggestions and the rationale behind them.
 
+# Bis jetzt noch nicht ready
 risk_analysis_task:
   description: >
     Analyze the risks of the process using all explicitly provided information,
@@ -75,15 +81,22 @@ risk_analysis_task:
 
 compliance_analysis_task:
   description: >
-    Analyze all available compliance-related information from structured data,
-    KPIs, or extracted textual inputs to identify nonconformant process activities or rule violations.
-    Propose improvements that ensure compliance while preserving process stability and performance. Available process kpi's: {process_kpis}
+    Analyze all available compliance-related information from structured data, KPIs, 
+    or extracted textual inputs.
+    If explicit legal or regulatory norms are provided, research these norms online and evaluate
+    the given process against them. If no norms are given, use the provided company information and
+    the given process to research potentially relevant laws, regulations, or industry
+    standards the given process may need to comply with in the year {current_year}. 
+    With these results, identify rule violations and non-compliant activities in the given process and
+    propose detailed, data-supported compliance improvements without adding generic or speculative content.
+    Available process kpi's: {process_kpis}
   expected_output: >
-    A structured JSON object summarizing the compliance analysis. Clearly indicate
-    which input information was used, what compliance issues were identified, and
-    what improvement suggestions are proposed based on these findings.
+    A structured optimization proposal summarizing the compliance analysis. Clearly describe the
+    identified or researched legal/regulatory norms, how the process adheres or violates these norms,
+    and compliance improvement options (main emphasis) with clear rationales.
 
 # Phase 4: Domain-specific Analysis -> Aggregate findings
+# Bis jetzt noch nicht ready
 aggregate_findings_task:
   description: >
     Combine and synthesize all outputs from the specialized analysis agents
@@ -95,6 +108,7 @@ aggregate_findings_task:
 
 # Phase 5: Aggregate findings -> Generate Improvement Recommendations
 # Hier nochmal schauen, ob das ganze wirklich benötigt wird
+# Bis jetzt noch nicht ready
 generate_improvements_task:
   description: >
     Take all aggregated findings and previously suggested improvement proposals
@@ -106,6 +120,7 @@ generate_improvements_task:
 
 # Phase 6: Generate Improvement Recommendations -> Evaluate Improvement Recommendations
 # Eventuelles Problem, dass die Antwort von dem Agent nicht berücksichtig wird oder dass zu viele Iterationsschleifen gedreht werden
+# Bis jetzt noch nicht ready
 evaluate_improvements_task:
   description: >
     Evaluate the proposed process improvements suggestions from the orchestrator. Assess alignment with goals,
@@ -117,6 +132,7 @@ evaluate_improvements_task:
 
 # Phase 7: Final Result
 # Hauptfrage: Was nehmen wir hier alles mit rein?
+# Bis jetzt noch nicht ready
 compile_final_report_task:
   description: >
     Create a final consolidated report that summarizes the most significant
