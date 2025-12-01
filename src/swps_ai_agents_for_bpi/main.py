@@ -13,7 +13,9 @@ event_log = get_event_log("testdata/combined_data/example_1") # For Demonstratio
 # Get the calculated kpi's of event log
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../backend/process_analysis_engine')))
 from analysis_workflow import calculate_result_dict
-process_kpis = calculate_result_dict(event_log)
+process_kpis = None
+if event_log != None:
+    process_kpis = calculate_result_dict(event_log)
 
 from swps_ai_agents_for_bpi.crew import SwpsAiAgentsForBpi
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")

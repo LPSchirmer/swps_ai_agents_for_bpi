@@ -35,7 +35,10 @@ def get_event_log(dir_path: str) -> pd.DataFrame:
                 df = extract_process_data(file_path)
             df = rename_columns(df)
             df = transform_data_types(df)
-    return df
+    if "df" not in locals():
+        return None
+    else:
+        return df
 
 def get_textual_data(dir_path: str) -> str:
     textual_data = []
