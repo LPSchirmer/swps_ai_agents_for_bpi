@@ -10,7 +10,10 @@ dependencies = [
     "python-dotenv >= 1.2",
     "pymongo >= 4.6",
     "langchain-community == 0.4.1",
-    "langchain-openai"
+    "langchain-openai",
+    "pandas>=2.3.3",
+    "pm4py>=2.7.19.1",
+    "docx2txt>=0.9",
 ]
 
 [project.scripts]
