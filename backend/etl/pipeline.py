@@ -41,13 +41,13 @@ def get_event_log(dir_path: str) -> pd.DataFrame:
         return df
 
 def get_textual_data(dir_path: str) -> str:
-    textual_data = []
+    textual_data = {}
     for file in os.listdir(dir_path):
         file_path = dir_path + "/" + file
         ext = Path(file_path).suffix.lower()
-        if ext in [".txt", ".pdf", ".doc", ".docx"]:
+        if ext in [".txt", ".pdf", ".docx"]:
             text = extract_textual_data(file_path)
-            textual_data.append(text)
+            textual_data[file.strip(ext)] = text
     if not textual_data:
         return None
     else:
