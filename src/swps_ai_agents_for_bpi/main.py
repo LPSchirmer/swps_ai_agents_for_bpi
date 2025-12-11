@@ -12,10 +12,12 @@ event_log = get_event_log("testdata/combined_data/example_1") # For Demonstratio
 
 # Get the calculated kpi's of event log
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../backend/process_analysis_engine')))
-from analysis_workflow import calculate_result_dict
+from analysis_workflow import calculate_result_dict_performance, calculate_result_dict_finance, calculate_result_dict_compliance
 process_kpis = None
 if event_log is not None:
-    process_kpis = calculate_result_dict(event_log)
+    process_kpis_performance = calculate_result_dict_performance(event_log)
+    process_kpis_finance = calculate_result_dict_finance(event_log)
+    process_kpis_compliance = calculate_result_dict_compliance(event_log)
 
 from swps_ai_agents_for_bpi.crew import SwpsAiAgentsForBpi
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
@@ -37,7 +39,9 @@ def run():
     inputs = {
         "topic": "Process",
         "textual_user_input": user_input,
-        "process_kpis":process_kpis,
+        "process_kpis_performance": process_kpis_performance,
+        "process_kpis_finance": process_kpis_finance,
+        "process_kpis_compliance": process_kpis_compliance,
         "current_year": current_year,
         "last_year": last_year,
         "next_year": next_year
@@ -56,7 +60,9 @@ def train():
     inputs = {
         "topic": "Process",
         "textual_user_input": user_input,
-        "process_kpis":process_kpis,
+        "process_kpis_performance": process_kpis_performance,
+        "process_kpis_finance": process_kpis_finance,
+        "process_kpis_compliance": process_kpis_compliance,
         "current_year": current_year,
         "last_year": last_year,
         "next_year": next_year
@@ -84,7 +90,9 @@ def test():
     inputs = {
         "topic": "Process",
         "textual_user_input": user_input,
-        "process_kpis":process_kpis,
+        "process_kpis_performance": process_kpis_performance,
+        "process_kpis_finance": process_kpis_finance,
+        "process_kpis_compliance": process_kpis_compliance,
         "current_year": current_year,
         "last_year": last_year,
         "next_year": next_year

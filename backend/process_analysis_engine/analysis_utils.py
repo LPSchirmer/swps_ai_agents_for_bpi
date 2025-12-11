@@ -32,11 +32,12 @@ def get_case_durations(event_log: pd.DataFrame) -> pd.DataFrame:
             .reset_index(name="case_duration_hours")
     )
 
-def get_case_duration_var_std(event_log: pd.DataFrame) -> dict:
+def get_case_duration_mean_var_std(event_log: pd.DataFrame) -> dict:
     case_durations = get_case_durations(event_log)
     return {
-        "variance" : np.var(case_durations["case_duration_hours"]).round(2), 
-        "standard_deviation" : np.std(case_durations["case_duration_hours"]).round(2)
+        "mean": np.mean(case_durations["case_duration_hours"]).round(2),
+        "variance": np.var(case_durations["case_duration_hours"]).round(2), 
+        "standard_deviation": np.std(case_durations["case_duration_hours"]).round(2)
     }
 
 # Variant durations in hours (overall & mean) with its respective frequency in event log
