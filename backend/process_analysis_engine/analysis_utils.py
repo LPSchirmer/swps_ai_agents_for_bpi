@@ -5,8 +5,6 @@ import pm4py
 # Information that describes the basic structure of a given event log and its underlying process, relevant for all agents
 def get_basic_information(event_log: pd.DataFrame) -> dict:
     return {
-        "event_log_columns" : list(event_log.columns),
-        
         "number_cases" : event_log["case:concept:name"].nunique(),
         
         "variants_frequency" : pm4py.get_variants(event_log),
@@ -109,3 +107,25 @@ def get_activities_per_resources(event_log: pd.DataFrame):
 
 def get_resources_per_activities(event_log: pd.DataFrame) -> pd.DataFrame:
     return event_log.groupby("concept:name")["org:resource"].agg(list).reset_index()
+
+def make_json_serializable(obj) -> None:
+    if isinstance(obj, dict):
+        new_dict = {}
+        for key, value in obj.items():
+            # Tuple-Keys zu String konvertieren
+            if isinstance(key, tuple):
+                key = ",".join(key)
+            else:
+                key = str(key)
+            new_dict[key] = make_json_serializable(value)
+        return new_dict
+    elif isinstance(obj, (list, tuple)):
+        return [make_json_serializable(x) for x in obj]
+    elif isinstance(obj, (np.integer, int)):
+        return int(obj)
+    elif isinstance(obj, (np.floating, float)):
+        return float(obj)
+    elif isinstance(obj, (np.ndarray,)):
+        return obj.tolist()
+    else:
+        return obj
