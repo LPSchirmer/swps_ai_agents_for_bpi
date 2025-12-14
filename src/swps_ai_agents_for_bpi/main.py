@@ -7,14 +7,22 @@ import os
 # Get the textual user input and event log
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../backend/etl')))
 from pipeline import get_textual_data, get_event_log
+
 user_input = get_textual_data("testdata/combined_data/example_1") # For Demonstration
 event_log = get_event_log("testdata/combined_data/example_1") # For Demonstration
 
 # Get the calculated kpi's of event log
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../backend/process_analysis_engine')))
-from analysis_workflow import calculate_result_dict_performance, calculate_result_dict_finance, calculate_result_dict_compliance
-process_kpis = None
+from analysis_workflow import calculate_result_dict_basic, calculate_result_dict_performance, calculate_result_dict_finance, calculate_result_dict_compliance
+from visual_utils import convert_event_log_to_bpmn
+
+process_data_basic = None
+process_kpis_performance = None
+process_kpis_finance = None
+process_kpis_compliance = None
+
 if event_log is not None:
+    process_data_basic = calculate_result_dict_basic(event_log)
     process_kpis_performance = calculate_result_dict_performance(event_log)
     process_kpis_finance = calculate_result_dict_finance(event_log)
     process_kpis_compliance = calculate_result_dict_compliance(event_log)
@@ -39,6 +47,7 @@ def run():
     inputs = {
         "topic": "Process",
         "textual_user_input": user_input,
+        "process_data_basic": process_data_basic,
         "process_kpis_performance": process_kpis_performance,
         "process_kpis_finance": process_kpis_finance,
         "process_kpis_compliance": process_kpis_compliance,
@@ -60,6 +69,7 @@ def train():
     inputs = {
         "topic": "Process",
         "textual_user_input": user_input,
+        "process_data_basic": process_data_basic,
         "process_kpis_performance": process_kpis_performance,
         "process_kpis_finance": process_kpis_finance,
         "process_kpis_compliance": process_kpis_compliance,
@@ -90,6 +100,7 @@ def test():
     inputs = {
         "topic": "Process",
         "textual_user_input": user_input,
+        "process_data_basic": process_data_basic,
         "process_kpis_performance": process_kpis_performance,
         "process_kpis_finance": process_kpis_finance,
         "process_kpis_compliance": process_kpis_compliance,

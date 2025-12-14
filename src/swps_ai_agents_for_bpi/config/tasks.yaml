@@ -1,13 +1,14 @@
 # Phase 1.1: Unstructured User Input -> Structured Requirements 
 analyze_user_input_task:
   description: >
-    Process any unstructured input provided by the user, which may include textual
-    process descriptions, different perspectives on the process, company information, compliance documents, regulatory texts, process KPIs, goals,
-    constraints, risk information, roles, resources, or any other domain-relevant data.
+    Process any input provided by the user, which may include textual
+    process descriptions, company information, compliance documents, regulatory texts, process KPIs, 
+    process optimization goals, constraints, risk information, resources, or any other domain-relevant data.
     Extract and normalize all explicit relevant information and transform it into a structured
     JSON format. Do not make assumptions or infer missing information. 
     Do not include filler words or paraphrases provided by the user. Only include
-    fields that are directly provided. User Input: {textual_user_input}
+    fields that are directly provided. Textual user input: {textual_user_input}. Process data: {process_data_basic}. 
+    If Process data is given, process_information should inlcude all information of {process_data_basic}
   expected_output: >
     A structured JSON object containing all explicitly provided information.
     
@@ -131,8 +132,8 @@ generate_improvements_task:
 # Bis jetzt noch nicht ready
 evaluate_improvements_task:
   description: >
-    Evaluate the proposed process improvements suggestions from the orchestrator. Assess alignment with goals,
-    constraints, compliance, risk tolerance, and available performance or financial data.
+    Evaluate the proposed process designs from the spezialized agents. Assess alignment with process optimization goals, company posture, industry sector, macroeconomic factors
+    compliance, risk tolerance, and available performance or financial data.
     Provide an objective comparison with the as-is process and recommend a release or rejection of the improvement ideas.
   expected_output: >
     A structured JSON object summarizing the evaluation of the process improvement suggestions
