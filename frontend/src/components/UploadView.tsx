@@ -90,7 +90,7 @@ const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
           Prozess analysieren
         </h1>
         <p className="text-slate-400 text-center mb-12">
-          Beschreiben Sie Ihren Prozess oder laden Sie eine Datei hoch
+          Beschreiben Sie Ihren bestehenden Prozess und fügen beliebige prozessrelevante Dateien bei
         </p>
 
         {/* Input Box */}
@@ -101,7 +101,7 @@ const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
               value={textInput}
               onChange={(e) => setTextInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Beschreiben Sie Ihren Prozess..."
+              placeholder="Beschreiben Sie Ihren bestehenden Prozess, inlusive Prozessoptimierungszielen, Compliance-Restriktionen, uvm ..."
               className="w-full h-32 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none transition-all"
             />
             <div className="text-xs text-slate-500 mt-2">
@@ -151,10 +151,10 @@ const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
 
             <FileText className="w-12 h-12 mx-auto mb-4 text-slate-500" />
             <p className="text-white mb-2">
-              <span className="text-cyan-500 hover:text-cyan-400 cursor-pointer">Datei auswählen</span> oder hierher ziehen
+              <span className="text-cyan-500 hover:text-cyan-400 cursor-pointer">Datei auswählen</span> oder per Drag and Drop einfügen
             </p>
             <p className="text-slate-500 text-sm">
-              bpmn, xes, xml, csv • Max 25MB
+              .xes, .csv, .bpmn, .pdf, .txt, .docx • Max 25MB
             </p>
           </div>
         </div>

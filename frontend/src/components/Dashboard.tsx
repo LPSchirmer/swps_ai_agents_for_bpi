@@ -339,20 +339,24 @@ const Dashboard = ({ uploadedFile, onNewAnalysis }: DashboardProps) => {
             </div>
             <div className="space-y-3">
               <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                <span className="text-slate-400">Durchlaufzeit</span>
+                <span className="text-slate-400">Anzahl unterschiedlicher Prozessvarianten</span>
+                <span className="font-semibold text-amber-500">6</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b border-slate-700">
+                <span className="text-slate-400">Durchschnittliche Durchlaufzeit</span>
                 <span className="font-semibold text-amber-500">45 Min</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                <span className="text-slate-400">Ressourcen</span>
-                <span className="font-semibold text-amber-500">8</span>
+                <span className="text-slate-400">Durchschnittliche Prozesskosten</span>
+                <span className="font-semibold text-amber-500">1500 EUR</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b border-slate-700">
-                <span className="text-slate-400">Effizienz</span>
-                <span className="font-semibold text-amber-500">62%</span>
+                <span className="text-slate-400">Anzahl Prozessaktivitäten</span>
+                <span className="font-semibold text-amber-500">7</span>
               </div>
               <div className="flex justify-between items-center py-2">
-                <span className="text-slate-400">Engpässe</span>
-                <span className="font-semibold text-red-500">4</span>
+                <span className="text-slate-400">Involvierte Ressourcen</span>
+                <span className="font-semibold text-amber-500">8</span>
               </div>
             </div>
           </div>

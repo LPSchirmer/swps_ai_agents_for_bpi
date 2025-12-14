@@ -17,7 +17,7 @@ const ProcessingScreen = () => {
           Prozess wird analysiert...
         </h2>
         <p className="text-slate-400 mb-8">
-          Die KI untersucht Ihre BPMN-Datei
+          Unsere KI untersucht Ihre Dateien
         </p>
 
         {/* Progress Bar */}
