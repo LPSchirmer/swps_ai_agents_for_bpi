@@ -18,8 +18,6 @@ function App() {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
 
   const handleFileUpload = async (file: File) => {
-    setCurrentView('processing');
-
     // Try backend upload
     try {
       const formData = new FormData();
@@ -27,31 +25,18 @@ function App() {
       
       const response = await axios.post('http://localhost:5001/api/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 5000,
+        timeout: 10000,
       });
 
       if (response.data.success) {
-        setUploadedFile(response.data);
+        console.log('File uploaded successfully:', response.data);
       }
     } catch (error) {
-      console.error('Backend upload failed, using fallback:', error);
-      setUploadedFile({
-        filename: file.name,
-        storedFilename: file.name,
-        fileSize: file.size,
-        uploadTime: new Date().toISOString(),
-      });
+      console.error('Backend upload failed:', error);
     }
-
-    // Processing animation duration
-    setTimeout(() => {
-      setCurrentView('dashboard');
-    }, 3000);
   };
 
   const handleTextSubmit = async (text: string) => {
-    setCurrentView('processing');
-
     // Try backend upload
     try {
       const response = await axios.post('http://localhost:5001/api/text-input', 
@@ -60,19 +45,50 @@ function App() {
       );
 
       if (response.data.success) {
-        setUploadedFile({
-          filename: 'user_input.txt',
-          storedFilename: response.data.filename,
-          fileSize: response.data.file_size,
-          uploadTime: response.data.upload_time,
-        });
+        console.log('Text submitted successfully:', response.data);
       }
     } catch (error) {
-      console.error('Backend text submit failed, using fallback:', error);
+      console.error('Backend text submit failed:', error);
+    }
+  };
+
+  const handleCombinedSubmit = async (text: string, files: File[]) => {
+    setCurrentView('processing');
+
+    const uploadResults = {
+      textUploaded: false,
+      filesUploaded: 0,
+      totalFiles: files.length,
+    };
+
+    // Submit text if present
+    if (text.trim()) {
+      try {
+        await handleTextSubmit(text);
+        uploadResults.textUploaded = true;
+      } catch (error) {
+        console.error('Text upload error:', error);
+      }
+    }
+
+    // Submit all files
+    for (const file of files) {
+      try {
+        await handleFileUpload(file);
+        uploadResults.filesUploaded++;
+      } catch (error) {
+        console.error('File upload error:', error);
+      }
+    }
+
+    // Set uploaded file info for display
+    if (uploadResults.filesUploaded > 0 || uploadResults.textUploaded) {
       setUploadedFile({
-        filename: 'user_input.txt',
-        storedFilename: 'user_input.txt',
-        fileSize: text.length,
+        filename: uploadResults.textUploaded 
+          ? `Text + ${uploadResults.filesUploaded} Datei(en)` 
+          : `${uploadResults.filesUploaded} Datei(en)`,
+        storedFilename: 'multiple_uploads',
+        fileSize: 0,
         uploadTime: new Date().toISOString(),
       });
     }
@@ -94,6 +110,7 @@ function App() {
         <UploadView 
           onFileUpload={handleFileUpload}
           onTextSubmit={handleTextSubmit}
+          onCombinedSubmit={handleCombinedSubmit}
         />
       )}
       

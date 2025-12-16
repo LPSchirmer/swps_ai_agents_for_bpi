@@ -5,10 +5,6 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from datetime import datetime
-# ETL-Import
-import sys
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../etl')))
-from pipeline import run_etl_event_log, run_etl_textual_process_data
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
@@ -104,29 +100,14 @@ def upload_file():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
         
-        # Nach dem Upload: ETL-Prozess starten
-        ext = Path(filename).suffix.lower()
-        etl_result = None
-        try:
-            if ext in {'.xes', '.csv', '.bpmn'}:
-                run_etl_event_log(filepath)
-                etl_result = 'event_log_etl_done'
-            elif ext == '.txt':
-                run_etl_textual_process_data(filepath)
-                etl_result = 'textual_etl_done'
-            else:
-                etl_result = 'no_etl_run'
-        except Exception as etl_error:
-            etl_result = f'ETL-Error: {etl_error}'
-
+        # ETL-Prozess ist deaktiviert - nur Datei-Upload
         return jsonify({
             'success': True,
             'message': 'File uploaded successfully',
             'filename': original_filename,
             'stored_filename': filename,
             'file_size': os.path.getsize(filepath),
-            'upload_time': timestamp,
-            'etl_result': etl_result
+            'upload_time': timestamp
         }), 200
     
     except Exception as e:
