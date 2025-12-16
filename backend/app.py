@@ -5,12 +5,17 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from werkzeug.utils import secure_filename
 from datetime import datetime
+# ETL-Import
+import sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'etl')))
+from etl.pipeline import run_etl_event_log, run_etl_textual_process_data
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
 # Configuration
-UPLOAD_FOLDER = 'uploads'
+# Pfad zum Haupt-uploads Ordner (eine Ebene höher)
+UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), '../uploads'))
 ALLOWED_EXTENSIONS = {'bpmn', 'xes', 'xml', 'csv', 'txt'}
 MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
 
@@ -100,14 +105,29 @@ def upload_file():
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
         
-        # ETL-Prozess ist deaktiviert - nur Datei-Upload
+        # Nach dem Upload: ETL-Prozess starten
+        ext = Path(filename).suffix.lower()
+        etl_result = None
+        try:
+            if ext in {'.xes', '.csv', '.bpmn'}:
+                run_etl_event_log(filepath)
+                etl_result = 'event_log_etl_done'
+            elif ext == '.txt':
+                run_etl_textual_process_data(filepath)
+                etl_result = 'textual_etl_done'
+            else:
+                etl_result = 'no_etl_run'
+        except Exception as etl_error:
+            etl_result = f'ETL-Error: {etl_error}'
+
         return jsonify({
             'success': True,
             'message': 'File uploaded successfully',
             'filename': original_filename,
             'stored_filename': filename,
             'file_size': os.path.getsize(filepath),
-            'upload_time': timestamp
+            'upload_time': timestamp,
+            'etl_result': etl_result
         }), 200
     
     except Exception as e:
@@ -146,12 +166,117 @@ def text_input():
         with open(filepath, 'w', encoding='utf-8') as f:
             f.write(text_content)
         
+        # Run ETL for text file
+        etl_result = None
+        try:
+            run_etl_textual_process_data(filepath)
+            etl_result = 'textual_etl_done'
+        except Exception as etl_error:
+            etl_result = f'ETL-Error: {etl_error}'
+        
         return jsonify({
             'success': True,
             'message': 'Text saved successfully',
             'filename': filename,
             'file_size': os.path.getsize(filepath),
-            'upload_time': timestamp
+            'upload_time': timestamp,
+            'etl_result': etl_result
+        }), 200
+    
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/combined-upload', methods=['POST'])
+def combined_upload():
+    """Handle combined text and file uploads"""
+    try:
+        uploaded_files = []
+        text_file_info = None
+        etl_results = []
+        
+        # Handle text input if provided
+        text_content = request.form.get('text', '').strip()
+        if text_content:
+            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+            filename = f"{timestamp}_user_input.txt"
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            
+            with open(filepath, 'w', encoding='utf-8') as f:
+                f.write(text_content)
+            
+            text_file_info = {
+                'filename': 'user_input.txt',
+                'stored_filename': filename,
+                'file_size': os.path.getsize(filepath),
+                'type': 'text'
+            }
+            
+            # Run ETL for text
+            try:
+                run_etl_textual_process_data(filepath)
+                etl_results.append({'file': filename, 'status': 'textual_etl_done'})
+            except Exception as etl_error:
+                etl_results.append({'file': filename, 'status': f'ETL-Error: {etl_error}'})
+        
+        # Handle file uploads if provided
+        if 'files' in request.files:
+            files = request.files.getlist('files')
+            
+            for file in files:
+                if file.filename == '':
+                    continue
+                
+                if not allowed_file(file.filename):
+                    continue
+                
+                # Secure the filename and add timestamp
+                original_filename = secure_filename(file.filename)
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                filename = f"{timestamp}_{original_filename}"
+                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                
+                # Save the file
+                file.save(filepath)
+                
+                uploaded_files.append({
+                    'filename': original_filename,
+                    'stored_filename': filename,
+                    'file_size': os.path.getsize(filepath),
+                    'type': 'file'
+                })
+                
+                # Run ETL for this file
+                ext = Path(filename).suffix.lower()
+                try:
+                    if ext in {'.xes', '.csv', '.bpmn'}:
+                        run_etl_event_log(filepath)
+                        etl_results.append({'file': filename, 'status': 'event_log_etl_done'})
+                    elif ext == '.txt':
+                        run_etl_textual_process_data(filepath)
+                        etl_results.append({'file': filename, 'status': 'textual_etl_done'})
+                    else:
+                        etl_results.append({'file': filename, 'status': 'no_etl_run'})
+                except Exception as etl_error:
+                    etl_results.append({'file': filename, 'status': f'ETL-Error: {etl_error}'})
+        
+        all_files = []
+        if text_file_info:
+            all_files.append(text_file_info)
+        all_files.extend(uploaded_files)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Upload successful',
+            'data': {
+                'files': all_files,
+                'total_files': len(all_files),
+                'etl_results': etl_results,
+                'upload_time': datetime.now().strftime('%Y%m%d_%H%M%S')
+            }
         }), 200
     
     except Exception as e:
@@ -192,4 +317,5 @@ if __name__ == '__main__':
     print(f"🚀 Flask Backend starting...")
     print(f"📁 Upload folder: {os.path.abspath(UPLOAD_FOLDER)}")
     print(f"✅ Allowed file types: {', '.join(ALLOWED_EXTENSIONS)}")
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    # Debug mode disabled for background running
+    app.run(debug=False, host='0.0.0.0', port=5001)

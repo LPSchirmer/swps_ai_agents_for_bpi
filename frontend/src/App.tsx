@@ -13,84 +13,79 @@ interface UploadedFile {
   uploadTime: string;
 }
 
+interface UploadResponse {
+  files: UploadedFile[];
+  total_files: number;
+  etl_results: Array<{ file: string; status: string }>;
+}
+
 function App() {
   const [currentView, setCurrentView] = useState<ViewType>('upload');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
-
-  const handleFileUpload = async (file: File) => {
-    // Try backend upload
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      
-      const response = await axios.post('http://localhost:5001/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 10000,
-      });
-
-      if (response.data.success) {
-        console.log('File uploaded successfully:', response.data);
-      }
-    } catch (error) {
-      console.error('Backend upload failed:', error);
-    }
-  };
-
-  const handleTextSubmit = async (text: string) => {
-    // Try backend upload
-    try {
-      const response = await axios.post('http://localhost:5001/api/text-input', 
-        { text }, 
-        { timeout: 5000 }
-      );
-
-      if (response.data.success) {
-        console.log('Text submitted successfully:', response.data);
-      }
-    } catch (error) {
-      console.error('Backend text submit failed:', error);
-    }
-  };
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
   const handleCombinedSubmit = async (text: string, files: File[]) => {
     setCurrentView('processing');
 
-    const uploadResults = {
-      textUploaded: false,
-      filesUploaded: 0,
-      totalFiles: files.length,
-    };
-
-    // Submit text if present
-    if (text.trim()) {
-      try {
-        await handleTextSubmit(text);
-        uploadResults.textUploaded = true;
-      } catch (error) {
-        console.error('Text upload error:', error);
+    try {
+      const formData = new FormData();
+      
+      // Add text if provided
+      if (text.trim()) {
+        formData.append('text', text);
       }
-    }
-
-    // Submit all files
-    for (const file of files) {
-      try {
-        await handleFileUpload(file);
-        uploadResults.filesUploaded++;
-      } catch (error) {
-        console.error('File upload error:', error);
+      
+      // Add files if provided
+      if (files.length > 0) {
+        files.forEach(file => {
+          formData.append('files', file);
+        });
       }
-    }
+      
+      const response = await axios.post<{ success: boolean; data?: UploadResponse }>(
+        'http://localhost:5001/api/combined-upload', 
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 10000,
+        }
+      );
 
-    // Set uploaded file info for display
-    if (uploadResults.filesUploaded > 0 || uploadResults.textUploaded) {
-      setUploadedFile({
-        filename: uploadResults.textUploaded 
-          ? `Text + ${uploadResults.filesUploaded} Datei(en)` 
-          : `${uploadResults.filesUploaded} Datei(en)`,
-        storedFilename: 'multiple_uploads',
-        fileSize: 0,
-        uploadTime: new Date().toISOString(),
+      if (response.data.success && response.data.data) {
+        setUploadedFiles(response.data.data.files);
+        // Set the first file as primary for backward compatibility
+        if (response.data.data.files.length > 0) {
+          setUploadedFile(response.data.data.files[0]);
+        }
+        console.log('ETL Results:', response.data.data.etl_results);
+      }
+    } catch (error) {
+      console.error('Backend upload failed:', error);
+      // Fallback handling
+      const fallbackFiles: UploadedFile[] = [];
+      
+      if (text.trim()) {
+        fallbackFiles.push({
+          filename: 'user_input.txt',
+          storedFilename: 'user_input.txt',
+          fileSize: text.length,
+          uploadTime: new Date().toISOString(),
+        });
+      }
+      
+      files.forEach(file => {
+        fallbackFiles.push({
+          filename: file.name,
+          storedFilename: file.name,
+          fileSize: file.size,
+          uploadTime: new Date().toISOString(),
+        });
       });
+      
+      setUploadedFiles(fallbackFiles);
+      if (fallbackFiles.length > 0) {
+        setUploadedFile(fallbackFiles[0]);
+      }
     }
 
     // Processing animation duration
@@ -99,9 +94,20 @@ function App() {
     }, 3000);
   };
 
+  const handleFileUpload = async (file: File) => {
+    // Backward compatibility - use combined submit with single file
+    handleCombinedSubmit('', [file]);
+  };
+
+  const handleTextSubmit = async (text: string) => {
+    // Backward compatibility - use combined submit with just text
+    handleCombinedSubmit(text, []);
+  };
+
   const handleNewAnalysis = () => {
     setCurrentView('upload');
     setUploadedFile(null);
+    setUploadedFiles([]);
   };
 
   return (

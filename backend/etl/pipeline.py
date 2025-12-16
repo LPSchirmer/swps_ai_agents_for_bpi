@@ -1,6 +1,6 @@
-from extract import extract_process_data, extract_textual_data
-from transform import rename_columns, transform_data_types, bpmn_to_df
-from load import load_chat_data_to_database, load_event_log_to_database, load_textual_process_data_to_database
+from etl.extract import extract_process_data, extract_textual_data
+from etl.transform import rename_columns, transform_data_types, bpmn_to_df
+from etl.load import load_chat_data_to_database, load_event_log_to_database, load_textual_process_data_to_database
 import pandas as pd
 from pathlib import Path
 import os
@@ -52,3 +52,24 @@ def get_textual_data(dir_path: str) -> str:
         return None
     else:
         return textual_data
+
+# Alias functions for compatibility with app.py
+def run_etl_event_log(file_path: str) -> None:
+    """Process a single event log file (XES, CSV, BPMN)"""
+    ext = Path(file_path).suffix.lower()
+    if ext in [".xes", ".csv", ".bpmn"]:
+        if ext == ".bpmn":
+            bpmn_model = extract_process_data(file_path)
+            df = bpmn_to_df(bpmn_model)
+        else:
+            df = extract_process_data(file_path)
+        df = rename_columns(df)
+        df = transform_data_types(df)
+        load_event_log_to_database(file_path, df)
+
+def run_etl_textual_process_data(file_path: str) -> None:
+    """Process a single textual file (TXT, PDF, DOCX)"""
+    ext = Path(file_path).suffix.lower()
+    if ext in [".txt", ".pdf", ".docx"]:
+        text = extract_textual_data(file_path)
+        load_textual_process_data_to_database(text)
