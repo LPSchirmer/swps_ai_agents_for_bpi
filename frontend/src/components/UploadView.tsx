@@ -1,17 +1,19 @@
 import { useState, useRef } from 'react';
-import { FileText, Send } from 'lucide-react';
+import { FileText, Send, Paperclip, X } from 'lucide-react';
 
 interface UploadViewProps {
   onFileUpload: (file: File) => void;
   onTextSubmit: (text: string) => void;
+  onCombinedSubmit?: (text: string, files: File[]) => void;
 }
 
-const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
+const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadViewProps) => {
   const [textInput, setTextInput] = useState('');
+  const [attachedFiles, setAttachedFiles] = useState<File[]>([]);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const allowedExtensions = ['.bpmn', '.xes', '.xml', '.csv'];
+  const allowedExtensions = ['.bpmn', '.xes', '.xml', '.csv', '.txt', '.pdf', '.docx'];
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -28,32 +30,58 @@ const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
     e.stopPropagation();
     setDragActive(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFile(e.dataTransfer.files[0]);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files).filter(file => {
+        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+        return allowedExtensions.includes(fileExtension);
+      });
+      setAttachedFiles(prev => [...prev, ...newFiles]);
     }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     e.preventDefault();
-    if (e.target.files && e.target.files[0]) {
-      handleFile(e.target.files[0]);
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files).filter(file => {
+        const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+        return allowedExtensions.includes(fileExtension);
+      });
+      setAttachedFiles(prev => [...prev, ...newFiles]);
     }
+  };
+
+  const removeFile = (index: number) => {
+    setAttachedFiles(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleFile = (file: File) => {
     const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
     
     if (allowedExtensions.includes(fileExtension)) {
-      onFileUpload(file);
+      setAttachedFiles(prev => [...prev, file]);
     } else {
       alert(`Ungültiger Dateityp. Erlaubt sind: ${allowedExtensions.join(', ')}`);
     }
   };
 
-  const handleTextSubmitClick = () => {
-    if (textInput.trim()) {
-      onTextSubmit(textInput);
+  const handleSubmit = () => {
+    if (!textInput.trim() && attachedFiles.length === 0) return;
+
+    if (onCombinedSubmit && (textInput.trim() || attachedFiles.length > 0)) {
+      // Neue kombinierte Methode
+      onCombinedSubmit(textInput, attachedFiles);
+    } else {
+      // Fallback zu alten Methoden
+      if (textInput.trim()) {
+        onTextSubmit(textInput);
+      }
+      if (attachedFiles.length > 0) {
+        attachedFiles.forEach(file => onFileUpload(file));
+      }
     }
+    
+    setTextInput('');
+    setAttachedFiles([]);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -62,14 +90,22 @@ const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
     }
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      handleTextSubmitClick();
+      handleSubmit();
     }
   };
 
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-6">
+    <div className="min-h-screen bg-slate-950 flex flex-col p-6">
       {/* Header */}
-      <div className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between">
+      <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-lg flex items-center justify-center">
             <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -78,84 +114,141 @@ const UploadView = ({ onFileUpload, onTextSubmit }: UploadViewProps) => {
           </div>
           <span className="text-xl font-bold text-white">ProcessAI</span>
         </div>
-        
-        <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg font-medium transition-all duration-300">
-          Starten
-        </button>
       </div>
 
-      {/* Main Content */}
-      <div className="w-full max-w-2xl">
-        <h1 className="text-4xl font-bold text-white text-center mb-3">
-          Prozess analysieren
-        </h1>
-        <p className="text-slate-400 text-center mb-12">
-          Beschreiben Sie Ihren bestehenden Prozess und fügen beliebige prozessrelevante Dateien bei
-        </p>
+      {/* Main Content - ChatGPT Style */}
+      <div className="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto">
+        {/* Welcome Message */}
+        <div className="text-center mb-12">
+          <h1 className="text-5xl font-bold text-white mb-4">
+            Analysieren Sie Ihre Geschäftsprozesse
+          </h1>
+          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+            Beschreiben Sie Ihren Prozess in eigenen Worten und laden Sie relevante Dateien hoch – 
+            <span className="text-cyan-400"> beides gleichzeitig ist möglich</span>
+          </p>
+        </div>
 
-        {/* Input Box */}
-        <div className="bg-slate-900/60 backdrop-blur-sm rounded-2xl border border-slate-700 p-6">
-          {/* Text Input */}
-          <div className="mb-6">
-            <textarea
-              value={textInput}
-              onChange={(e) => setTextInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Beschreiben Sie Ihren bestehenden Prozess, inlusive Prozessoptimierungszielen, Compliance-Restriktionen, uvm ..."
-              className="w-full h-32 px-4 py-3 bg-slate-800/50 border border-slate-700 rounded-lg text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-transparent resize-none transition-all"
-            />
-            <div className="text-xs text-slate-500 mt-2">
-              Shift + Enter für neue Zeile • Enter zum Senden
+        {/* Example Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-12">
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/60 transition-all cursor-pointer">
+            <div className="text-sm text-slate-400 mb-2">📊 Beispiel</div>
+            <div className="text-white text-sm">
+              "Analysiere meinen Bestellprozess und finde Engpässe"
             </div>
           </div>
-
-          <button
-            onClick={handleTextSubmitClick}
-            disabled={!textInput.trim()}
-            className="w-full px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-all duration-300 flex items-center justify-center space-x-2 mb-6"
-          >
-            <Send className="w-5 h-5" />
-            <span>Prozess analysieren</span>
-          </button>
-
-          {/* Divider */}
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-700"></div>
-            </div>
-            <div className="relative flex justify-center">
-              <span className="px-4 bg-slate-900/60 text-slate-500 text-sm">oder</span>
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/60 transition-all cursor-pointer">
+            <div className="text-sm text-slate-400 mb-2">🔍 Beispiel</div>
+            <div className="text-white text-sm">
+              "Optimiere den Genehmigungsworkflow unter Einhaltung von ISO 9001"
             </div>
           </div>
+          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/60 transition-all cursor-pointer">
+            <div className="text-sm text-slate-400 mb-2">📁 Beispiel</div>
+            <div className="text-white text-sm">
+              "Hier ist mein Event-Log. Zeige mir die häufigsten Prozessvarianten"
+            </div>
+          </div>
+        </div>
 
-          {/* File Upload */}
-          <div
-            className={`relative border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
-              dragActive
-                ? 'border-cyan-500 bg-cyan-500/10'
-                : 'border-slate-700 hover:border-slate-600 hover:bg-slate-800/30'
+        {/* Input Area - ChatGPT Style */}
+        <div className="w-full">
+          <div 
+            className={`bg-slate-900/60 backdrop-blur-sm rounded-3xl border-2 transition-all ${
+              dragActive 
+                ? 'border-cyan-500 bg-cyan-500/10' 
+                : 'border-slate-700 hover:border-slate-600'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
             onDragOver={handleDrag}
             onDrop={handleDrop}
-            onClick={() => fileInputRef.current?.click()}
           >
-            <input
-              ref={fileInputRef}
-              type="file"
-              className="hidden"
-              accept=".bpmn,.xes,.xml,.csv"
-              onChange={handleChange}
-            />
+            {/* Attached Files Display */}
+            {attachedFiles.length > 0 && (
+              <div className="px-6 pt-4 pb-2">
+                <div className="flex flex-wrap gap-2">
+                  {attachedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center space-x-2 bg-slate-800/60 border border-slate-700 rounded-lg px-3 py-2 group"
+                    >
+                      <FileText className="w-4 h-4 text-cyan-400" />
+                      <span className="text-sm text-white truncate max-w-[200px]">
+                        {file.name}
+                      </span>
+                      <span className="text-xs text-slate-500">
+                        ({formatFileSize(file.size)})
+                      </span>
+                      <button
+                        onClick={() => removeFile(index)}
+                        className="ml-2 text-slate-500 hover:text-red-400 transition-colors"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
-            <FileText className="w-12 h-12 mx-auto mb-4 text-slate-500" />
-            <p className="text-white mb-2">
-              <span className="text-cyan-500 hover:text-cyan-400 cursor-pointer">Datei auswählen</span> oder per Drag and Drop einfügen
-            </p>
-            <p className="text-slate-500 text-sm">
-              .xes, .csv, .bpmn, .pdf, .txt, .docx • Max 25MB
-            </p>
+            {/* Text Input */}
+            <div className="relative">
+              <textarea
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Beschreiben Sie Ihren Prozess, Ihre Optimierungsziele, Compliance-Anforderungen... Oder laden Sie Dateien hoch."
+                className="w-full px-6 py-5 bg-transparent text-white placeholder-slate-500 focus:outline-none resize-none min-h-[80px] max-h-[300px]"
+                rows={3}
+              />
+              
+              {/* Bottom Actions */}
+              <div className="flex items-center justify-between px-6 pb-4">
+                <div className="flex items-center space-x-3">
+                  {/* File Upload Button */}
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-all"
+                    title="Dateien anhängen"
+                  >
+                    <Paperclip className="w-5 h-5" />
+                  </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    className="hidden"
+                    accept=".bpmn,.xes,.xml,.csv,.txt,.pdf,.docx"
+                    multiple
+                    onChange={handleChange}
+                  />
+                  
+                  <span className="text-xs text-slate-500">
+                    {attachedFiles.length > 0 
+                      ? `${attachedFiles.length} Datei(en) angehängt` 
+                      : '.xes, .csv, .bpmn, .txt, .pdf, .docx'}
+                  </span>
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={!textInput.trim() && attachedFiles.length === 0}
+                  className="p-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-300 flex items-center space-x-2"
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Helper Text */}
+          <div className="text-center mt-4 text-sm text-slate-500">
+            <span className="inline-flex items-center space-x-2">
+              <span>💡 Tipp: Sie können Text und Dateien</span>
+              <span className="text-cyan-400 font-medium">gleichzeitig</span>
+              <span>einreichen</span>
+            </span>
           </div>
         </div>
       </div>

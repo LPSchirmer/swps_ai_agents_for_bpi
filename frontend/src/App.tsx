@@ -13,34 +13,79 @@ interface UploadedFile {
   uploadTime: string;
 }
 
+interface UploadResponse {
+  files: UploadedFile[];
+  total_files: number;
+  etl_results: Array<{ file: string; status: string }>;
+}
+
 function App() {
   const [currentView, setCurrentView] = useState<ViewType>('upload');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
 
-  const handleFileUpload = async (file: File) => {
+  const handleCombinedSubmit = async (text: string, files: File[]) => {
     setCurrentView('processing');
 
-    // Try backend upload
     try {
       const formData = new FormData();
-      formData.append('file', file);
       
-      const response = await axios.post('http://localhost:5001/api/upload', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-        timeout: 5000,
-      });
+      // Add text if provided
+      if (text.trim()) {
+        formData.append('text', text);
+      }
+      
+      // Add files if provided
+      if (files.length > 0) {
+        files.forEach(file => {
+          formData.append('files', file);
+        });
+      }
+      
+      const response = await axios.post<{ success: boolean; data?: UploadResponse }>(
+        'http://localhost:5001/api/combined-upload', 
+        formData,
+        {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 10000,
+        }
+      );
 
-      if (response.data.success) {
-        setUploadedFile(response.data);
+      if (response.data.success && response.data.data) {
+        setUploadedFiles(response.data.data.files);
+        // Set the first file as primary for backward compatibility
+        if (response.data.data.files.length > 0) {
+          setUploadedFile(response.data.data.files[0]);
+        }
+        console.log('ETL Results:', response.data.data.etl_results);
       }
     } catch (error) {
-      console.error('Backend upload failed, using fallback:', error);
-      setUploadedFile({
-        filename: file.name,
-        storedFilename: file.name,
-        fileSize: file.size,
-        uploadTime: new Date().toISOString(),
+      console.error('Backend upload failed:', error);
+      // Fallback handling
+      const fallbackFiles: UploadedFile[] = [];
+      
+      if (text.trim()) {
+        fallbackFiles.push({
+          filename: 'user_input.txt',
+          storedFilename: 'user_input.txt',
+          fileSize: text.length,
+          uploadTime: new Date().toISOString(),
+        });
+      }
+      
+      files.forEach(file => {
+        fallbackFiles.push({
+          filename: file.name,
+          storedFilename: file.name,
+          fileSize: file.size,
+          uploadTime: new Date().toISOString(),
+        });
       });
+      
+      setUploadedFiles(fallbackFiles);
+      if (fallbackFiles.length > 0) {
+        setUploadedFile(fallbackFiles[0]);
+      }
     }
 
     // Processing animation duration
@@ -49,43 +94,20 @@ function App() {
     }, 3000);
   };
 
+  const handleFileUpload = async (file: File) => {
+    // Backward compatibility - use combined submit with single file
+    handleCombinedSubmit('', [file]);
+  };
+
   const handleTextSubmit = async (text: string) => {
-    setCurrentView('processing');
-
-    // Try backend upload
-    try {
-      const response = await axios.post('http://localhost:5001/api/text-input', 
-        { text }, 
-        { timeout: 5000 }
-      );
-
-      if (response.data.success) {
-        setUploadedFile({
-          filename: 'user_input.txt',
-          storedFilename: response.data.filename,
-          fileSize: response.data.file_size,
-          uploadTime: response.data.upload_time,
-        });
-      }
-    } catch (error) {
-      console.error('Backend text submit failed, using fallback:', error);
-      setUploadedFile({
-        filename: 'user_input.txt',
-        storedFilename: 'user_input.txt',
-        fileSize: text.length,
-        uploadTime: new Date().toISOString(),
-      });
-    }
-
-    // Processing animation duration
-    setTimeout(() => {
-      setCurrentView('dashboard');
-    }, 3000);
+    // Backward compatibility - use combined submit with just text
+    handleCombinedSubmit(text, []);
   };
 
   const handleNewAnalysis = () => {
     setCurrentView('upload');
     setUploadedFile(null);
+    setUploadedFiles([]);
   };
 
   return (
@@ -94,6 +116,7 @@ function App() {
         <UploadView 
           onFileUpload={handleFileUpload}
           onTextSubmit={handleTextSubmit}
+          onCombinedSubmit={handleCombinedSubmit}
         />
       )}
       
