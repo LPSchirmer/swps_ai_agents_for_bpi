@@ -10,6 +10,9 @@ import sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), 'etl')))
 from etl.pipeline import run_etl_event_log, run_etl_textual_process_data
 
+# AI-Analyse Import
+from ai_analysis import run_ai_analysis
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
@@ -268,6 +271,29 @@ def combined_upload():
             all_files.append(text_file_info)
         all_files.extend(uploaded_files)
         
+        # 🤖 NEU: KI-Analyse mit den Agenten durchführen
+        print("\n" + "="*80)
+        print("🤖 Starte KI-Analyse mit CrewAI...")
+        print("="*80)
+        
+        ai_result = None
+        try:
+            ai_result = run_ai_analysis(app.config['UPLOAD_FOLDER'])
+            print("\n✅ KI-Analyse abgeschlossen")
+            
+            if ai_result.get('success'):
+                print(f"📊 Analyse erfolgreich: {len(ai_result.get('analysis_result', ''))} Zeichen")
+            else:
+                print(f"⚠️  Analyse-Fehler: {ai_result.get('error', 'Unbekannter Fehler')}")
+                
+        except Exception as ai_error:
+            print(f"\n❌ KI-Analyse Fehler: {str(ai_error)}")
+            ai_result = {
+                'success': False,
+                'error': str(ai_error),
+                'stage': 'execution'
+            }
+        
         return jsonify({
             'success': True,
             'message': 'Upload successful',
@@ -275,6 +301,7 @@ def combined_upload():
                 'files': all_files,
                 'total_files': len(all_files),
                 'etl_results': etl_results,
+                'ai_analysis': ai_result,  # 🤖 KI-Analyseergebnisse hinzugefügt
                 'upload_time': datetime.now().strftime('%Y%m%d_%H%M%S')
             }
         }), 200

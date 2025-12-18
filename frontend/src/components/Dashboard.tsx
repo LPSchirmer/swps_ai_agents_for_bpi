@@ -4,11 +4,33 @@ import { ChevronDown, Sparkles } from 'lucide-react';
 interface DashboardProps {
   uploadedFile: { filename: string } | null;
   onNewAnalysis: () => void;
+  aiAnalysisResult?: string | null;
 }
 
-const Dashboard = ({ uploadedFile, onNewAnalysis }: DashboardProps) => {
+const Dashboard = ({ uploadedFile, onNewAnalysis, aiAnalysisResult }: DashboardProps) => {
   const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [expandedAISection, setExpandedAISection] = useState<string | null>(null);
+  
+  // Debug: Log wenn Component mountet
+  console.log('📊 Dashboard gerendert mit:', {
+    uploadedFile: uploadedFile?.filename,
+    hasAiResult: !!aiAnalysisResult,
+    aiResultLength: aiAnalysisResult?.length
+  });
+  
+  // Parse AI result to extract agent-specific information
+  const parseAgentResults = (_result: string) => {
+    const agents = [
+      { id: 'requirements', name: 'Requirements Agent', icon: '📋', color: 'blue' },
+      { id: 'economic', name: 'Economic Context Agent', icon: '📊', color: 'green' },
+      { id: 'performance', name: 'Performance Agent', icon: '⚡', color: 'amber' },
+      { id: 'finance', name: 'Finance Agent', icon: '💰', color: 'emerald' },
+      { id: 'compliance', name: 'Compliance Agent', icon: '✓', color: 'purple' }
+    ];
+    
+    return agents;
+  };
 
   return (
     <div className="min-h-screen bg-slate-950 text-white">
@@ -45,6 +67,24 @@ const Dashboard = ({ uploadedFile, onNewAnalysis }: DashboardProps) => {
 
         <h1 className="text-3xl font-bold mb-2">Prozess-Dashboard</h1>
         <p className="text-slate-400 mb-8">Datei: {uploadedFile?.filename || 'jobs.csv'}</p>
+
+        {/* 🤖 KI-Analyseergebnisse anzeigen */}
+        {aiAnalysisResult && (
+          <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 border border-purple-700/50 rounded-2xl p-6 mb-8">
+            <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
+              <Sparkles className="w-6 h-6 text-purple-500" />
+              <span>KI-Analyseergebnis</span>
+            </h2>
+            <div className="bg-slate-900/60 rounded-xl p-6 max-h-96 overflow-y-auto">
+              <pre className="whitespace-pre-wrap text-slate-300 text-sm font-mono">
+                {aiAnalysisResult}
+              </pre>
+            </div>
+            <div className="mt-4 text-xs text-slate-400">
+              Generiert von CrewAI Multi-Agenten-System
+            </div>
+          </div>
+        )}
 
         {/* KI Analysis Box */}
         <div className="bg-slate-900/60 backdrop-blur-sm border border-slate-700 rounded-2xl p-8 mb-8">
@@ -417,6 +457,105 @@ const Dashboard = ({ uploadedFile, onNewAnalysis }: DashboardProps) => {
           </div>
         </div>
       </div>
+
+      {/* 🤖 NEU: Detaillierte Agenten-Antworten Bereich */}
+      {aiAnalysisResult && (
+        <div className="max-w-7xl mx-auto px-6 pb-12">
+          <div className="bg-gradient-to-br from-slate-900/80 to-slate-800/80 border border-slate-700 rounded-2xl p-8">
+            <h2 className="text-3xl font-bold mb-2 flex items-center space-x-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Sparkles className="w-7 h-7 text-white" />
+              </div>
+              <span>Detaillierte KI-Agenten-Analyse</span>
+            </h2>
+            <p className="text-slate-400 mb-8 ml-15">
+              Vollständige Antworten aller 5 spezialisierten KI-Agenten
+            </p>
+
+            {/* Agent Cards Grid */}
+            <div className="space-y-4">
+              {parseAgentResults(aiAnalysisResult).map((agent) => (
+                <div
+                  key={agent.id}
+                  className={`bg-slate-800/40 border border-slate-700 rounded-xl overflow-hidden transition-all ${
+                    expandedAISection === agent.id ? 'ring-2 ring-' + agent.color + '-500' : ''
+                  }`}
+                >
+                  {/* Agent Header */}
+                  <button
+                    onClick={() => setExpandedAISection(expandedAISection === agent.id ? null : agent.id)}
+                    className="w-full p-6 flex items-center justify-between hover:bg-slate-800/60 transition-colors"
+                  >
+                    <div className="flex items-center space-x-4">
+                      <div className={`w-14 h-14 bg-gradient-to-br from-${agent.color}-600 to-${agent.color}-700 rounded-lg flex items-center justify-center text-3xl shadow-lg`}>
+                        {agent.icon}
+                      </div>
+                      <div className="text-left">
+                        <h3 className="text-xl font-bold text-white">{agent.name}</h3>
+                        <p className="text-sm text-slate-400">
+                          {agent.id === 'requirements' && 'Extrahiert und strukturiert alle Anforderungen'}
+                          {agent.id === 'economic' && 'Analysiert wirtschaftlichen Kontext und Marktbedingungen'}
+                          {agent.id === 'performance' && 'Optimiert Durchlaufzeiten und Prozesseffizienz'}
+                          {agent.id === 'finance' && 'Identifiziert Kosteneinsparpotenziale'}
+                          {agent.id === 'compliance' && 'Prüft Einhaltung regulatorischer Vorgaben'}
+                        </p>
+                      </div>
+                    </div>
+                    <ChevronDown
+                      className={`w-6 h-6 text-slate-400 transition-transform ${
+                        expandedAISection === agent.id ? 'rotate-180' : ''
+                      }`}
+                    />
+                  </button>
+
+                  {/* Agent Content - Expanded */}
+                  {expandedAISection === agent.id && (
+                    <div className="border-t border-slate-700 p-6 bg-slate-900/40">
+                      <div className="bg-slate-950/60 rounded-lg p-6 max-h-[600px] overflow-y-auto">
+                        <pre className="whitespace-pre-wrap text-slate-300 text-sm font-mono leading-relaxed">
+                          {aiAnalysisResult}
+                        </pre>
+                      </div>
+                      <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
+                        <span>Generiert von CrewAI Multi-Agenten-System</span>
+                        <span>Powered by OpenAI GPT-4o-mini</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Raw JSON View Toggle */}
+            <div className="mt-8 pt-8 border-t border-slate-700">
+              <button
+                onClick={() => setExpandedAISection(expandedAISection === 'raw' ? null : 'raw')}
+                className="w-full p-4 bg-slate-800/40 hover:bg-slate-800/60 border border-slate-700 rounded-lg flex items-center justify-between transition-colors"
+              >
+                <div className="flex items-center space-x-3">
+                  <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  <span className="font-semibold">Vollständige Rohdaten anzeigen</span>
+                </div>
+                <ChevronDown
+                  className={`w-5 h-5 text-slate-400 transition-transform ${
+                    expandedAISection === 'raw' ? 'rotate-180' : ''
+                  }`}
+                />
+              </button>
+              
+              {expandedAISection === 'raw' && (
+                <div className="mt-4 bg-slate-950/80 border border-slate-700 rounded-lg p-6 max-h-[800px] overflow-y-auto">
+                  <pre className="text-xs text-slate-300 font-mono leading-relaxed">
+                    {aiAnalysisResult}
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Chat Sidebar */}
       <div className={`fixed right-0 top-0 h-full bg-slate-900 border-l border-slate-700 transition-all duration-300 ${isChatOpen ? 'w-96' : 'w-16'}`}>

@@ -17,15 +17,35 @@ interface UploadResponse {
   files: UploadedFile[];
   total_files: number;
   etl_results: Array<{ file: string; status: string }>;
+  ai_analysis?: {
+    success: boolean;
+    analysis_result?: string;
+    error?: string;
+    data_summary?: {
+      has_textual_data: boolean;
+      has_event_log: boolean;
+      kpis_calculated: {
+        basic: boolean;
+        performance: boolean;
+        finance: boolean;
+        compliance: boolean;
+      };
+    };
+  };
 }
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewType>('upload');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
 
   const handleCombinedSubmit = async (text: string, files: File[]) => {
+    // Wechsle zum Processing Screen
     setCurrentView('processing');
+    
+    // Kurze Verzögerung damit der Processing Screen gerendert wird
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     try {
       const formData = new FormData();
@@ -42,12 +62,13 @@ function App() {
         });
       }
       
+      console.log('🚀 Starte Upload und KI-Analyse...');
       const response = await axios.post<{ success: boolean; data?: UploadResponse }>(
         'http://localhost:5001/api/combined-upload', 
         formData,
         {
           headers: { 'Content-Type': 'multipart/form-data' },
-          timeout: 10000,
+          timeout: 300000, // 5 Minuten für KI-Analyse
         }
       );
 
@@ -58,9 +79,40 @@ function App() {
           setUploadedFile(response.data.data.files[0]);
         }
         console.log('ETL Results:', response.data.data.etl_results);
+        
+        // 🤖 KI-Analyseergebnisse speichern
+        if (response.data.data.ai_analysis) {
+          const aiAnalysis = response.data.data.ai_analysis;
+          if (aiAnalysis.success && aiAnalysis.analysis_result) {
+            setAiAnalysisResult(aiAnalysis.analysis_result);
+            console.log('✅ KI-Analyse erfolgreich:', aiAnalysis.data_summary);
+          } else if (aiAnalysis.error) {
+            console.warn('⚠️ KI-Analyse Fehler:', aiAnalysis.error);
+            setAiAnalysisResult(null);
+          }
+        } else {
+          console.warn('⚠️ Keine KI-Analyse-Daten in der Antwort');
+        }
+        
+        console.log('✅ Upload und Analyse abgeschlossen - Wechsle zum Dashboard');
+        // Wechsle zum Dashboard nachdem die Analyse komplett ist
+        setCurrentView('dashboard');
+      } else {
+        console.error('❌ Ungültige Server-Antwort:', response.data);
+        setCurrentView('dashboard');
       }
     } catch (error) {
-      console.error('Backend upload failed:', error);
+      console.error('❌ Backend upload failed:', error);
+      if (axios.isAxiosError(error)) {
+        if (error.code === 'ECONNABORTED') {
+          console.error('⏱️ Timeout: Die KI-Analyse hat zu lange gedauert');
+        } else if (error.response) {
+          console.error('Server Error:', error.response.status, error.response.data);
+        } else if (error.request) {
+          console.error('Keine Antwort vom Server erhalten');
+        }
+      }
+      
       // Fallback handling
       const fallbackFiles: UploadedFile[] = [];
       
@@ -86,12 +138,10 @@ function App() {
       if (fallbackFiles.length > 0) {
         setUploadedFile(fallbackFiles[0]);
       }
-    }
-
-    // Processing animation duration
-    setTimeout(() => {
+      
+      // Auch bei Fehler zum Dashboard wechseln
       setCurrentView('dashboard');
-    }, 3000);
+    }
   };
 
   const handleFileUpload = async (file: File) => {
@@ -108,6 +158,7 @@ function App() {
     setCurrentView('upload');
     setUploadedFile(null);
     setUploadedFiles([]);
+    setAiAnalysisResult(null);
   };
 
   return (
@@ -128,6 +179,7 @@ function App() {
         <Dashboard
           uploadedFile={uploadedFile}
           onNewAnalysis={handleNewAnalysis}
+          aiAnalysisResult={aiAnalysisResult}
         />
       )}
     </div>

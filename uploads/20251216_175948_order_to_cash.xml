@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<log xes.version="1.0" xes.features="nested-attributes" xmlns="http://www.xes-standard.org/">
+	<extension name="Concept" prefix="concept" uri="http://www.xes-standard.org/concept.xesext"/>
+	<extension name="Time" prefix="time" uri="http://www.xes-standard.org/time.xesext"/>
+	<extension name="Lifecycle" prefix="lifecycle" uri="http://www.xes-standard.org/lifecycle.xesext"/>
+	<global scope="trace">
+		<string key="concept:name" value="__INVALID__"/>
+	</global>
+	<global scope="event">
+		<string key="concept:name" value="__INVALID__"/>
+		<string key="lifecycle:transition" value="complete"/>
+		<date key="time:timestamp" value="1970-01-01T00:00:00.000+00:00"/>
+	</global>
+	
+	<trace>
+		<string key="concept:name" value="Case_1001"/>
+		<string key="kunde" value="Kunde_A"/>
+		<event>
+			<string key="concept:name" value="Bestellung eingegangen"/>
+			<string key="org:resource" value="System"/>
+			<date key="time:timestamp" value="2023-10-01T09:00:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Bonitätsprüfung"/>
+			<string key="org:resource" value="Finance_Bot"/>
+			<date key="time:timestamp" value="2023-10-01T09:05:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Artikel verpacken"/>
+			<string key="org:resource" value="Lagerarbeiter_Max"/>
+			<date key="time:timestamp" value="2023-10-01T10:30:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Versand"/>
+			<string key="org:resource" value="DHL"/>
+			<date key="time:timestamp" value="2023-10-01T14:00:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Zahlung empfangen"/>
+			<string key="org:resource" value="Bank_API"/>
+			<date key="time:timestamp" value="2023-10-03T10:00:00.000+02:00"/>
+		</event>
+	</trace>
+
+	<trace>
+		<string key="concept:name" value="Case_1002"/>
+		<string key="kunde" value="Kunde_B"/>
+		<event>
+			<string key="concept:name" value="Bestellung eingegangen"/>
+			<string key="org:resource" value="System"/>
+			<date key="time:timestamp" value="2023-10-02T11:00:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Bonitätsprüfung"/>
+			<string key="org:resource" value="Finance_Bot"/>
+			<date key="time:timestamp" value="2023-10-02T11:02:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Bestellung abgelehnt"/>
+			<string key="grund" value="Kreditlimit überschritten"/>
+			<string key="org:resource" value="Finance_Manager"/>
+			<date key="time:timestamp" value="2023-10-02T11:15:00.000+02:00"/>
+		</event>
+	</trace>
+
+	<trace>
+		<string key="concept:name" value="Case_1003"/>
+		<string key="kunde" value="Kunde_C"/>
+		<event>
+			<string key="concept:name" value="Bestellung eingegangen"/>
+			<string key="org:resource" value="System"/>
+			<date key="time:timestamp" value="2023-10-03T08:00:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Bonitätsprüfung"/>
+			<string key="org:resource" value="Finance_Bot"/>
+			<date key="time:timestamp" value="2023-10-03T08:10:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Artikel verpacken"/>
+			<string key="org:resource" value="Lagerarbeiter_Lisa"/>
+			<date key="time:timestamp" value="2023-10-05T09:00:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Versand"/>
+			<string key="org:resource" value="UPS"/>
+			<date key="time:timestamp" value="2023-10-05T16:00:00.000+02:00"/>
+		</event>
+		<event>
+			<string key="concept:name" value="Zahlung empfangen"/>
+			<string key="org:resource" value="Bank_API"/>
+			<date key="time:timestamp" value="2023-10-06T12:00:00.000+02:00"/>
+		</event>
+	</trace>
+</log>
