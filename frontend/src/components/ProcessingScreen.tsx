@@ -14,27 +14,47 @@ const ProcessingScreen = () => {
         </div>
 
         <h2 className="text-2xl font-bold text-white mb-3">
-          Prozess wird analysiert...
+          🤖 KI-Agenten analysieren Ihren Prozess...
         </h2>
-        <p className="text-slate-400 mb-8">
-          Unsere KI untersucht Ihre Dateien
+        <p className="text-slate-400 mb-4">
+          Dies kann 1-3 Minuten dauern
         </p>
+        
+        {/* Processing Steps */}
+        <div className="text-left max-w-md mx-auto mb-8 space-y-2">
+          <div className="flex items-center text-sm text-slate-300">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse"></div>
+            <span>Daten werden verarbeitet...</span>
+          </div>
+          <div className="flex items-center text-sm text-slate-300">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse" style={{ animationDelay: '0.3s' }}></div>
+            <span>CrewAI Agenten starten Analyse...</span>
+          </div>
+          <div className="flex items-center text-sm text-slate-300">
+            <div className="w-2 h-2 bg-green-500 rounded-full mr-3 animate-pulse" style={{ animationDelay: '0.6s' }}></div>
+            <span>Optimierungsvorschläge werden generiert...</span>
+          </div>
+        </div>
 
         {/* Progress Bar */}
         <div className="w-80 mx-auto">
           <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 animate-progress"></div>
+            <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 animate-progress-infinite"></div>
           </div>
+          <p className="text-xs text-slate-500 mt-2">
+            Bitte warten Sie, bis die Analyse abgeschlossen ist...
+          </p>
         </div>
       </div>
 
       <style>{`
-        @keyframes progress {
-          0% { width: 0%; }
-          100% { width: 100%; }
+        @keyframes progress-infinite {
+          0% { width: 0%; margin-left: 0%; }
+          50% { width: 70%; margin-left: 15%; }
+          100% { width: 0%; margin-left: 100%; }
         }
-        .animate-progress {
-          animation: progress 3s ease-in-out;
+        .animate-progress-infinite {
+          animation: progress-infinite 2s ease-in-out infinite;
         }
       `}</style>
     </div>

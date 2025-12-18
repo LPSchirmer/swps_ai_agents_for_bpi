@@ -38,11 +38,15 @@ load_dotenv()
 llm_openai = LLM(
     model=os.getenv("BASE_MODEL_OPENAI"),
     api_key= os.getenv("API_KEY_OPENAI"),
-    temperature=0.4, # Mock data
-    max_tokens=1000 # Mock data
+    temperature=0.4,
+    max_tokens=1000
 )
-# Instantiate tools
-web_search_tool = SerperDevTool()
+# Instantiate tools - Make SerperDevTool optional
+try:
+    from crewai_tools import SerperDevTool
+    web_search_tool = SerperDevTool() if os.getenv("SERPER_API_KEY") else None
+except:
+    web_search_tool = None
 
 # Interactive Agent
 from humanlayer import HumanLayer
@@ -60,10 +64,17 @@ class SwpsAiAgentsForBpi():
     agents: List[BaseAgent]
     tasks: List[Task]
     
-    # Add knowledge sources
-    text_source = TextFileKnowledgeSource(
-        file_paths=["../knowledge/bpi_patterns_1.txt", "../knowledge/bpi_patterns_2.txt"]
-    )
+    # Add knowledge sources mit absoluten Pfaden
+    import os
+    _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
+    _knowledge_path1 = os.path.join(_project_root, 'knowledge', 'bpi_patterns_1.txt')
+    _knowledge_path2 = os.path.join(_project_root, 'knowledge', 'bpi_patterns_2.txt')
+    
+    text_source = None
+    if os.path.exists(_knowledge_path1) and os.path.exists(_knowledge_path2):
+        text_source = TextFileKnowledgeSource(
+            file_paths=[_knowledge_path1, _knowledge_path2]
+        )
     # If you would like to add tools to your agents, you can learn more about it here:
     # https://docs.crewai.com/concepts/agents#agent-tools
     @agent
@@ -90,52 +101,59 @@ class SwpsAiAgentsForBpi():
     
     @agent
     def economic_context_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['economic_context_agent'], # type: ignore[index]
-            llm=llm_openai,
-            verbose=True,
-            allow_delegation= False,
-            tools=[web_search_tool],
-            max_iter=5
-        )
+        agent_config = {
+            'config': self.agents_config['economic_context_agent'], # type: ignore[index]
+            'llm': llm_openai,
+            'verbose': True,
+            'allow_delegation': False,
+            'max_iter': 5
+        }
+        if web_search_tool is not None:
+            agent_config['tools'] = [web_search_tool]
+        return Agent(**agent_config)
     
     @agent
     def performance_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['performance_agent'], # type: ignore[index]
-            llm=llm_openai,
-            verbose=True,
-            allow_delegation= False,
-            max_iter=5,
-            tools=[web_search_tool],
-            knowledge_sources=[self.text_source]
-            # Eventuell custom Analysis Tools
-        )
+        agent_config = {
+            'config': self.agents_config['performance_agent'], # type: ignore[index]
+            'llm': llm_openai,
+            'verbose': True,
+            'allow_delegation': False,
+            'max_iter': 5
+        }
+        if web_search_tool is not None:
+            agent_config['tools'] = [web_search_tool]
+        if self.text_source is not None:
+            agent_config['knowledge_sources'] = [self.text_source]
+        return Agent(**agent_config)
     
     @agent
     def finance_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['finance_agent'], # type: ignore[index]
-            llm=llm_openai,
-            verbose=True,
-            allow_delegation= False,
-            max_iter=5,
-            tools=[web_search_tool],
-            knowledge_sources=[self.text_source]
-            # Eventuell custom Analysis Tools
-        )
+        agent_config = {
+            'config': self.agents_config['finance_agent'], # type: ignore[index]
+            'llm': llm_openai,
+            'verbose': True,
+            'allow_delegation': False,
+            'max_iter': 5
+        }
+        if web_search_tool is not None:
+            agent_config['tools'] = [web_search_tool]
+        if self.text_source is not None:
+            agent_config['knowledge_sources'] = [self.text_source]
+        return Agent(**agent_config)
     
     @agent
     def compliance_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['compliance_agent'], # type: ignore[index]
-            llm=llm_openai,
-            verbose=True,
-            allow_delegation= False,
-            tools=[web_search_tool], # Web Search, um aktuelle gesetzliche Vorgaben und Normen recherchieren zu können
-            max_iter=5
-            # Eventuell custom Analysis Tools
-        )
+        agent_config = {
+            'config': self.agents_config['compliance_agent'], # type: ignore[index]
+            'llm': llm_openai,
+            'verbose': True,
+            'allow_delegation': False,
+            'max_iter': 5
+        }
+        if web_search_tool is not None:
+            agent_config['tools'] = [web_search_tool]
+        return Agent(**agent_config)
     
     @agent
     def evaluation_agent(self) -> Agent:
