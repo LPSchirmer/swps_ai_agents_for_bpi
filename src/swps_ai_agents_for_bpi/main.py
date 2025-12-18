@@ -14,7 +14,6 @@ event_log = get_event_log("testdata/combined_data/example_1") # For Demonstratio
 # Get the calculated kpi's of event log
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../backend/process_analysis_engine')))
 from analysis_workflow import calculate_result_dict_basic, calculate_result_dict_performance, calculate_result_dict_finance, calculate_result_dict_compliance
-from visual_utils import convert_event_log_to_bpmn
 
 process_data_basic = None
 process_kpis_performance = None

@@ -16,10 +16,11 @@ analyze_user_input_task:
 analyze_economic_context_task:
   description: >
     Analyze the organization named in the user input by gathering contextual company information 
-    and assessing relevant macroeconomic and industry-wide factors in the years {last_year}, {current_year}, and estimates for {next_year}. 
-    Summarize the company’s current situation, 
-    strategic posture, and external economic conditions that may influence decision-making or process redesign considerations. 
+    and assessing relevant macroeconomic and industry-wide factors in the years {last_year}, {current_year}, and estimates for {next_year}.
+    Summarize the company’s current financial posture, strategic orientation, market position and regional macroeconomic conditions. 
     Use only information that is explicitly provided or can be reliably researched.
+    Based on these findings, explicitly derive the key implications that
+    are relevant for process redesign and performance improvement suggestions for the given company, industry sector and macroeconomic context.
   expected_output: >
     A structured JSON object containing all researched information.
 
@@ -55,7 +56,8 @@ performance_analysis_task:
     Available process kpi's: {process_kpis_performance}
   expected_output: >
     A structured optimization proposal containing clear performance-improved process designs.
-    Describe only the redesigned process and do not include introductions, conclusions, or narrative commentary.
+    Describe only the redesigned process and do not include introductions, conclusions, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process.
 
 finance_analysis_task:
   description: >
@@ -75,18 +77,6 @@ finance_analysis_task:
   expected_output: >
      A structured optimization proposal containing clear cost-improved process designs.
      Describe only the redesigned process and do not include introductions, conclusions, or narrative commentary.
-
-# Bis jetzt noch nicht ready
-risk_analysis_task:
-  description: >
-    Analyze the risks of the process using all explicitly provided information,
-    including structured data, KPIs, extracted textual inputs, information about the company as well as macroeconomic factors. Identify process risks, control
-    weaknesses, and potential sources of volatility. Evaluate risks strictly based
-    on the provided data and recommend mitigation options without assuming missing information. Available information: {process_kpis}
-  expected_output: >
-    A structured JSON object summarizing the risk analysis. Clearly indicate
-    which input information was used, what risks and findings were identified,
-    and what mitigation or improvement suggestions are proposed based on these findings.
 
 compliance_analysis_task:
   description: >
@@ -132,11 +122,12 @@ generate_improvements_task:
 # Bis jetzt noch nicht ready
 evaluate_improvements_task:
   description: >
-    Evaluate the proposed process designs from the spezialized agents. Assess alignment with process optimization goals, company posture, industry sector, macroeconomic factors
-    compliance, risk tolerance, and available performance or financial data.
-    Provide an objective comparison with the as-is process and recommend a release or rejection of the improvement ideas.
+    Vielleicht Scoring System implementieren
+    Evaluate the proposed process redesigns and -improvements. Assess alignment with the user's input information, company posture, industry sector, 
+    macroeconomic factors and social/ethical aspects. Also evaluate the potential risk of suggested process redesign options on a scale of 1-5.
+    Provide an objective comparison with the as-is process and recommend a release or rejection of the process redesigns and -improvements.
   expected_output: >
-    A structured JSON object summarizing the evaluation of the process improvement suggestions
+    A structured evaluation proposal summarizing the evaluation of the process redesgins and -improvements
     and a recommendation to adopt, modify, or reject each improvement suggestion.
 
 # Phase 7: Final Result
