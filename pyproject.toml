@@ -14,6 +14,7 @@ dependencies = [
     "pandas>=2.3.3",
     "pm4py>=2.7.19.1",
     "docx2txt>=0.9",
+    "humanlayer>=0.7.9",
 ]
 
 [project.scripts]

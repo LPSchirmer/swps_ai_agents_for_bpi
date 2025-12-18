@@ -22,23 +22,24 @@ Bevor Sie beginnen, stellen Sie sicher, dass folgende Software auf Ihrem System 
 ### Erforderliche Software:
 
 1. **Python 3.10+** (idealerweise Python 3.13)
+
    ```bash
    python3 --version
    ```
-
 2. **Node.js (v18+)** und **npm**
+
    ```bash
    node --version
    npm --version
    ```
-
 3. **Docker** und **Docker Compose** (für die Datenbank)
+
    ```bash
    docker --version
    docker-compose --version
    ```
-
 4. **Git** (zum Klonen des Repositories)
+
    ```bash
    git --version
    ```
@@ -85,11 +86,13 @@ python3 -m venv venv
 ### 3. Aktivieren Sie das virtuelle Environment
 
 **macOS/Linux:**
+
 ```bash
 source venv/bin/activate
 ```
 
 **Windows:**
+
 ```cmd
 venv\Scripts\activate
 ```
@@ -117,6 +120,7 @@ touch .env
 ```
 
 Beispielinhalt für `.env`:
+
 ```env
 # PostgreSQL Konfiguration
 POSTGRES_USER=postgres
@@ -130,6 +134,7 @@ MONGODB_URI=mongodb://localhost:27017/
 ### Backend Dependencies (vollständige Liste):
 
 Die `requirements.txt` sollte mindestens enthalten:
+
 - Flask==3.0.0
 - Flask-CORS==4.0.0
 - Werkzeug==3.0.1
@@ -162,12 +167,14 @@ npm install
 Dies installiert alle in `package.json` definierten Abhängigkeiten:
 
 **Haupt-Dependencies:**
+
 - react (^18.3.1)
 - react-dom (^18.3.1)
 - lucide-react (^0.344.0)
 - axios (^1.6.7)
 
 **Dev-Dependencies:**
+
 - @vitejs/plugin-react (^4.2.1)
 - vite (^7.1.7)
 - typescript (^5.9.3)
@@ -189,6 +196,7 @@ docker-compose up -d
 ```
 
 Dies startet:
+
 - **PostgreSQL Datenbank** auf Port `5432`
 
 ### 2. Überprüfen Sie, ob die Datenbank läuft
@@ -277,6 +285,7 @@ Nach erfolgreichem Start:
 ### Problem: "Port already in use"
 
 **Backend (Port 5001):**
+
 ```bash
 # Prozess finden
 lsof -i :5001
@@ -285,6 +294,7 @@ kill -9 <PID>
 ```
 
 **Frontend (Port 5173):**
+
 ```bash
 # Prozess finden
 lsof -i :5173
@@ -313,16 +323,17 @@ npm install
 ### Problem: Datenbank-Verbindungsfehler
 
 1. Überprüfen Sie, ob Docker läuft:
+
    ```bash
    docker ps
    ```
-
 2. Überprüfen Sie die PostgreSQL-Logs:
+
    ```bash
    docker logs postgres_db
    ```
-
 3. Starten Sie die Datenbank neu:
+
    ```bash
    docker-compose restart postgres_db
    ```
@@ -330,6 +341,7 @@ npm install
 ### Problem: CORS-Fehler
 
 Stellen Sie sicher, dass:
+
 - Das Backend läuft (`flask_cors` installiert ist)
 - Die Frontend-Anfragen an `http://localhost:5001` gehen
 - Im Backend `CORS(app)` aktiviert ist
@@ -337,11 +349,13 @@ Stellen Sie sicher, dass:
 ### Problem: Python-Version
 
 Stellen Sie sicher, dass Sie Python 3.10+ verwenden:
+
 ```bash
 python3 --version
 ```
 
 Falls eine ältere Version installiert ist, aktualisieren Sie Python oder verwenden Sie `pyenv`:
+
 ```bash
 # Mit Homebrew (macOS)
 brew install python@3.13
@@ -352,11 +366,13 @@ brew install python@3.13
 ## 📡 API Endpunkte
 
 ### Gesundheitscheck
+
 ```
 GET /api/health
 ```
 
 ### Datei-Upload
+
 ```
 POST /api/upload
 Content-Type: multipart/form-data
@@ -364,6 +380,7 @@ Body: file (bpmn, xes, xml, csv, txt)
 ```
 
 ### Text-Eingabe
+
 ```
 POST /api/text-input
 Content-Type: application/json
@@ -371,6 +388,7 @@ Body: { "text": "..." }
 ```
 
 ### ETL-bereite Uploads auflisten
+
 ```
 GET /api/etl-ready-uploads
 ```
@@ -386,16 +404,17 @@ Siehe `backend/app.py` für alle verfügbaren Routen.
 ### Beide Dienste gleichzeitig starten (empfohlen)
 
 1. **Terminal 1:** Docker-Datenbank starten
+
    ```bash
    docker-compose up -d
    ```
-
 2. **Terminal 2:** Backend starten
+
    ```bash
    ./start-backend.sh
    ```
-
 3. **Terminal 3:** Frontend starten
+
    ```bash
    ./start-frontend.sh
    ```
@@ -403,10 +422,12 @@ Siehe `backend/app.py` für alle verfügbaren Routen.
 ### Nach Änderungen
 
 **Backend:**
+
 - Beenden Sie den Server (Ctrl+C)
 - Starten Sie neu mit `./start-backend.sh`
 
 **Frontend:**
+
 - Vite erkennt Änderungen automatisch (Hot Module Replacement)
 - Bei größeren Problemen: Ctrl+C und neu starten
 
@@ -423,6 +444,7 @@ Siehe `backend/app.py` für alle verfügbaren Routen.
 ## 📦 Requirements Zusammenfassung
 
 ### Backend (`backend/requirements.txt`):
+
 ```
 Flask==3.0.0
 Flask-CORS==4.0.0
@@ -439,7 +461,9 @@ python-dotenv
 ```
 
 ### Frontend (`frontend/package.json`):
+
 Siehe `package.json` für die vollständige Liste. Hauptabhängigkeiten:
+
 - React 18.3.1
 - Vite 7.1.7
 - TypeScript 5.9.3
@@ -467,6 +491,7 @@ Siehe `package.json` für die vollständige Liste. Hauptabhängigkeiten:
 ## 🆘 Support
 
 Bei Problemen:
+
 1. Überprüfen Sie die Logs in den Terminals
 2. Stellen Sie sicher, dass alle Voraussetzungen erfüllt sind
 3. Konsultieren Sie die Troubleshooting-Sektion
