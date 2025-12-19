@@ -19,7 +19,7 @@ CORS(app)  # Enable CORS for all routes
 # Configuration
 # Pfad zum Haupt-uploads Ordner (eine Ebene höher)
 UPLOAD_FOLDER = os.path.abspath(os.path.join(os.path.dirname(__file__), '../uploads'))
-ALLOWED_EXTENSIONS = {'bpmn', 'xes', 'xml', 'csv', 'txt'}
+ALLOWED_EXTENSIONS = {'bpmn', 'xes', 'csv', 'txt', 'docx', 'pdf'}
 MAX_FILE_SIZE = 16 * 1024 * 1024  # 16MB
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -30,7 +30,7 @@ os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 # --- ETL-Filter und API-Route ---
 from pathlib import Path
-RELEVANT_ETL_EXTENSIONS = {'.xes', '.csv', '.bpmn', '.txt'}
+RELEVANT_ETL_EXTENSIONS = {'.xes', '.csv', '.bpmn', '.txt', '.docx', '.pdf'}
 
 def get_etl_ready_files():
     """Gibt alle Uploads mit relevanten Endungen für den ETL-Prozess zurück"""
@@ -40,6 +40,15 @@ def get_etl_ready_files():
         if ext in RELEVANT_ETL_EXTENSIONS:
             files.append(filename)
     return files
+
+def delete_file(filepath):
+    """Löscht eine Datei, falls sie existiert"""
+    try:
+        if filepath and os.path.exists(filepath):
+            os.remove(filepath)
+            print(f"🗑️ Datei gelöscht: {filepath}")
+    except Exception as e:
+        print(f"⚠️ Fehler beim Löschen von {filepath}: {e}")
 
 @app.route('/api/etl-ready-uploads', methods=['GET'])
 def list_etl_ready_uploads():
@@ -74,6 +83,7 @@ def health_check():
 
 @app.route('/api/upload', methods=['POST'])
 def upload_file():
+    filepath = None
     """Handle file uploads"""
     try:
         # Check if file is present
@@ -115,7 +125,7 @@ def upload_file():
             if ext in {'.xes', '.csv', '.bpmn'}:
                 run_etl_event_log(filepath)
                 etl_result = 'event_log_etl_done'
-            elif ext == '.txt':
+            elif ext in {'.txt', '.docx', '.pdf'}:
                 run_etl_textual_process_data(filepath)
                 etl_result = 'textual_etl_done'
             else:
@@ -138,11 +148,15 @@ def upload_file():
             'success': False,
             'error': str(e)
         }), 500
+    
+    finally:
+        delete_file(filepath)
 
 
 @app.route('/api/text-input', methods=['POST'])
 def text_input():
     """Handle text input and save as .txt file"""
+    filepath = None
     try:
         data = request.get_json()
         
@@ -191,11 +205,15 @@ def text_input():
             'success': False,
             'error': str(e)
         }), 500
+    
+    finally:
+        delete_file(filepath)
 
 
 @app.route('/api/combined-upload', methods=['POST'])
 def combined_upload():
     """Handle combined text and file uploads"""
+    created_filepaths = []
     try:
         uploaded_files = []
         text_file_info = None
@@ -210,6 +228,8 @@ def combined_upload():
             
             with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(text_content)
+
+            created_filepaths.append(filepath)
             
             text_file_info = {
                 'filename': 'user_input.txt',
@@ -244,6 +264,7 @@ def combined_upload():
                 
                 # Save the file
                 file.save(filepath)
+                created_filepaths.append(filepath)
                 
                 uploaded_files.append({
                     'filename': original_filename,
@@ -311,6 +332,10 @@ def combined_upload():
             'success': False,
             'error': str(e)
         }), 500
+    
+    finally:
+        for path in created_filepaths:
+            delete_file(path)
 
 
 @app.route('/api/uploads', methods=['GET'])
