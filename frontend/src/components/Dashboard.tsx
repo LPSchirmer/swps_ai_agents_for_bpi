@@ -49,7 +49,7 @@ const Dashboard = ({ uploadedFile, onNewAnalysis, aiAnalysisResult }: DashboardP
             onClick={onNewAnalysis}
             className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg font-medium transition-all"
           >
-            Starten
+            Neue Analyse starten
           </button>
         </div>
       </div>
@@ -65,8 +65,8 @@ const Dashboard = ({ uploadedFile, onNewAnalysis, aiAnalysisResult }: DashboardP
           </div>
         </div>
 
-        <h1 className="text-3xl font-bold mb-2">Prozess-Dashboard</h1>
-        <p className="text-slate-400 mb-8">Datei: {uploadedFile?.filename || 'jobs.csv'}</p>
+        <h1 className="text-3xl font-bold mb-2">Prozessanalyse-Dashboard</h1>
+        <p className="text-slate-400 mb-8">Datei(en): {uploadedFile?.filename || 'jobs.csv'}</p>
 
         {/* 🤖 KI-Analyseergebnisse anzeigen */}
         {aiAnalysisResult && (
