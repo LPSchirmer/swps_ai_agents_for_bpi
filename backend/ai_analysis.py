@@ -71,11 +71,9 @@ def extract_data_from_uploads(upload_dir: str) -> Dict[str, Any]:
         # Textuelle Daten extrahieren
         textual_data = get_textual_data(upload_dir)
         if textual_data:
-            # Konvertiere dict zu string falls nötig
-            if isinstance(textual_data, dict):
-                result['textual_data'] = "\n\n".join([f"{k}:\n{v}" for k, v in textual_data.items()])
-            else:
-                result['textual_data'] = str(textual_data)
+            textual_data_clean = {k: " ".join(v.split()) for k, v in textual_data.items()}
+        result['textual_data'] = textual_data_clean
+
         
         # Event Log extrahieren
         event_log = get_event_log(upload_dir)
