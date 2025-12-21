@@ -73,7 +73,7 @@ const Dashboard = ({ uploadedFile, onNewAnalysis, aiAnalysisResult }: DashboardP
           <div className="bg-gradient-to-br from-purple-900/20 to-indigo-900/20 border border-purple-700/50 rounded-2xl p-6 mb-8">
             <h2 className="text-2xl font-bold mb-4 flex items-center space-x-2">
               <Sparkles className="w-6 h-6 text-purple-500" />
-              <span>KI-Analyseergebnis</span>
+              <span>Finales Analyseergebnis</span>
             </h2>
             <div className="bg-slate-900/60 rounded-xl p-6 max-h-96 overflow-y-auto">
               <pre className="whitespace-pre-wrap text-slate-300 text-sm font-mono">
@@ -518,7 +518,7 @@ const Dashboard = ({ uploadedFile, onNewAnalysis, aiAnalysisResult }: DashboardP
                       </div>
                       <div className="mt-4 flex items-center justify-between text-xs text-slate-500">
                         <span>Generiert von CrewAI Multi-Agenten-System</span>
-                        <span>Powered by OpenAI GPT-4o-mini</span>
+                        <span>Powered by OpenAI GPT-4.1</span>
                       </div>
                     </div>
                   )}
