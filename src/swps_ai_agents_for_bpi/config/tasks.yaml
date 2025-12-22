@@ -2,127 +2,107 @@
 analyze_user_input_task:
   description: >
     Process any input provided by the user, which may include textual
-    process descriptions, company information, compliance documents, regulatory texts, process KPIs, 
+    process descriptions, company information, compliance documents, regulatory texts, process KPIs,
     process optimization goals, constraints, risk information, resources, or any other domain-relevant data.
     Extract and normalize all explicit relevant information and transform it into a structured
-    JSON format. Do not make assumptions or infer missing information. 
+    JSON format. Do not make assumptions or infer missing information.
     Do not include filler words or paraphrases provided by the user. Only include
-    fields that are directly provided. Textual user input: {textual_user_input}. Process data: {process_data_basic}. 
-    If Process data is given, process_information should inlcude all information of {process_data_basic}
+    fields that are directly provided. Textual User input: {textual_user_input}, Process data: {process_data_basic}.
+    If Process data is given, process_information should inlcude all that data.
   expected_output: >
     A structured JSON object containing all explicitly provided information.
     
 # Phase 1.2: Provided company name -> Enrich the given input with publicly available company-information and macro-data
 analyze_economic_context_task:
   description: >
-    Analyze the organization named in the user input by gathering contextual company information 
+    Analyze the organization named in the user input by gathering contextual company information
     and assessing relevant macroeconomic and industry-wide factors in the years {last_year}, {current_year}, and estimates for {next_year}.
-    Summarize the company’s current financial posture, strategic orientation, market position and regional macroeconomic conditions. 
+    Summarize the company’s current financial posture, strategic orientation, market position and regional macroeconomic conditions.
     Use only information that is explicitly provided or can be reliably researched.
     Based on these findings, explicitly derive the key implications that
     are relevant for process redesign and performance improvement suggestions for the given company, industry sector and macroeconomic context.
   expected_output: >
     A structured JSON object containing all researched information.
 
-# Phase 2: Structured Requirements -> Structured Analysis Plan and Delegation of Tasks
-# Bis jetzt noch nicht ready
-plan_analysis_task:
-  description: >
-    Using all information available, create a clear
-    analysis plan for the specialized agents. Determine which aspects of the input
-    each agent should review or analyze, and allocate the relevant information to them.
-    Ensure that the plan is comprehensive, evidence-based, and based only on the
-    explicitly provided information.
-  expected_output: >
-    A structured JSON object representing the analysis plan. This plan defines
-    which specialized agents are responsible for which areas of analysis and
-    specifies the data and information they will use.
-
-# Phase 3: Structured Analysis Plan and Delegation of Tasks -> Domain-Specific Analysis
+# Phase 2: Enriched User Input -> Domain-Specific Analysis
 performance_analysis_task:
   description: >
-    Redesign the given process with the explicit goal of improving performance, neglecting aspects like compliance issues, process costs or similar. 
+    Redesign the given process with the explicit goal of improving performance, neglecting aspects like compliance issues, process costs or similar.
     Base the redesign strictly on the explicitly provided information, including structured data, KPIs, extracted textual inputs, and any supplied
     process redesign options as primary guidance.
-    All redesign decisions must be consistent with the given 
+    All redesign decisions must be consistent with the given
     company characteristics and the current macroeconomic context.
     If needed, perform targeted web searches to identify applicable redesign patterns or
-    best-practice process structures relevant to the given process, company and industry context. 
-    Do not provide generic or non-actionable recommendations (e.g., “implement KPIs”, “continuous monitoring”, etc.). 
+    best-practice process structures relevant to the given process, company and industry context.
+    Do not provide generic or non-actionable recommendations (e.g., “implement KPIs”, “continuous monitoring”, etc.).
     Do not include vague statements such as “redesign the process”, “consider parallelization”, or similar, 
     instead provide concrete process designs that implement those suggestions.
+    Never provide unclear suggestions like "eliminate all rework" or similar.
+    Rather investigate the root-cause of the identified performance issues and redesign the process to mitigate those. 
     Do not analyze or mention costs or compliance topics, focus exclusively on process performance.
     Your task is to deliver concrete, directly implementable process designs that measurably increase performance.
     Available process kpi's: {process_kpis_performance}
   expected_output: >
     A structured optimization proposal containing clear performance-improved process designs.
-    Describe only the redesigned process and do not include introductions, conclusions, narrative commentary 
-    or things like the advantages/opportunities of the redesigned process.
+    Describe only the flow of the redesigned process in approximately 100-200 words. Do not include introductions, conclusions, summaries, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
 
 finance_analysis_task:
   description: >
-    Redesign the given process with the explicit goal of reducing costs, neglecting aspects like compliance issues, process performance or similar. 
+    Redesign the given process with the explicit goal of reducing costs, neglecting aspects like compliance issues, process performance or similar.
     Base the redesign strictly on the explicitly provided information, including structured data, KPIs, extracted textual inputs, and any supplied
     process redesign options as primary guidance.
-    All redesign decisions must be consistent with the given 
+    All redesign decisions must be consistent with the given
     company characteristics and the current macroeconomic context.
     If needed, perform targeted web searches to identify applicable redesign patterns or
-    best-practice process structures relevant to the given process, company and industry context. 
-    Do not provide generic or non-actionable recommendations (e.g., “implement KPIs”, “continuous monitoring”, etc.). 
+    best-practice process structures relevant to the given process, company and industry context.
+    Do not provide generic or non-actionable recommendations (e.g., “implement KPIs”, “continuous monitoring”, etc.).
     Do not include vague statements such as “redesign the process”, “consider parallelization”, or similar, 
     instead provide concrete process designs that implement those suggestions.
+    Never provide unclear suggestions like "eliminate all rework" or similar.
+    Rather investigate the root-cause of the identified cost issues and redesign the process to mitigate those.
     Do not analyze or mention performance or compliance topics, focus exclusively on process costs.
     Your task is to deliver concrete, directly implementable process designs that measurably reduce costs.
     Available process kpi's: {process_kpis_finance}
   expected_output: >
-     A structured optimization proposal containing clear cost-improved process designs.
-     Describe only the redesigned process and do not include introductions, conclusions, or narrative commentary.
+    A structured optimization proposal containing clear cost-improved process designs.
+    Describe only the flow of the redesigned process in approximately 100-200 words. Do not include introductions, conclusions, summaries, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
 
 compliance_analysis_task:
   description: >
-    Analyze all available compliance-related information from structured data, KPIs, 
-    or extracted textual inputs.
+    Analyze all available compliance-related information from structured data, KPIs, or extracted textual inputs.
     If explicit legal or regulatory norms are provided, research these norms online and evaluate
     the given process against them. If no norms are given, use the provided company information and
     the given process to research potentially relevant laws, regulations, or industry
-    standards the given process may need to comply with in the year {current_year}. 
+    standards the given process may need to comply with in the year {current_year}.
     With these results, identify rule violations and non-compliant activities in the given process and
     propose detailed, data-supported compliance improvements without adding generic or speculative content.
     Available process kpi's: {process_kpis_compliance}
   expected_output: >
     A structured optimization proposal summarizing the compliance analysis. Clearly describe the
     identified or researched legal/regulatory norms, how the process adheres or violates these norms,
-    and compliance improvement options (main emphasis) with clear rationales.
+    and compliance improvement options (main emphasis).
 
-# Phase 4: Domain-specific Analysis -> Aggregate findings
-# Bis jetzt noch nicht ready
-aggregate_findings_task:
+# Phase 3: Domain-specific Analysis -> Synthesize process improvement and -redesign options and generate integrated designs
+synthesize_generate_redesigns_task:
   description: >
-    Combine and synthesize all outputs from the specialized analysis agents
-    (performance, finance, compliance) into a single, coherent understanding
-    of the analysis findings and improvement suggestions. Identify cross-domain insights, synergies,
-    conflicts, and dependencies between the domain-specific findings.
+    Create at most three holistic and integrated process redesigns by aggregating, combining,
+    synthesizing and adapting the process redesign options
+    and improvement suggestions provided by the specialized analysis agents (performance, finance, compliance).
+    The integrated process designs shound be perfectly aligned with the user-provided optimization goals,
+    constraints, preferences, and contextual information.
   expected_output: >
-    A structured optimization proposal summarizing findings and improvement suggestions from the domain-specific analysis (performance, finance, compliance)
+    A structured optimization proposal containing three integrated process redesigns,
+    clearly derived from the aggregated domain-specific findings and aligned with the
+    user’s stated goals and constraints. Do not include introductions, conclusions, summaries, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
 
-# Phase 5: Aggregate findings -> Generate Improvement Recommendations
-# Hier nochmal schauen, ob das ganze wirklich benötigt wird
-# Bis jetzt noch nicht ready
-generate_improvements_task:
-  description: >
-    Take all aggregated findings and previously suggested improvement proposals
-    from specialized analysis agents (performance, finance, compliance) as input.
-    Combine and integrate the domain-specific results to generate at least three holistic, coherent
-    descriptions of process improvement and redesign suggestions, based on the combineability of previously improvement suggestions
-  expected_output: >
-    A structured optimization proposal containing at least three holistic process improvement suggestions.
-
-# Phase 6: Generate Improvement Recommendations -> Evaluate Improvement Recommendations
-# Eventuelles Problem, dass die Antwort von dem Agent nicht berücksichtig wird oder dass zu viele Iterationsschleifen gedreht werden
-# Bis jetzt noch nicht ready
+# Phase 4: Synthesized process improvement options -> Evaluate the proposed designs
+# Noch nicht ready
+# Vielleicht Scoring System implementieren
 evaluate_improvements_task:
   description: >
-    Vielleicht Scoring System implementieren
     Evaluate the proposed process redesigns and -improvements. Assess alignment with the user's input information, company posture, industry sector, 
     macroeconomic factors and social/ethical aspects. Also evaluate the potential risk of suggested process redesign options on a scale of 1-5.
     Provide an objective comparison with the as-is process and recommend a release or rejection of the process redesigns and -improvements.
@@ -130,9 +110,8 @@ evaluate_improvements_task:
     A structured evaluation proposal summarizing the evaluation of the process redesgins and -improvements
     and a recommendation to adopt, modify, or reject each improvement suggestion.
 
-# Phase 7: Final Result
-# Hauptfrage: Was nehmen wir hier alles mit rein?
-# Bis jetzt noch nicht ready
+# Phase 5: Evaluated and approved redesigns -> Compile final answer
+# Noch nicht ready
 compile_final_report_task:
   description: >
     Create a final consolidated report that summarizes the most significant
@@ -145,3 +124,21 @@ compile_final_report_task:
     relevant improvement suggestions, and their justification based on the
     provided analyses and evaluation results. The report should be concise,
     clearly structured, and formatted as Markdown without code fences.
+    
+# Optional noch zum einbinden
+generate_bpmn_from_text_task:
+  description: >
+    Generate a valid BPMN 2.0 XML representation of a business process based solely on the
+    textual process description.
+    Identify process elements such as activities, events, gateways, sequence flows,
+    roles or lanes if explicitly mentioned.
+    Do not infer missing steps, conditions, or control-flow logic.
+    If parts of the process are ambiguous or unspecified, model them in the simplest
+    valid BPMN form without assumptions.
+    The output must be syntactically correct BPMN 2.0 XML and directly importable
+    into standard BPMN modeling tools.
+    For generating correct and convenient code, use the provided knowledge source as central information.
+  expected_output: >
+    A valid BPMN 2.0 XML document representing the described process.
+    The output must contain only the BPMN 2.0 XML code, without explanations,
+    comments, markdown formatting, or additional text. The code has to be directly importable into a modeling tool.
