@@ -10,6 +10,29 @@ from typing import List, Optional, Union
 # Structuring Agent Output
 from pydantic import BaseModel
 
+# LLM API Settings
+from dotenv import load_dotenv
+import os
+load_dotenv()
+llm_openai = LLM(
+    model=os.getenv("BASE_MODEL_OPENAI"),
+    api_key= os.getenv("API_KEY_OPENAI"),
+    temperature=0.4,
+    max_tokens=1500
+)
+
+# Instantiate tools - Make SerperDevTool optional
+try:
+    from crewai_tools import SerperDevTool
+    web_search_tool = SerperDevTool() if os.getenv("SERPER_API_KEY") else None
+except:
+    web_search_tool = None
+
+# Interactive Agent
+from humanlayer import HumanLayer
+hl = HumanLayer()
+human_chat = hl.human_as_tool()
+
 class Requirements(BaseModel):
     process_name: str
     company_information: str
@@ -28,31 +51,6 @@ class EconomicContext(BaseModel):
     regional_macroeconomic_conditions: dict
     process_redesign_considerations: List[str]
 
-class Performance(BaseModel):
-    pass
-
-# LLM API Settings
-from dotenv import load_dotenv
-import os
-load_dotenv()
-llm_openai = LLM(
-    model=os.getenv("BASE_MODEL_OPENAI"),
-    api_key= os.getenv("API_KEY_OPENAI"),
-    temperature=0.4,
-    max_tokens=1000
-)
-# Instantiate tools - Make SerperDevTool optional
-try:
-    from crewai_tools import SerperDevTool
-    web_search_tool = SerperDevTool() if os.getenv("SERPER_API_KEY") else None
-except:
-    web_search_tool = None
-
-# Interactive Agent
-from humanlayer import HumanLayer
-hl = HumanLayer()
-human_chat = hl.human_as_tool()
-
 # If you want to run a snippet of code before or after the crew starts,
 # you can use the @before_kickoff and @after_kickoff decorators
 # https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
@@ -69,30 +67,36 @@ class SwpsAiAgentsForBpi():
     _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
     _knowledge_path1 = os.path.join(_project_root, 'knowledge', 'bpi_patterns_1.txt')
     _knowledge_path2 = os.path.join(_project_root, 'knowledge', 'bpi_patterns_2.txt')
+    _knowledge_path3 = os.path.join(_project_root, 'knowledge', 'modeling_guidelines.txt')
     
-    text_source = None
+    bpi_text_source = None
     if os.path.exists(_knowledge_path1) and os.path.exists(_knowledge_path2):
-        text_source = TextFileKnowledgeSource(
+        bpi_text_source = TextFileKnowledgeSource(
             file_paths=[_knowledge_path1, _knowledge_path2]
         )
-    # If you would like to add tools to your agents, you can learn more about it here:
-    # https://docs.crewai.com/concepts/agents#agent-tools
-    @agent
-    def orchestrator_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['orchestrator_agent'],
-            llm=llm_openai,
-            verbose=True,
-            allow_delegation=True,
-            reasoning=True,
-            memory=True,
-            max_iter=5
+
+    modeling_text_source = None
+    if os.path.exists(_knowledge_path3):
+        modeling_text_source = TextFileKnowledgeSource(
+            file_paths=[_knowledge_path3]
         )
+    
+    # @agent
+    # def orchestrator_agent(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['orchestrator_agent'],
+    #         llm=llm_openai,
+    #         verbose=True,
+    #         allow_delegation=True,
+    #         reasoning=True,
+    #         memory=True,
+    #         max_iter=5
+    #     )
 
     @agent
     def requirements_agent(self) -> Agent:
         return Agent(
-            config=self.agents_config['requirements_agent'], # type: ignore[index]
+            config=self.agents_config['requirements_agent'],
             llm=llm_openai,
             verbose=True,
             allow_delegation = False,
@@ -102,7 +106,7 @@ class SwpsAiAgentsForBpi():
     @agent
     def economic_context_agent(self) -> Agent:
         agent_config = {
-            'config': self.agents_config['economic_context_agent'], # type: ignore[index]
+            'config': self.agents_config['economic_context_agent'],
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
@@ -115,7 +119,7 @@ class SwpsAiAgentsForBpi():
     @agent
     def performance_agent(self) -> Agent:
         agent_config = {
-            'config': self.agents_config['performance_agent'], # type: ignore[index]
+            'config': self.agents_config['performance_agent'],
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
@@ -123,14 +127,14 @@ class SwpsAiAgentsForBpi():
         }
         if web_search_tool is not None:
             agent_config['tools'] = [web_search_tool]
-        if self.text_source is not None:
-            agent_config['knowledge_sources'] = [self.text_source]
+        if self.bpi_text_source is not None:
+            agent_config['knowledge_sources'] = [self.bpi_text_source]
         return Agent(**agent_config)
     
     @agent
     def finance_agent(self) -> Agent:
         agent_config = {
-            'config': self.agents_config['finance_agent'], # type: ignore[index]
+            'config': self.agents_config['finance_agent'],
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
@@ -138,14 +142,14 @@ class SwpsAiAgentsForBpi():
         }
         if web_search_tool is not None:
             agent_config['tools'] = [web_search_tool]
-        if self.text_source is not None:
-            agent_config['knowledge_sources'] = [self.text_source]
+        if self.bpi_text_source is not None:
+            agent_config['knowledge_sources'] = [self.bpi_text_source]
         return Agent(**agent_config)
     
     @agent
     def compliance_agent(self) -> Agent:
         agent_config = {
-            'config': self.agents_config['compliance_agent'], # type: ignore[index]
+            'config': self.agents_config['compliance_agent'],
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
@@ -156,22 +160,47 @@ class SwpsAiAgentsForBpi():
         return Agent(**agent_config)
     
     @agent
-    def evaluation_agent(self) -> Agent:
-        return Agent(
-            config=self.agents_config['evaluation_agent'], # type: ignore[index]
-            llm=llm_openai,
-            verbose=True,
-            allow_delegation=True,
-            max_iter=5
-        )
+    def process_design_agent(self) -> Agent:
+        agent_config = {
+            'config': self.agents_config['process_design_agent'],
+            'llm': llm_openai,
+            'verbose': True,
+            'allow_delegation': False,
+            'max_iter': 5
+        }
+        if web_search_tool is not None:
+            agent_config['tools'] = [web_search_tool]
+        if self.bpi_text_source is not None:
+            agent_config['knowledge_sources'] = [self.bpi_text_source]
+        return Agent(**agent_config)
+    
+    # @agent
+    # def evaluation_agent(self) -> Agent:
+    #     return Agent(
+    #         config=self.agents_config['evaluation_agent'], # type: ignore[index]
+    #         llm=llm_openai,
+    #         verbose=True,
+    #         allow_delegation=True,
+    #         max_iter=5
+    #     )
 
-    # To learn more about structured task outputs,
-    # task dependencies, and task callbacks, check out the documentation:
-    # https://docs.crewai.com/concepts/tasks#overview-of-a-task
+    # @agent
+    # def process_modeling_agent(self) -> Agent:
+    #     agent_config = {
+    #         'config': self.agents_config['process_modeling_agent'], # type: ignore[index]
+    #         'llm': llm_openai,
+    #         'verbose': True,
+    #         'allow_delegation': False,
+    #         'max_iter': 5
+    #     }
+    #     if self.modeling_text_source is not None:
+    #         agent_config['knowledge_sources'] = [self.modeling_text_source]
+    #     return Agent(**agent_config)
+
     @task
     def analyze_user_input_task(self) -> Task:
         return Task(
-            config=self.tasks_config['analyze_user_input_task'], # type: ignore[index]
+            config=self.tasks_config['analyze_user_input_task'],
             agent=self.requirements_agent(),
             output_json=Requirements
         )
@@ -179,91 +208,80 @@ class SwpsAiAgentsForBpi():
     @task
     def analyze_economic_context_task(self) -> Task:
         return Task(
-            config=self.tasks_config['analyze_economic_context_task'], # type: ignore[index]
+            config=self.tasks_config['analyze_economic_context_task'],
             agent=self.economic_context_agent(),
             context=[self.analyze_user_input_task()],
             output_json=EconomicContext
-        )
-
-    @task
-    def plan_analysis_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['plan_analysis_task'], # type: ignore[index]
-            agent=self.orchestrator_agent(),
-            context=[self.analyze_user_input_task(), self.analyze_economic_context_task()]
         )
     
     @task
     def performance_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['performance_analysis_task'], # type: ignore[index]
+            config=self.tasks_config['performance_analysis_task'],
             agent=self.performance_agent(),
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()],
+            markdown=True,
             # async_execution=True # Task is performed in parallel with finance and compliance analysis
         )
     
     @task
     def finance_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['finance_analysis_task'], # type: ignore[index]
+            config=self.tasks_config['finance_analysis_task'],
             agent=self.finance_agent(), 
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()], 
+            markdown=True,
             # async_execution=True # Task is performed in parallel with performance and compliance analysis
-        )
-    
-    @task
-    def risk_analysis_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['risk_analysis_task'], # type: ignore[index]
-            agent=self.risk_agent(),
-            context=[self.plan_analysis_task()],
-            async_execution=True # Task is performed in parallel with performance, finance and compliance analysis
         )
     
     @task
     def compliance_analysis_task(self) -> Task:
         return Task(
-            config=self.tasks_config['compliance_analysis_task'], # type: ignore[index]
+            config=self.tasks_config['compliance_analysis_task'],
             agent=self.compliance_agent(),
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()],
+            markdown=True,
             # async_execution=True # Task is performed in parallel with performance and finance analysis
         )
     
     @task
-    def aggregate_findings_task(self) -> Task:
+    def synthesize_generate_redesigns_task(self) -> Task:
         return Task(
-            config=self.tasks_config['aggregate_findings_task'], # type: ignore[index]
-            agent=self.orchestrator_agent(),
-            context=[self.performance_analysis_task(), 
+            config=self.tasks_config['synthesize_generate_redesigns_task'],
+            agent=self.process_design_agent(),
+            context=[self.analyze_user_input_task(),
+                     self.analyze_economic_context_task(),
+                     self.performance_analysis_task(), 
                      self.finance_analysis_task(),  
-                     self.compliance_analysis_task()]
+                     self.compliance_analysis_task()],
+            markdown=True
         )
     
-    @task
-    def generate_improvements_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['generate_improvements_task'], # type: ignore[index]
-            agent=self.orchestrator_agent(),
-            context= [self.analyze_user_input_task(), self.analyze_economic_context_task(), self.aggregate_findings_task()]
-        )
+    # @task
+    # def evaluate_improvements_task(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['evaluate_improvements_task'], # type: ignore[index]
+    #         agent=self.evaluation_agent(),
+    #         context=[self.analyze_user_input_task(), self.analyze_economic_context_task(), self.performance_analysis_task()]
+    #     )
     
-    @task
-    def evaluate_improvements_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['evaluate_improvements_task'], # type: ignore[index]
-            agent=self.evaluation_agent(),
-            context=[self.analyze_user_input_task(), self.analyze_economic_context_task(), self.performance_analysis_task()]
-        )
-    
-    @task
-    def compile_final_report_task(self) -> Task:
-        return Task(
-            config=self.tasks_config['compile_final_report_task'], # type: ignore[index]
-            output_file='report.md',
-            agent=self.orchestrator_agent(),
-            markdown=True,
-            context=[self.generate_improvements_task(), self.evaluate_improvements_task()]
-        )
+    # @task
+    # def compile_final_report_task(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['compile_final_report_task'], # type: ignore[index]
+    #         output_file='report.md',
+    #         agent=self.orchestrator_agent(),
+    #         markdown=True,
+    #         context=[self.generate_improvements_task(), self.evaluate_improvements_task()]
+    #     )
+
+    # @task
+    # def generate_bpmn_from_text_task(self) -> Task:
+    #     return Task(
+    #         config=self.tasks_config['generate_bpmn_from_text_task'], # type: ignore[index]
+    #         agent=self.process_modeling_agent(),
+    #         context=[self.performance_analysis_task()]
+    #     )
 
     @crew
     def crew(self) -> Crew:
@@ -273,7 +291,7 @@ class SwpsAiAgentsForBpi():
             agents=self.agents, # Automatically created by the @agent decorator
             tasks=self.tasks, # Automatically created by the @task decorator
             process=Process.sequential,
-            # manager_agent=self.orchestrator_agent(),
             verbose=True,
+            # manager_agent=self.orchestrator_agent(),
             # memory=True
         )
