@@ -15,6 +15,9 @@ dependencies = [
     "pm4py>=2.7.19.1",
     "docx2txt>=0.9",
     "humanlayer>=0.7.9",
+    "flask>=3.1.2",
+    "flask-cors>=6.0.2",
+    "werkzeug>=3.1.4",
 ]
 
 [project.scripts]
