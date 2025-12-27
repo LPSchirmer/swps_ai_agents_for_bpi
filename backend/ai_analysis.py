@@ -190,15 +190,125 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
         print("\n🚀 Starte CrewAI Multi-Agenten-System...")
         print("   (Dies kann 30-60 Sekunden dauern...)\n")
         
-        crew = SwpsAiAgentsForBpi().crew()
+        crew_instance = SwpsAiAgentsForBpi()
+        crew = crew_instance.crew()
         result = crew.kickoff(inputs=crew_inputs)
         
         print("\n✅ KI-Analyse abgeschlossen!")
         print("="*80 + "\n")
         
+        # Extrahiere einzelne Task-Outputs
+        agent_outputs = {
+            'requirements': None,
+            'economic': None,
+            'performance': None,
+            'finance': None,
+            'compliance': None
+        }
+        
+        # Debug: Zeige das Result-Objekt
+        print("\n🔍 DEBUG: Analysiere CrewAI Result...")
+        print(f"   Result Type: {type(result)}")
+        print(f"   Result Dir: {[attr for attr in dir(result) if not attr.startswith('_')]}")
+        
+        try:
+            # Methode 1: tasks_output Attribut (CrewAI Standard)
+            if hasattr(result, 'tasks_output') and result.tasks_output:
+                print(f"\n📦 Gefunden: tasks_output mit {len(result.tasks_output)} Tasks")
+                
+                for i, task_output in enumerate(result.tasks_output):
+                    # Debug jeden Task
+                    task_attrs = [attr for attr in dir(task_output) if not attr.startswith('_')]
+                    print(f"\n   Task {i} Attribute: {task_attrs}")
+                    
+                    # Hole Task-Namen und Output
+                    task_name = getattr(task_output, 'name', None) or getattr(task_output, 'task_name', None) or f'task_{i}'
+                    task_description = getattr(task_output, 'description', '')[:50] if hasattr(task_output, 'description') else ''
+                    
+                    # Raw output extrahieren
+                    if hasattr(task_output, 'raw'):
+                        task_raw = task_output.raw
+                    elif hasattr(task_output, 'output'):
+                        task_raw = str(task_output.output)
+                    elif hasattr(task_output, 'result'):
+                        task_raw = str(task_output.result)
+                    else:
+                        task_raw = str(task_output)
+                    
+                    print(f"   Task {i}: name='{task_name}', desc='{task_description}', output_len={len(str(task_raw))}")
+                    
+                    # Ordne nach Index (sequentielle Reihenfolge in crew.py)
+                    # 0: analyze_user_input_task (Requirements)
+                    # 1: analyze_economic_context_task (Economic)
+                    # 2: performance_analysis_task (Performance)
+                    # 3: finance_analysis_task (Finance)
+                    # 4: compliance_analysis_task (Compliance)
+                    
+                    task_name_lower = str(task_name).lower() if task_name else ''
+                    
+                    if i == 0 or 'user_input' in task_name_lower or 'requirement' in task_name_lower:
+                        agent_outputs['requirements'] = str(task_raw)
+                        print(f"   ✅ Zugeordnet zu: requirements ({len(str(task_raw))} Zeichen)")
+                    elif i == 1 or 'economic' in task_name_lower:
+                        agent_outputs['economic'] = str(task_raw)
+                        print(f"   ✅ Zugeordnet zu: economic ({len(str(task_raw))} Zeichen)")
+                    elif i == 2 or 'performance' in task_name_lower:
+                        agent_outputs['performance'] = str(task_raw)
+                        print(f"   ✅ Zugeordnet zu: performance ({len(str(task_raw))} Zeichen)")
+                    elif i == 3 or 'finance' in task_name_lower:
+                        agent_outputs['finance'] = str(task_raw)
+                        print(f"   ✅ Zugeordnet zu: finance ({len(str(task_raw))} Zeichen)")
+                    elif i == 4 or 'compliance' in task_name_lower:
+                        agent_outputs['compliance'] = str(task_raw)
+                        print(f"   ✅ Zugeordnet zu: compliance ({len(str(task_raw))} Zeichen)")
+                    else:
+                        print(f"   ⚠️ Task {i} nicht zugeordnet!")
+            
+            # Methode 2: Falls tasks_output leer, versuche über crew.tasks
+            elif hasattr(crew, 'tasks') and crew.tasks:
+                print("\n📦 Versuche Alternative: crew.tasks")
+                for i, task in enumerate(crew.tasks):
+                    if hasattr(task, 'output') and task.output:
+                        task_raw = getattr(task.output, 'raw', str(task.output))
+                        print(f"   Task {i}: {len(str(task_raw))} Zeichen")
+                        
+                        if i == 0:
+                            agent_outputs['requirements'] = str(task_raw)
+                        elif i == 1:
+                            agent_outputs['economic'] = str(task_raw)
+                        elif i == 2:
+                            agent_outputs['performance'] = str(task_raw)
+                        elif i == 3:
+                            agent_outputs['finance'] = str(task_raw)
+                        elif i == 4:
+                            agent_outputs['compliance'] = str(task_raw)
+            
+            # Methode 3: Versuche result.raw als Fallback für kombinierte Ausgabe
+            if all(v is None for v in agent_outputs.values()):
+                print("\n⚠️ Keine Task-Outputs gefunden, nutze Fallback...")
+                if hasattr(result, 'raw'):
+                    # Teile den kombinierten Output auf (falls möglich)
+                    raw_output = result.raw
+                    agent_outputs['combined'] = raw_output
+                    print(f"   Fallback: combined output ({len(raw_output)} Zeichen)")
+            
+            # Finale Zusammenfassung
+            print("\n📊 Agent Outputs Zusammenfassung:")
+            for key, value in agent_outputs.items():
+                if value:
+                    print(f"   ✅ {key}: {len(value)} Zeichen")
+                else:
+                    print(f"   ❌ {key}: Nicht verfügbar")
+                    
+        except Exception as parse_error:
+            print(f"\n❌ Fehler beim Parsen der Task-Outputs: {parse_error}")
+            import traceback
+            traceback.print_exc()
+        
         return {
             'success': True,
             'analysis_result': str(result),
+            'agent_outputs': agent_outputs,
             'data_summary': {
                 'has_textual_data': bool(extracted_data['textual_data']),
                 'has_event_log': extracted_data['event_log'] is not None,

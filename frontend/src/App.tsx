@@ -13,6 +13,14 @@ interface UploadedFile {
   uploadTime: string;
 }
 
+interface AgentOutputs {
+  performance?: string;
+  finance?: string;
+  compliance?: string;
+  requirements?: string;
+  economic?: string;
+}
+
 interface UploadResponse {
   files: UploadedFile[];
   total_files: number;
@@ -20,6 +28,7 @@ interface UploadResponse {
   ai_analysis?: {
     success: boolean;
     analysis_result?: string;
+    agent_outputs?: AgentOutputs;
     error?: string;
     data_summary?: {
       has_textual_data: boolean;
@@ -39,6 +48,7 @@ function App() {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
+  const [agentOutputs, setAgentOutputs] = useState<AgentOutputs | null>(null);
 
   const handleCombinedSubmit = async (text: string, files: File[]) => {
     // Wechsle zum Processing Screen
@@ -83,12 +93,27 @@ function App() {
         // 🤖 KI-Analyseergebnisse speichern
         if (response.data.data.ai_analysis) {
           const aiAnalysis = response.data.data.ai_analysis;
+          console.log('🔍 DEBUG ai_analysis vollständig:', JSON.stringify(aiAnalysis, null, 2));
+          
           if (aiAnalysis.success && aiAnalysis.analysis_result) {
             setAiAnalysisResult(aiAnalysis.analysis_result);
             console.log('✅ KI-Analyse erfolgreich:', aiAnalysis.data_summary);
+            
+            // Speichere einzelne Agent-Outputs
+            if (aiAnalysis.agent_outputs) {
+              console.log('🔍 DEBUG agent_outputs:', JSON.stringify(aiAnalysis.agent_outputs, null, 2));
+              console.log('📊 Agent Outputs Keys:', Object.keys(aiAnalysis.agent_outputs));
+              console.log('📊 Performance vorhanden:', !!aiAnalysis.agent_outputs.performance);
+              console.log('📊 Finance vorhanden:', !!aiAnalysis.agent_outputs.finance);
+              console.log('📊 Compliance vorhanden:', !!aiAnalysis.agent_outputs.compliance);
+              setAgentOutputs(aiAnalysis.agent_outputs);
+            } else {
+              console.warn('⚠️ KEINE agent_outputs im aiAnalysis!');
+            }
           } else if (aiAnalysis.error) {
             console.warn('⚠️ KI-Analyse Fehler:', aiAnalysis.error);
             setAiAnalysisResult(null);
+            setAgentOutputs(null);
           }
         } else {
           console.warn('⚠️ Keine KI-Analyse-Daten in der Antwort');
@@ -159,6 +184,7 @@ function App() {
     setUploadedFile(null);
     setUploadedFiles([]);
     setAiAnalysisResult(null);
+    setAgentOutputs(null);
   };
 
   return (
@@ -178,8 +204,10 @@ function App() {
       {currentView === 'dashboard' && (
         <Dashboard
           uploadedFile={uploadedFile}
+          uploadedFiles={uploadedFiles}
           onNewAnalysis={handleNewAnalysis}
           aiAnalysisResult={aiAnalysisResult}
+          agentOutputs={agentOutputs}
         />
       )}
     </div>
