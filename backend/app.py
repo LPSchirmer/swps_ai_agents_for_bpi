@@ -13,6 +13,9 @@ from etl.pipeline import run_etl_event_log, run_etl_textual_process_data
 # AI-Analyse Import
 from ai_analysis import run_ai_analysis
 
+# Prozess-Visualisierung Import
+from process_visualization import ProcessVisualizer, visualize_process, visualize_all_uploads
+
 app = Flask(__name__)
 CORS(app)  # Enable CORS for all routes
 
@@ -363,6 +366,172 @@ def list_uploads():
             'success': False,
             'error': str(e)
         }), 500
+
+
+# ============================================================
+# PROZESS-VISUALISIERUNG ENDPOINTS
+# ============================================================
+
+@app.route('/api/visualize-process', methods=['POST'])
+def visualize_process_endpoint():
+    """
+    Visualisiert einen Prozess aus einer hochgeladenen Datei.
+    
+    Akzeptiert: XES, BPMN, CSV, XML Dateien
+    Gibt zurück: Prozessgraph (nodes, edges), Base64-Bild, Statistiken
+    """
+    filepath = None
+    try:
+        if 'file' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'Keine Datei bereitgestellt'
+            }), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'Keine Datei ausgewählt'
+            }), 400
+        
+        # Datei speichern
+        original_filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{timestamp}_{original_filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Prozess visualisieren
+        visualizer = ProcessVisualizer()
+        result = visualizer.visualize_from_file(filepath)
+        
+        return jsonify(result), 200
+        
+    except FileNotFoundError as e:
+        return jsonify({
+            'success': False,
+            'error': f'Datei nicht gefunden: {str(e)}'
+        }), 404
+        
+    except ValueError as e:
+        return jsonify({
+            'success': False,
+            'error': f'Ungültiges Format: {str(e)}'
+        }), 400
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
+    finally:
+        if filepath and os.path.exists(filepath):
+            delete_file(filepath)
+
+
+@app.route('/api/visualize-uploaded/<filename>', methods=['GET'])
+def visualize_uploaded_file(filename):
+    """
+    Visualisiert eine bereits hochgeladene Datei.
+    """
+    try:
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        if not os.path.exists(filepath):
+            return jsonify({
+                'success': False,
+                'error': f'Datei nicht gefunden: {filename}'
+            }), 404
+        
+        visualizer = ProcessVisualizer()
+        result = visualizer.visualize_from_file(filepath)
+        
+        return jsonify(result), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/visualize-all', methods=['GET'])
+def visualize_all_files():
+    """
+    Visualisiert alle Prozessdateien im Upload-Ordner.
+    """
+    try:
+        results = visualize_all_uploads(app.config['UPLOAD_FOLDER'])
+        
+        return jsonify({
+            'success': True,
+            'visualizations': results,
+            'count': len(results)
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/process-graph', methods=['POST'])
+def get_process_graph():
+    """
+    Gibt nur den Prozessgraph (nodes, edges) zurück ohne Bild.
+    Schnellere Alternative für interaktive Visualisierungen.
+    """
+    filepath = None
+    try:
+        if 'file' not in request.files:
+            return jsonify({
+                'success': False,
+                'error': 'Keine Datei bereitgestellt'
+            }), 400
+        
+        file = request.files['file']
+        
+        if file.filename == '':
+            return jsonify({
+                'success': False,
+                'error': 'Keine Datei ausgewählt'
+            }), 400
+        
+        # Datei speichern
+        original_filename = secure_filename(file.filename)
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"{timestamp}_{original_filename}"
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Prozess visualisieren
+        visualizer = ProcessVisualizer()
+        result = visualizer.visualize_from_file(filepath)
+        
+        # Nur Graph zurückgeben, kein Bild
+        return jsonify({
+            'success': True,
+            'graph': result.get('graph'),
+            'statistics': result.get('statistics'),
+            'file_type': result.get('file_type'),
+            'file_name': result.get('file_name')
+        }), 200
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+    
+    finally:
+        if filepath and os.path.exists(filepath):
+            delete_file(filepath)
 
 
 if __name__ == '__main__':

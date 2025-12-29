@@ -2,15 +2,48 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   MUTED TECH DESIGN SYSTEM - Premium Dark Mode
+   Keine Neon-Farben, keine Glow-Effekte, gedämpfte Tech-Palette
+   ============================================================ */
+
+/* === FONTS === */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  /* Primary Font Stack */
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #0a0a0a;
+  /* Color Scheme */
+  color-scheme: dark;
+  
+  /* === COLOR TOKENS === */
+  --bg-primary: #0B0F14;
+  --bg-surface: #111827;
+  --bg-elevated: #151F2E;
+  
+  --text-primary: #E5E7EB;
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+  
+  --accent: #3B82F6;
+  --accent-hover: #2563EB;
+  --accent-highlight: #22D3EE;
+  
+  --border-default: #1F2937;
+  --border-subtle: #374151;
+  
+  --success: #22C55E;
+  --warning: #F59E0B;
+  --error: #EF4444;
 
+  /* Background */
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+
+  /* Typography Rendering */
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -19,10 +52,9 @@
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: var(--bg-primary);
 }
 
 #root {
@@ -30,11 +62,109 @@ body {
   min-height: 100vh;
 }
 
-/* Custom Animations for Agent Cards */
+/* === TYPOGRAPHY CLASSES === */
+.font-display {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+}
+
+.font-mono {
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Headlines - Space Grotesk für Premium-Look */
+h1, h2, h3, .headline {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+/* KPI Numbers - größer, weniger Gewicht */
+.kpi-number {
+  font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  font-weight: 500;
+  font-size: 2.5rem;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.kpi-number-sm {
+  font-size: 1.75rem;
+}
+
+/* Labels - klein + muted */
+.label {
+  font-size: 0.75rem;
+  font-weight: 450;
+  letter-spacing: 0.025em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+/* === CARD STYLES === */
+.card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-default);
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  transition: all 200ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  background-color: var(--bg-elevated);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.45);
+}
+
+.card-elevated {
+  background-color: var(--bg-elevated);
+}
+
+/* === BUTTON STYLES === */
+.btn-primary {
+  background-color: var(--accent);
+  color: white;
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  transition: all 150ms ease-out;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: var(--bg-elevated);
+  border: 1px solid var(--border-default);
+  color: var(--text-primary);
+  border-radius: 10px;
+  font-weight: 500;
+  padding: 0.625rem 1.25rem;
+  transition: all 150ms ease-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--border-default);
+  border-color: var(--border-subtle);
+}
+
+/* === ANIMATIONS (subtil, 150-200ms) === */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -45,7 +175,7 @@ body {
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(-20px);
+    transform: translateX(-12px);
   }
   to {
     opacity: 1;
@@ -53,19 +183,45 @@ body {
   }
 }
 
-@keyframes expandWidth {
-  from {
-    max-width: 33%;
-  }
-  to {
-    max-width: 100%;
-  }
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-.animate-fadeIn {
-  animation: fadeIn 0.4s ease-out forwards;
+.animate-slideUp {
+  animation: slideUp 0.2s ease-out forwards;
 }
 
 .animate-slideInRight {
-  animation: slideInRight 0.3s ease-out forwards;
+  animation: slideInRight 0.25s ease-out forwards;
+}
+
+/* === FOCUS STATES === */
+*:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* === SCROLLBAR (subtil) === */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-subtle);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* === SELECTION === */
+::selection {
+  background-color: rgba(59, 130, 246, 0.3);
+  color: var(--text-primary);
 }

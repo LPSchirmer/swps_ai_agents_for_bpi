@@ -3,6 +3,7 @@ import axios from 'axios';
 import UploadView from './components/UploadView';
 import ProcessingScreen from './components/ProcessingScreen';
 import Dashboard from './components/Dashboard';
+import { ProcessMetrics } from './components/MetricsVisualization';
 
 type ViewType = 'upload' | 'processing' | 'dashboard';
 
@@ -21,6 +22,38 @@ interface AgentOutputs {
   economic?: string;
 }
 
+// Prozess-Visualisierungs-Typen
+interface ProcessVisualizationData {
+  success: boolean;
+  graph?: {
+    nodes: Array<{
+      id: string;
+      label: string;
+      type: 'start' | 'end' | 'activity' | 'gateway' | 'event';
+      frequency: number;
+      duration: number;
+    }>;
+    edges: Array<{
+      source: string;
+      target: string;
+      frequency: number;
+      label: string;
+    }>;
+    metadata: Record<string, unknown>;
+  };
+  image?: string;
+  statistics?: {
+    cases?: number;
+    events?: number;
+    activities?: number;
+    variants?: number;
+    top_activities?: Record<string, number>;
+  };
+  file_type?: string;
+  file_name?: string;
+  error?: string;
+}
+
 interface UploadResponse {
   files: UploadedFile[];
   total_files: number;
@@ -29,6 +62,8 @@ interface UploadResponse {
     success: boolean;
     analysis_result?: string;
     agent_outputs?: AgentOutputs;
+    process_metrics?: ProcessMetrics;
+    process_visualization?: ProcessVisualizationData;
     error?: string;
     data_summary?: {
       has_textual_data: boolean;
@@ -49,6 +84,8 @@ function App() {
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [agentOutputs, setAgentOutputs] = useState<AgentOutputs | null>(null);
+  const [processMetrics, setProcessMetrics] = useState<ProcessMetrics | null>(null);
+  const [processVisualization, setProcessVisualization] = useState<ProcessVisualizationData | null>(null);
 
   const handleCombinedSubmit = async (text: string, files: File[]) => {
     // Wechsle zum Processing Screen
@@ -110,14 +147,36 @@ function App() {
             } else {
               console.warn('⚠️ KEINE agent_outputs im aiAnalysis!');
             }
+            
+            // 📊 NEU: Process Metrics für Visualisierung speichern
+            if (aiAnalysis.process_metrics) {
+              console.log('📈 Process Metrics vorhanden:', Object.keys(aiAnalysis.process_metrics));
+              setProcessMetrics(aiAnalysis.process_metrics);
+            } else {
+              console.warn('⚠️ Keine process_metrics im aiAnalysis - Visualisierungen nicht verfügbar');
+              setProcessMetrics(null);
+            }
+            
+            // 📊 Prozessvisualisierung speichern
+            if (aiAnalysis.process_visualization) {
+              console.log('🎨 Prozessvisualisierung vorhanden');
+              setProcessVisualization(aiAnalysis.process_visualization);
+            } else {
+              setProcessVisualization(null);
+            }
           } else if (aiAnalysis.error) {
             console.warn('⚠️ KI-Analyse Fehler:', aiAnalysis.error);
             setAiAnalysisResult(null);
             setAgentOutputs(null);
+            setProcessMetrics(null);
+            setProcessVisualization(null);
           }
         } else {
           console.warn('⚠️ Keine KI-Analyse-Daten in der Antwort');
         }
+        
+        // Prozessvisualisierung kommt jetzt aus aiAnalysis.process_visualization
+        // Kein zusätzlicher API-Aufruf mehr nötig
         
         console.log('✅ Upload und Analyse abgeschlossen - Wechsle zum Dashboard');
         // Wechsle zum Dashboard nachdem die Analyse komplett ist
@@ -185,6 +244,8 @@ function App() {
     setUploadedFiles([]);
     setAiAnalysisResult(null);
     setAgentOutputs(null);
+    setProcessMetrics(null);
+    setProcessVisualization(null);
   };
 
   return (
@@ -208,6 +269,8 @@ function App() {
           onNewAnalysis={handleNewAnalysis}
           aiAnalysisResult={aiAnalysisResult}
           agentOutputs={agentOutputs}
+          processMetrics={processMetrics}
+          processVisualization={processVisualization}
         />
       )}
     </div>

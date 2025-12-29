@@ -103,16 +103,16 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col p-6">
+    <div className="min-h-screen bg-background flex flex-col p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
+            <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
             </svg>
           </div>
-          <span className="text-xl font-bold text-white">ProcessAI</span>
+          <span className="text-xl font-display font-bold text-text-primary">ProcessAI</span>
         </div>
       </div>
 
@@ -120,32 +120,32 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
       <div className="flex-1 flex flex-col items-center justify-center max-w-4xl w-full mx-auto">
         {/* Welcome Message */}
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">
+          <h1 className="text-5xl font-display font-bold text-text-primary mb-4">
             Analysieren Sie Ihre Geschäftsprozesse
           </h1>
-          <p className="text-xl text-slate-400 max-w-2xl mx-auto">
+          <p className="text-xl text-text-secondary max-w-2xl mx-auto">
             Beschreiben Sie Ihren Prozess in eigenen Worten und laden Sie relevante Dateien hoch – 
-            <span className="text-cyan-400"> beides gleichzeitig ist möglich</span>
+            <span className="text-accent"> beides gleichzeitig ist möglich</span>
           </p>
         </div>
 
         {/* Example Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-12">
-          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/60 transition-all cursor-pointer">
-            <div className="text-sm text-slate-400 mb-2">📊 Beispiel</div>
-            <div className="text-white text-sm">
+          <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
+            <div className="text-sm text-text-secondary mb-2">📊 Beispiel</div>
+            <div className="text-text-primary text-sm">
               "Analysiere meinen Bestellprozess und finde Engpässe"
             </div>
           </div>
-          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/60 transition-all cursor-pointer">
-            <div className="text-sm text-slate-400 mb-2">🔍 Beispiel</div>
-            <div className="text-white text-sm">
+          <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
+            <div className="text-sm text-text-secondary mb-2">🔍 Beispiel</div>
+            <div className="text-text-primary text-sm">
               "Optimiere den Genehmigungsworkflow unter Einhaltung von ISO 9001"
             </div>
           </div>
-          <div className="bg-slate-900/40 border border-slate-800 rounded-xl p-4 hover:bg-slate-900/60 transition-all cursor-pointer">
-            <div className="text-sm text-slate-400 mb-2">📁 Beispiel</div>
-            <div className="text-white text-sm">
+          <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
+            <div className="text-sm text-text-secondary mb-2">📁 Beispiel</div>
+            <div className="text-text-primary text-sm">
               "Hier ist mein Event-Log. Zeige mir die häufigsten Prozessvarianten"
             </div>
           </div>
@@ -154,10 +154,10 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
         {/* Input Area - ChatGPT Style */}
         <div className="w-full">
           <div 
-            className={`bg-slate-900/60 backdrop-blur-sm rounded-3xl border-2 transition-all ${
+            className={`bg-background-surface backdrop-blur-sm rounded-panel border transition-all duration-150 ${
               dragActive 
-                ? 'border-cyan-500 bg-cyan-500/10' 
-                : 'border-slate-700 hover:border-slate-600'
+                ? 'border-accent bg-accent/5' 
+                : 'border-border hover:border-border-light'
             }`}
             onDragEnter={handleDrag}
             onDragLeave={handleDrag}
@@ -171,18 +171,18 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                   {attachedFiles.map((file, index) => (
                     <div
                       key={index}
-                      className="flex items-center space-x-2 bg-slate-800/60 border border-slate-700 rounded-lg px-3 py-2 group"
+                      className="flex items-center space-x-2 bg-background-elevated border border-border rounded-lg px-3 py-2 group"
                     >
-                      <FileText className="w-4 h-4 text-cyan-400" />
-                      <span className="text-sm text-white truncate max-w-[200px]">
+                      <FileText className="w-4 h-4 text-accent" />
+                      <span className="text-sm text-text-primary truncate max-w-[200px]">
                         {file.name}
                       </span>
-                      <span className="text-xs text-slate-500">
+                      <span className="text-xs text-text-muted">
                         ({formatFileSize(file.size)})
                       </span>
                       <button
                         onClick={() => removeFile(index)}
-                        className="ml-2 text-slate-500 hover:text-red-400 transition-colors"
+                        className="ml-2 text-text-muted hover:text-semantic-error transition-colors duration-150"
                       >
                         <X className="w-4 h-4" />
                       </button>
@@ -199,7 +199,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Beschreiben Sie Ihren Prozess, Ihre Optimierungsziele, Compliance-Anforderungen... Oder laden Sie Dateien hoch."
-                className="w-full px-6 py-5 bg-transparent text-white placeholder-slate-500 focus:outline-none resize-none min-h-[80px] max-h-[300px]"
+                className="w-full px-6 py-5 bg-transparent text-text-primary placeholder-text-muted focus:outline-none resize-none min-h-[80px] max-h-[300px]"
                 rows={3}
               />
               
@@ -209,7 +209,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                   {/* File Upload Button */}
                   <button
                     onClick={() => fileInputRef.current?.click()}
-                    className="p-2 text-slate-400 hover:text-cyan-400 hover:bg-slate-800/50 rounded-lg transition-all"
+                    className="p-2 text-text-secondary hover:text-accent hover:bg-background-elevated rounded-lg transition-all duration-150"
                     title="Dateien anhängen"
                   >
                     <Paperclip className="w-5 h-5" />
@@ -223,7 +223,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                     onChange={handleChange}
                   />
                   
-                  <span className="text-xs text-slate-500">
+                  <span className="text-xs text-text-muted">
                     {attachedFiles.length > 0 
                       ? `${attachedFiles.length} Datei(en) angehängt` 
                       : '.xes, .csv, .bpmn, .txt, .pdf, .docx'}
@@ -234,7 +234,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                 <button
                   onClick={handleSubmit}
                   disabled={!textInput.trim() && attachedFiles.length === 0}
-                  className="p-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 disabled:from-slate-700 disabled:to-slate-700 disabled:cursor-not-allowed text-white rounded-xl transition-all duration-300 flex items-center space-x-2"
+                  className="p-2.5 bg-accent hover:bg-accent-hover disabled:bg-background-elevated disabled:text-text-muted disabled:cursor-not-allowed text-white rounded-button transition-all duration-150 flex items-center space-x-2"
                 >
                   <Send className="w-5 h-5" />
                 </button>
@@ -243,10 +243,10 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
           </div>
 
           {/* Helper Text */}
-          <div className="text-center mt-4 text-sm text-slate-500">
+          <div className="text-center mt-4 text-sm text-text-muted">
             <span className="inline-flex items-center space-x-2">
               <span>💡 Tipp: Sie können Text und Dateien</span>
-              <span className="text-cyan-400 font-medium">gleichzeitig</span>
+              <span className="text-accent font-medium">gleichzeitig</span>
               <span>einreichen</span>
             </span>
           </div>

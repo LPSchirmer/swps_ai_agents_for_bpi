@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { ChevronRight, Sparkles, Zap, DollarSign, Shield, FileText, Settings, Wrench, MessageSquare, Database, TrendingUp } from 'lucide-react';
+import { ChevronRight, Sparkles, Zap, DollarSign, Shield, FileText, TrendingUp, Activity, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { ProcessMetrics } from './MetricsVisualization';
+import ProcessVisualization from './ProcessVisualization';
 
 interface UploadedFile {
   filename: string;
@@ -18,18 +20,50 @@ interface AgentOutputs {
   economic?: string;
 }
 
+// Prozessvisualisierungs-Typen
+interface ProcessVisualizationData {
+  success: boolean;
+  graph?: {
+    nodes: Array<{
+      id: string;
+      label: string;
+      type: 'start' | 'end' | 'activity' | 'gateway' | 'event';
+      frequency: number;
+      duration: number;
+    }>;
+    edges: Array<{
+      source: string;
+      target: string;
+      frequency: number;
+      label: string;
+    }>;
+    metadata: Record<string, unknown>;
+  };
+  image?: string;
+  statistics?: {
+    cases?: number;
+    events?: number;
+    activities?: number;
+    variants?: number;
+    top_activities?: Record<string, number>;
+  };
+  file_type?: string;
+  file_name?: string;
+  error?: string;
+}
+
 interface DashboardProps {
   uploadedFile: { filename: string } | null;
   uploadedFiles?: UploadedFile[];
   onNewAnalysis: () => void;
   aiAnalysisResult?: string | null;
   agentOutputs?: AgentOutputs | null;
+  processMetrics?: ProcessMetrics | null;
+  processVisualization?: ProcessVisualizationData | null;
 }
 
-const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysisResult, agentOutputs }: DashboardProps) => {
-  const [expandedAgent, setExpandedAgent] = useState<string | null>(null);
+const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysisResult, agentOutputs, processMetrics, processVisualization }: DashboardProps) => {
   const [expandedExplainer, setExpandedExplainer] = useState<string | null>(null);
-  const [isChatOpen, setIsChatOpen] = useState(false);
   
   // Debug: Log wenn Component mountet und bei jeder Änderung
   console.log('📊 Dashboard gerendert mit:', {
@@ -39,665 +73,388 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
     agentOutputs: agentOutputs,
   });
 
-  // Mock data für Agent Explainability (später aus Backend)
-  const agentExplainability = {
-    performance: {
-      prompt: "Analysiere die Prozessperformance anhand der Event-Log-Daten. Identifiziere Bottlenecks, Durchlaufzeiten und Optimierungspotenziale.",
-      tools: ["Process Mining Analysis", "Bottleneck Detection", "Cycle Time Calculator"],
-      toolInput: "Event-Log mit Case ID, Activity, Timestamp, Resource",
-      toolOutput: "Performance-Metriken, identifizierte Engpässe, Optimierungsvorschläge"
-    },
-    finance: {
-      prompt: "Bewerte die finanziellen Aspekte des Prozesses. Berechne Kosten pro Aktivität und identifiziere Einsparungspotenziale.",
-      tools: ["Cost Calculation Tool", "ROI Analyzer", "Budget Optimizer"],
-      toolInput: "Prozesskosten, Ressourcenkosten, Aktivitätshäufigkeiten",
-      toolOutput: "Kostenaufschlüsselung, Einsparungspotenziale, ROI-Prognosen"
-    },
-    compliance: {
-      prompt: "Prüfe den Prozess auf Einhaltung regulatorischer Anforderungen und Compliance-Vorgaben.",
-      tools: ["Compliance Checker", "Regulation Matcher", "Gap Analyzer"],
-      toolInput: "Prozessmodell, relevante Regulierungen, Unternehmensrichtlinien",
-      toolOutput: "Compliance-Status, identifizierte Verstöße, Empfehlungen"
-    }
-  };
-
   const markdownComponents = {
-    h1: ({ children }: { children?: React.ReactNode }) => <h1 className="text-xl font-bold text-white mb-3">{children}</h1>,
-    h2: ({ children }: { children?: React.ReactNode }) => <h2 className="text-lg font-semibold text-white mt-4 mb-2">{children}</h2>,
-    h3: ({ children }: { children?: React.ReactNode }) => <h3 className="text-md font-semibold text-slate-200 mt-3 mb-2">{children}</h3>,
-    p: ({ children }: { children?: React.ReactNode }) => <p className="text-slate-300 mb-2 leading-relaxed">{children}</p>,
-    ul: ({ children }: { children?: React.ReactNode }) => <ul className="list-disc list-inside space-y-1 mb-3 text-slate-300">{children}</ul>,
-    ol: ({ children }: { children?: React.ReactNode }) => <ol className="list-decimal list-inside space-y-1 mb-3 text-slate-300">{children}</ol>,
-    li: ({ children }: { children?: React.ReactNode }) => <li className="text-slate-300">{children}</li>,
-    strong: ({ children }: { children?: React.ReactNode }) => <strong className="text-cyan-400 font-semibold">{children}</strong>,
+    // Überschriften - einheitliches Styling
+    h1: ({ children }: { children?: React.ReactNode }) => (
+      <h1 className="text-xl font-semibold text-text-primary mb-4 mt-2 font-display border-b border-border/30 pb-2">{children}</h1>
+    ),
+    h2: ({ children }: { children?: React.ReactNode }) => (
+      <h2 className="text-lg font-semibold text-accent mt-5 mb-3 font-display">{children}</h2>
+    ),
+    h3: ({ children }: { children?: React.ReactNode }) => (
+      <h3 className="text-base font-medium text-text-primary mt-4 mb-2">{children}</h3>
+    ),
+    h4: ({ children }: { children?: React.ReactNode }) => (
+      <h4 className="text-sm font-medium text-text-secondary mt-3 mb-2">{children}</h4>
+    ),
+    // Absätze und Text
+    p: ({ children }: { children?: React.ReactNode }) => (
+      <p className="text-text-secondary mb-3 leading-relaxed break-words text-sm">{children}</p>
+    ),
+    // Listen - einheitlich mit Farbe
+    ul: ({ children }: { children?: React.ReactNode }) => (
+      <ul className="space-y-2 mb-4 ml-1">{children}</ul>
+    ),
+    ol: ({ children }: { children?: React.ReactNode }) => (
+      <ol className="list-decimal list-inside space-y-2 mb-4 text-text-secondary text-sm">{children}</ol>
+    ),
+    li: ({ children }: { children?: React.ReactNode }) => (
+      <li className="text-text-secondary break-words text-sm flex items-start gap-2">
+        <span className="text-accent mt-1.5 text-xs">•</span>
+        <span className="flex-1">{children}</span>
+      </li>
+    ),
+    // Hervorhebungen
+    strong: ({ children }: { children?: React.ReactNode }) => (
+      <strong className="text-accent font-semibold">{children}</strong>
+    ),
+    em: ({ children }: { children?: React.ReactNode }) => (
+      <em className="text-text-muted italic">{children}</em>
+    ),
+    // Code-Blöcke
+    code: ({ children }: { children?: React.ReactNode }) => (
+      <code className="bg-background-elevated px-1.5 py-0.5 rounded text-xs text-accent-highlight font-mono break-all">{children}</code>
+    ),
+    pre: ({ children }: { children?: React.ReactNode }) => (
+      <pre className="bg-background-elevated p-3 rounded-card text-xs overflow-x-auto mb-4 border border-border font-mono">{children}</pre>
+    ),
+    // Tabellen
     table: ({ children }: { children?: React.ReactNode }) => (
-      <div className="overflow-x-auto my-3">
-        <table className="min-w-full border border-slate-700 rounded-lg overflow-hidden text-sm">
-          {children}
-        </table>
+      <div className="my-4 border border-border rounded-card overflow-hidden">
+        <table className="w-full text-sm table-fixed">{children}</table>
       </div>
     ),
-    thead: ({ children }: { children?: React.ReactNode }) => <thead className="bg-slate-800">{children}</thead>,
-    th: ({ children }: { children?: React.ReactNode }) => <th className="px-3 py-2 text-left text-xs font-semibold text-white border-b border-slate-700">{children}</th>,
-    td: ({ children }: { children?: React.ReactNode }) => <td className="px-3 py-2 text-xs text-slate-300 border-b border-slate-700/50">{children}</td>,
+    thead: ({ children }: { children?: React.ReactNode }) => (
+      <thead className="bg-background-elevated">{children}</thead>
+    ),
+    th: ({ children }: { children?: React.ReactNode }) => (
+      <th className="px-3 py-2 text-left text-xs font-medium text-text-primary border-b border-border break-words">{children}</th>
+    ),
+    td: ({ children }: { children?: React.ReactNode }) => (
+      <td className="px-3 py-2 text-xs text-text-secondary border-b border-border/50 break-words">{children}</td>
+    ),
+    // Links
+    a: ({ children, href }: { children?: React.ReactNode; href?: string }) => (
+      <a href={href} className="text-accent hover:text-accent-hover underline break-all" target="_blank" rel="noopener noreferrer">{children}</a>
+    ),
+    // Zitate
+    blockquote: ({ children }: { children?: React.ReactNode }) => (
+      <blockquote className="border-l-4 border-accent/50 pl-4 my-4 text-text-muted italic bg-accent/5 py-2 rounded-r-card">{children}</blockquote>
+    ),
+    // Horizontale Linie
+    hr: () => <hr className="border-border my-4" />,
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-white">
+    <div className="min-h-screen bg-background-primary text-text-primary">
       {/* Header */}
-      <div className="border-b border-slate-800 p-6">
-        <div className="flex items-center justify-between max-w-7xl mx-auto">
+      <div className="border-b border-border px-8 py-5">
+        <div className="flex items-center justify-between max-w-[1600px] mx-auto">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-cyan-600 to-blue-600 rounded-lg flex items-center justify-center">
-              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="w-10 h-10 bg-accent rounded-button flex items-center justify-center shadow-button">
+              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
               </svg>
             </div>
-            <span className="text-xl font-bold">ProcessAI</span>
+            <span className="text-xl font-semibold font-display">ProcessAI</span>
           </div>
           <button 
             onClick={onNewAnalysis}
-            className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white rounded-lg font-medium transition-all"
+            className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-button font-medium transition-all duration-150 shadow-button hover:-translate-y-0.5"
           >
             Neue Analyse starten
           </button>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-[1600px] mx-auto px-8 py-10">
         
         {/* 1. PROZESSBESCHREIBUNG MIT ALLEN DATEIEN - Zentriert oben */}
-        <div className="text-center mb-8">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="flex items-center space-x-2 text-emerald-500 text-sm">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center space-x-2 mb-5">
+            <div className="flex items-center space-x-2 text-success text-sm font-medium">
               <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
               </svg>
               <span>Analyse abgeschlossen</span>
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-4">Prozessanalyse-Dashboard</h1>
-          <div className="bg-slate-900/60 border border-slate-700 rounded-xl p-4 inline-block">
-            <p className="text-slate-400 mb-2">Analysierte Dateien:</p>
+          <h1 className="text-4xl font-semibold mb-6 font-display tracking-tight">Prozessanalyse-Dashboard</h1>
+          <div className="bg-background-surface border border-border rounded-panel p-5 inline-block shadow-card">
+            <p className="text-text-muted text-label-lg mb-3">Analysierte Dateien</p>
             <div className="flex flex-wrap gap-2 justify-center">
               {uploadedFiles && uploadedFiles.length > 0 ? (
                 uploadedFiles.map((file, index) => (
-                  <span key={index} className="px-3 py-1 bg-cyan-900/30 border border-cyan-700/50 rounded-full text-cyan-400 text-sm flex items-center gap-2">
-                    <FileText className="w-4 h-4" />
+                  <span key={index} className="px-3 py-1.5 bg-background-elevated border border-border rounded-button text-text-secondary text-sm flex items-center gap-2 transition-colors hover:border-accent/50">
+                    <FileText className="w-4 h-4 text-text-muted" />
                     {file.filename}
                   </span>
                 ))
               ) : uploadedFile ? (
-                <span className="px-3 py-1 bg-cyan-900/30 border border-cyan-700/50 rounded-full text-cyan-400 text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4" />
+                <span className="px-3 py-1.5 bg-background-elevated border border-border rounded-button text-text-secondary text-sm flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-text-muted" />
                   {uploadedFile.filename}
                 </span>
               ) : (
-                <span className="text-slate-500">Keine Dateien</span>
+                <span className="text-text-muted">Keine Dateien</span>
               )}
             </div>
           </div>
         </div>
 
-        {/* 2. BPMN + KPI LAYOUT - Nebeneinander */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* BPMN Visualisierung - Links */}
-          <div className="bg-slate-900/60 backdrop-blur-sm border border-slate-700 rounded-2xl p-6">
-            <div className="mb-4">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold">Prozess-Visualisierung (BPMN)</h3>
-                <span className="px-2 py-1 bg-amber-900/30 text-amber-400 text-xs rounded font-medium">Ist-Prozess</span>
-              </div>
-              <p className="text-sm text-slate-400">Identifizierte Prozessstruktur</p>
-            </div>
-            
-            <div className="bg-slate-800/50 rounded-lg p-4 aspect-[16/9] flex items-center justify-center border border-slate-700">
-              <svg className="w-full h-full max-w-full max-h-full" viewBox="0 0 600 300" preserveAspectRatio="xMidYMid meet">
-                {/* Start Event */}
-                <circle cx="40" cy="150" r="20" fill="none" stroke="#22c55e" strokeWidth="2"/>
-                <circle cx="40" cy="150" r="18" fill="none" stroke="#22c55e" strokeWidth="1"/>
-                
-                {/* Activity 1 - Datenvalidierung */}
-                <rect x="100" y="120" width="100" height="60" rx="8" fill="#1e293b" stroke="#64748b" strokeWidth="2"/>
-                <text x="150" y="145" textAnchor="middle" fill="#94a3b8" fontSize="11">Datenvalidierung</text>
-                <text x="150" y="160" textAnchor="middle" fill="#ef4444" fontSize="9">⚠️ Engpass</text>
-                <line x1="60" y1="150" x2="100" y2="150" stroke="#64748b" strokeWidth="2" markerEnd="url(#arrowhead)"/>
-                
-                {/* Gateway */}
-                <g transform="translate(240, 150) rotate(45)">
-                  <rect x="-20" y="-20" width="40" height="40" fill="#1e293b" stroke="#64748b" strokeWidth="2"/>
-                </g>
-                <text x="240" y="155" textAnchor="middle" fill="#94a3b8" fontSize="16">×</text>
-                <line x1="200" y1="150" x2="220" y2="150" stroke="#64748b" strokeWidth="2"/>
-                
-                {/* Activity 2 - Qualitätsprüfung */}
-                <rect x="300" y="90" width="100" height="60" rx="8" fill="#1e293b" stroke="#64748b" strokeWidth="2"/>
-                <text x="350" y="115" textAnchor="middle" fill="#94a3b8" fontSize="11">Qualitätsprüfung</text>
-                <text x="350" y="130" textAnchor="middle" fill="#ef4444" fontSize="9">⚠️ Engpass</text>
-                <line x1="260" y1="150" x2="300" y2="120" stroke="#64748b" strokeWidth="2"/>
-                
-                {/* Activity 3 - Genehmigung */}
-                <rect x="300" y="180" width="100" height="60" rx="8" fill="#1e293b" stroke="#64748b" strokeWidth="2"/>
-                <text x="350" y="205" textAnchor="middle" fill="#94a3b8" fontSize="11">Genehmigung</text>
-                <text x="350" y="220" textAnchor="middle" fill="#f59e0b" fontSize="9">⚠️ Verzögerung</text>
-                <line x1="260" y1="150" x2="300" y2="210" stroke="#64748b" strokeWidth="2"/>
-                
-                {/* Merge Gateway */}
-                <g transform="translate(440, 150) rotate(45)">
-                  <rect x="-20" y="-20" width="40" height="40" fill="#1e293b" stroke="#64748b" strokeWidth="2"/>
-                </g>
-                <text x="440" y="155" textAnchor="middle" fill="#94a3b8" fontSize="16">×</text>
-                <line x1="400" y1="120" x2="420" y2="140" stroke="#64748b" strokeWidth="2"/>
-                <line x1="400" y1="210" x2="420" y2="170" stroke="#64748b" strokeWidth="2"/>
-                
-                {/* Activity 4 - Dokumentation */}
-                <rect x="480" y="120" width="80" height="60" rx="8" fill="#1e293b" stroke="#64748b" strokeWidth="2"/>
-                <text x="520" y="145" textAnchor="middle" fill="#94a3b8" fontSize="11">Dokumentation</text>
-                <line x1="460" y1="150" x2="480" y2="150" stroke="#64748b" strokeWidth="2"/>
-                
-                {/* End Event */}
-                <circle cx="580" cy="150" r="20" fill="none" stroke="#ef4444" strokeWidth="4"/>
-                
-                {/* Arrow marker definition */}
-                <defs>
-                  <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
-                    <polygon points="0 0, 10 3, 0 6" fill="#64748b"/>
-                  </marker>
-                </defs>
-              </svg>
-            </div>
-          </div>
-
-          {/* KPI vom aktuellen Prozess - Rechts */}
-          <div className="bg-slate-900/60 backdrop-blur-sm border border-amber-700/50 rounded-2xl p-6">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center space-x-2">
-                <TrendingUp className="w-6 h-6 text-amber-500" />
-                <h3 className="text-lg font-semibold">Aktuelle Prozess-KPIs</h3>
-              </div>
-              <span className="px-2 py-1 bg-amber-900/30 text-amber-400 text-xs rounded font-medium">Ist-Stand</span>
-            </div>
-            <div className="space-y-4">
-              <div className="flex justify-between items-center py-3 border-b border-slate-700">
-                <span className="text-slate-400">Anzahl Prozessvarianten</span>
-                <span className="font-semibold text-amber-500 text-xl">6</span>
-              </div>
-              <div className="flex justify-between items-center py-3 border-b border-slate-700">
-                <span className="text-slate-400">Durchschnittliche Durchlaufzeit</span>
-                <span className="font-semibold text-amber-500 text-xl">45 Min</span>
-              </div>
-              <div className="flex justify-between items-center py-3 border-b border-slate-700">
-                <span className="text-slate-400">Durchschnittliche Prozesskosten</span>
-                <span className="font-semibold text-amber-500 text-xl">1.500 €</span>
-              </div>
-              <div className="flex justify-between items-center py-3 border-b border-slate-700">
-                <span className="text-slate-400">Anzahl Prozessaktivitäten</span>
-                <span className="font-semibold text-amber-500 text-xl">7</span>
-              </div>
-              <div className="flex justify-between items-center py-3">
-                <span className="text-slate-400">Involvierte Ressourcen</span>
-                <span className="font-semibold text-amber-500 text-xl">8</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 3. AGENTS SEKTION - Performance, Finance, Compliance mit Expand Animation */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-6 flex items-center space-x-3">
-            <Sparkles className="w-7 h-7 text-cyan-500" />
-            <span>KI-Agenten Analyse</span>
-          </h2>
-          
-          <div className="flex gap-4 overflow-hidden">
-            {/* Performance Agent Card */}
-            <div 
-              className={`
-                bg-gradient-to-br from-amber-900/30 to-orange-900/30 border-2 rounded-2xl cursor-pointer
-                transition-all duration-500 ease-in-out transform
-                ${expandedAgent === 'performance' 
-                  ? 'flex-grow border-amber-500 shadow-lg shadow-amber-500/20' 
-                  : expandedAgent 
-                    ? 'flex-shrink w-0 opacity-0 scale-95 border-transparent overflow-hidden p-0' 
-                    : 'flex-1 border-amber-700/50 hover:border-amber-500 hover:shadow-lg hover:shadow-amber-500/10'
-                }
-              `}
-              onClick={() => setExpandedAgent(expandedAgent === 'performance' ? null : 'performance')}
-            >
-              <div className={`p-6 ${expandedAgent && expandedAgent !== 'performance' ? 'hidden' : ''}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-amber-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Zap className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Performance Agent</h3>
-                      <p className="text-slate-400 text-sm">Analysiert Durchlaufzeiten, Bottlenecks und Effizienz</p>
-                    </div>
-                  </div>
-                  {expandedAgent === 'performance' ? (
-                    <button 
-                      className="p-2 hover:bg-amber-800/50 rounded-lg transition-colors"
-                      onClick={(e) => { e.stopPropagation(); setExpandedAgent(null); }}
-                    >
-                      <svg className="w-6 h-6 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  ) : (
-                    <ChevronRight className="w-6 h-6 text-slate-400" />
-                  )}
+        {/* 2. HAUPT-LAYOUT: Prozess-Visualisierung LINKS + Top 3 Agents RECHTS */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+          {/* LINKS: Prozess-Visualisierung (2/3 Breite) - NUR GRAPH */}
+          <div className="lg:col-span-2">
+            <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card h-full">
+              {processVisualization && processVisualization.success && processVisualization.graph ? (
+                <div className="p-6">
+                  <ProcessVisualization 
+                    visualizationData={processVisualization}
+                    processMetrics={processMetrics}
+                    mode="graph"
+                  />
                 </div>
-                
-                {expandedAgent === 'performance' && (
-                  <div className="animate-fadeIn">
-                    <div className="bg-slate-900/60 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-                      {agentOutputs?.performance ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {agentOutputs.performance}
-                        </ReactMarkdown>
-                      ) : (
-                        <p className="text-slate-400 italic">Keine Performance-Analyse verfügbar.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Finance Agent Card */}
-            <div 
-              className={`
-                bg-gradient-to-br from-emerald-900/30 to-teal-900/30 border-2 rounded-2xl cursor-pointer
-                transition-all duration-500 ease-in-out transform
-                ${expandedAgent === 'finance' 
-                  ? 'flex-grow border-emerald-500 shadow-lg shadow-emerald-500/20' 
-                  : expandedAgent 
-                    ? 'flex-shrink w-0 opacity-0 scale-95 border-transparent overflow-hidden p-0' 
-                    : 'flex-1 border-emerald-700/50 hover:border-emerald-500 hover:shadow-lg hover:shadow-emerald-500/10'
-                }
-              `}
-              onClick={() => setExpandedAgent(expandedAgent === 'finance' ? null : 'finance')}
-            >
-              <div className={`p-6 ${expandedAgent && expandedAgent !== 'finance' ? 'hidden' : ''}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <DollarSign className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Finance Agent</h3>
-                      <p className="text-slate-400 text-sm">Bewertet Kosten und Einsparungspotenziale</p>
-                    </div>
-                  </div>
-                  {expandedAgent === 'finance' ? (
-                    <button 
-                      className="p-2 hover:bg-emerald-800/50 rounded-lg transition-colors"
-                      onClick={(e) => { e.stopPropagation(); setExpandedAgent(null); }}
-                    >
-                      <svg className="w-6 h-6 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  ) : (
-                    <ChevronRight className="w-6 h-6 text-slate-400" />
-                  )}
-                </div>
-                
-                {expandedAgent === 'finance' && (
-                  <div className="animate-fadeIn">
-                    <div className="bg-slate-900/60 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-                      {agentOutputs?.finance ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {agentOutputs.finance}
-                        </ReactMarkdown>
-                      ) : (
-                        <p className="text-slate-400 italic">Keine Finance-Analyse verfügbar.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Compliance Agent Card */}
-            <div 
-              className={`
-                bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border-2 rounded-2xl cursor-pointer
-                transition-all duration-500 ease-in-out transform
-                ${expandedAgent === 'compliance' 
-                  ? 'flex-grow border-blue-500 shadow-lg shadow-blue-500/20' 
-                  : expandedAgent 
-                    ? 'flex-shrink w-0 opacity-0 scale-95 border-transparent overflow-hidden p-0' 
-                    : 'flex-1 border-blue-700/50 hover:border-blue-500 hover:shadow-lg hover:shadow-blue-500/10'
-                }
-              `}
-              onClick={() => setExpandedAgent(expandedAgent === 'compliance' ? null : 'compliance')}
-            >
-              <div className={`p-6 ${expandedAgent && expandedAgent !== 'compliance' ? 'hidden' : ''}`}>
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center flex-shrink-0">
-                      <Shield className="w-8 h-8 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-white">Compliance Agent</h3>
-                      <p className="text-slate-400 text-sm">Prüft regulatorische Anforderungen</p>
-                    </div>
-                  </div>
-                  {expandedAgent === 'compliance' ? (
-                    <button 
-                      className="p-2 hover:bg-blue-800/50 rounded-lg transition-colors"
-                      onClick={(e) => { e.stopPropagation(); setExpandedAgent(null); }}
-                    >
-                      <svg className="w-6 h-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  ) : (
-                    <ChevronRight className="w-6 h-6 text-slate-400" />
-                  )}
-                </div>
-                
-                {expandedAgent === 'compliance' && (
-                  <div className="animate-fadeIn">
-                    <div className="bg-slate-900/60 rounded-lg p-6 max-h-[500px] overflow-y-auto">
-                      {agentOutputs?.compliance ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {agentOutputs.compliance}
-                        </ReactMarkdown>
-                      ) : (
-                        <p className="text-slate-400 italic">Keine Compliance-Analyse verfügbar.</p>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 4. AGENT EXPLAINABILITY SEKTION */}
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-6 flex items-center space-x-3">
-            <Settings className="w-7 h-7 text-purple-500" />
-            <span>Agent Explainability</span>
-          </h2>
-          <p className="text-slate-400 mb-6">Transparente Einblicke in die Arbeitsweise der KI-Agenten</p>
-          
-          <div className="space-y-4">
-            {/* Performance Explainer */}
-            <div className="bg-slate-900/60 border border-slate-700 rounded-xl overflow-hidden">
-              <button 
-                className="w-full p-5 flex items-center justify-between hover:bg-slate-800/50 transition-colors"
-                onClick={() => setExpandedExplainer(expandedExplainer === 'performance' ? null : 'performance')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-amber-600 rounded-lg flex items-center justify-center">
-                    <Zap className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-semibold">Performance Agent - Details</span>
-                </div>
-                <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${expandedExplainer === 'performance' ? 'rotate-90' : ''}`} />
-              </button>
-              
-              {expandedExplainer === 'performance' && (
-                <div className="border-t border-slate-700 p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="w-5 h-5 text-cyan-500" />
-                      <h4 className="font-semibold text-cyan-400">Prompt an Agent</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.performance.prompt}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Wrench className="w-5 h-5 text-purple-500" />
-                      <h4 className="font-semibold text-purple-400">Tools</h4>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {agentExplainability.performance.tools.map((tool, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-900/30 border border-purple-700/50 rounded text-purple-300 text-xs">{tool}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Database className="w-5 h-5 text-emerald-500" />
-                      <h4 className="font-semibold text-emerald-400">Tool Input</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.performance.toolInput}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <TrendingUp className="w-5 h-5 text-amber-500" />
-                      <h4 className="font-semibold text-amber-400">Tool Output</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.performance.toolOutput}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Finance Explainer */}
-            <div className="bg-slate-900/60 border border-slate-700 rounded-xl overflow-hidden">
-              <button 
-                className="w-full p-5 flex items-center justify-between hover:bg-slate-800/50 transition-colors"
-                onClick={() => setExpandedExplainer(expandedExplainer === 'finance' ? null : 'finance')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-emerald-600 rounded-lg flex items-center justify-center">
-                    <DollarSign className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-semibold">Finance Agent - Details</span>
-                </div>
-                <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${expandedExplainer === 'finance' ? 'rotate-90' : ''}`} />
-              </button>
-              
-              {expandedExplainer === 'finance' && (
-                <div className="border-t border-slate-700 p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="w-5 h-5 text-cyan-500" />
-                      <h4 className="font-semibold text-cyan-400">Prompt an Agent</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.finance.prompt}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Wrench className="w-5 h-5 text-purple-500" />
-                      <h4 className="font-semibold text-purple-400">Tools</h4>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {agentExplainability.finance.tools.map((tool, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-900/30 border border-purple-700/50 rounded text-purple-300 text-xs">{tool}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Database className="w-5 h-5 text-emerald-500" />
-                      <h4 className="font-semibold text-emerald-400">Tool Input</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.finance.toolInput}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <TrendingUp className="w-5 h-5 text-amber-500" />
-                      <h4 className="font-semibold text-amber-400">Tool Output</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.finance.toolOutput}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Compliance Explainer */}
-            <div className="bg-slate-900/60 border border-slate-700 rounded-xl overflow-hidden">
-              <button 
-                className="w-full p-5 flex items-center justify-between hover:bg-slate-800/50 transition-colors"
-                onClick={() => setExpandedExplainer(expandedExplainer === 'compliance' ? null : 'compliance')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                    <Shield className="w-5 h-5 text-white" />
-                  </div>
-                  <span className="font-semibold">Compliance Agent - Details</span>
-                </div>
-                <ChevronRight className={`w-5 h-5 text-slate-400 transition-transform ${expandedExplainer === 'compliance' ? 'rotate-90' : ''}`} />
-              </button>
-              
-              {expandedExplainer === 'compliance' && (
-                <div className="border-t border-slate-700 p-6 grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <MessageSquare className="w-5 h-5 text-cyan-500" />
-                      <h4 className="font-semibold text-cyan-400">Prompt an Agent</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.compliance.prompt}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Wrench className="w-5 h-5 text-purple-500" />
-                      <h4 className="font-semibold text-purple-400">Tools</h4>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {agentExplainability.compliance.tools.map((tool, i) => (
-                        <span key={i} className="px-2 py-1 bg-purple-900/30 border border-purple-700/50 rounded text-purple-300 text-xs">{tool}</span>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Database className="w-5 h-5 text-emerald-500" />
-                      <h4 className="font-semibold text-emerald-400">Tool Input</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.compliance.toolInput}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-lg p-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <TrendingUp className="w-5 h-5 text-amber-500" />
-                      <h4 className="font-semibold text-amber-400">Tool Output</h4>
-                    </div>
-                    <p className="text-slate-300 text-sm">{agentExplainability.compliance.toolOutput}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* 5. REQUIREMENTS AGENT & ECONOMIC CONTEXT */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* Requirements Agent */}
-          <div className="bg-gradient-to-br from-purple-900/30 to-indigo-900/30 border border-purple-700/50 rounded-2xl p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-purple-600 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">Requirements Agent</h3>
-                <p className="text-slate-400 text-sm">Anforderungsanalyse und -validierung</p>
-              </div>
-            </div>
-            <div className="bg-slate-900/60 rounded-lg p-4 max-h-[300px] overflow-y-auto">
-              {agentOutputs?.requirements ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                  {agentOutputs.requirements}
-                </ReactMarkdown>
               ) : (
-                <div className="text-slate-400">
-                  <p className="mb-2"><strong className="text-purple-400">Input:</strong> Prozessdaten, Geschäftsanforderungen</p>
-                  <p><strong className="text-purple-400">Output:</strong> Validierte Anforderungen, Gap-Analyse</p>
+                /* Fallback: Statische Platzhalter-Visualisierung */
+                <div className="p-10">
+                  <div className="mb-8 text-center">
+                    <h3 className="text-2xl font-semibold mb-2 font-display">Prozess-Visualisierung</h3>
+                    <p className="text-text-secondary">Laden Sie eine BPMN, XES oder CSV Datei hoch</p>
+                  </div>
+                  
+                  <div className="bg-background-elevated rounded-card p-16 min-h-[400px] flex flex-col items-center justify-center border border-border">
+                    <Activity className="w-16 h-16 text-text-muted mb-4" />
+                    <p className="text-text-secondary text-center text-lg">Keine Prozessdaten verfügbar</p>
+                    <p className="text-text-muted text-sm text-center mt-2">
+                      Unterstützte Formate: XES, BPMN, CSV
+                    </p>
+                  </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Economic Context */}
-          <div className="bg-gradient-to-br from-teal-900/30 to-cyan-900/30 border border-teal-700/50 rounded-2xl p-6">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-teal-600 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-white" />
+          {/* RECHTS: Top 3 Agents - Compliance, Performance, Finance (1/3 Breite) */}
+          {/* EXKLUSIV-MODUS: Wenn ein Agent geöffnet ist, werden nur dieser angezeigt */}
+          <div className="flex flex-col gap-4 h-full">
+            {/* 1. Compliance Agent */}
+            {(!expandedExplainer || expandedExplainer === 'compliance') && (
+              <div className={`bg-background-surface border-2 border-accent/40 rounded-panel overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-accent/60 flex-1 flex flex-col`}>
+                <button 
+                  className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                  onClick={() => setExpandedExplainer(expandedExplainer === 'compliance' ? null : 'compliance')}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
+                      <Shield className="w-6 h-6 text-accent" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-lg text-text-primary font-display">Compliance Agent</h3>
+                      <p className="text-text-muted text-sm">Regulatorische Prüfung</p>
+                    </div>
+                  </div>
+                  {expandedExplainer === 'compliance' ? (
+                    <X className="w-5 h-5 text-accent" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-accent" />
+                  )}
+                </button>
+                
+                {expandedExplainer === 'compliance' && (
+                  <div className="border-t border-accent/20 animate-fadeIn flex-1">
+                    <div className="p-5 bg-accent/5 h-full">
+                      <div className="bg-background-surface rounded-card p-4 h-full min-h-[400px] max-h-[600px] overflow-y-auto border border-border">
+                        {agentOutputs?.compliance ? (
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                            {agentOutputs.compliance}
+                          </ReactMarkdown>
+                        ) : (
+                          <p className="text-text-muted italic text-sm">Keine Compliance-Analyse verfügbar.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div>
-                <h3 className="text-lg font-bold">Economic Context</h3>
-                <p className="text-slate-400 text-sm">Wirtschaftlicher Kontext und Marktanalyse</p>
+            )}
+
+            {/* 2. Performance Agent */}
+            {(!expandedExplainer || expandedExplainer === 'performance') && (
+              <div className={`bg-background-surface border-2 border-semantic-warning/40 rounded-panel overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-semantic-warning/60 flex-1 flex flex-col`}>
+                <button 
+                  className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                  onClick={() => setExpandedExplainer(expandedExplainer === 'performance' ? null : 'performance')}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-semantic-warning/15 border border-semantic-warning/40 rounded-card flex items-center justify-center">
+                      <Zap className="w-6 h-6 text-semantic-warning" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-lg text-text-primary font-display">Performance Agent</h3>
+                      <p className="text-text-muted text-sm">Durchlaufzeiten & Bottlenecks</p>
+                    </div>
+                  </div>
+                  {expandedExplainer === 'performance' ? (
+                    <X className="w-5 h-5 text-semantic-warning" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-semantic-warning" />
+                  )}
+                </button>
+                
+                {expandedExplainer === 'performance' && (
+                  <div className="border-t border-semantic-warning/20 animate-fadeIn flex-1">
+                    <div className="p-5 bg-semantic-warning/5 h-full">
+                      <div className="bg-background-surface rounded-card p-4 h-full min-h-[400px] max-h-[600px] overflow-y-auto border border-border">
+                        {agentOutputs?.performance ? (
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                            {agentOutputs.performance}
+                          </ReactMarkdown>
+                        ) : (
+                          <p className="text-text-muted italic text-sm">Keine Performance-Analyse verfügbar.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-            </div>
-            <div className="bg-slate-900/60 rounded-lg p-4 max-h-[300px] overflow-y-auto">
-              {agentOutputs?.economic ? (
-                <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                  {agentOutputs.economic}
-                </ReactMarkdown>
-              ) : (
-                <div className="text-slate-400">
-                  <p className="mb-2"><strong className="text-teal-400">Input:</strong> Branchendaten, Marktbedingungen</p>
-                  <p><strong className="text-teal-400">Output:</strong> Wirtschaftliche Bewertung, Benchmarking</p>
-                </div>
-              )}
-            </div>
+            )}
+
+            {/* 3. Finance Agent */}
+            {(!expandedExplainer || expandedExplainer === 'finance') && (
+              <div className={`bg-background-surface border-2 border-semantic-success/40 rounded-panel overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-semantic-success/60 flex-1 flex flex-col`}>
+                <button 
+                  className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                  onClick={() => setExpandedExplainer(expandedExplainer === 'finance' ? null : 'finance')}
+                >
+                  <div className="flex items-center space-x-3">
+                    <div className="w-12 h-12 bg-semantic-success/15 border border-semantic-success/40 rounded-card flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-semantic-success" />
+                    </div>
+                    <div className="text-left">
+                      <h3 className="font-semibold text-lg text-text-primary font-display">Finance Agent</h3>
+                      <p className="text-text-muted text-sm">Kostenanalyse & ROI</p>
+                    </div>
+                  </div>
+                  {expandedExplainer === 'finance' ? (
+                    <X className="w-5 h-5 text-semantic-success" />
+                  ) : (
+                    <ChevronRight className="w-5 h-5 text-semantic-success" />
+                  )}
+                </button>
+                
+                {expandedExplainer === 'finance' && (
+                  <div className="border-t border-semantic-success/20 animate-fadeIn flex-1">
+                    <div className="p-5 bg-semantic-success/5 h-full">
+                      <div className="bg-background-surface rounded-card p-4 h-full min-h-[400px] max-h-[600px] overflow-y-auto border border-border">
+                        {agentOutputs?.finance ? (
+                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                            {agentOutputs.finance}
+                          </ReactMarkdown>
+                        ) : (
+                          <p className="text-text-muted italic text-sm">Keine Finance-Analyse verfügbar.</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
-      </div>
 
-      {/* Chat Sidebar */}
-      <div className={`fixed right-0 top-0 h-full bg-slate-900 border-l border-slate-700 transition-all duration-300 ${isChatOpen ? 'w-96' : 'w-16'}`}>
-        {!isChatOpen ? (
-          <button
-            onClick={() => setIsChatOpen(true)}
-            className="w-full h-full flex flex-col items-center justify-center space-y-2 hover:bg-slate-800 transition-colors"
-          >
-            <Sparkles className="w-6 h-6 text-cyan-500" />
-            <div className="text-xs text-slate-400 rotate-0 writing-mode-vertical">KI-Assistent</div>
-          </button>
-        ) : (
-          <div className="h-full flex flex-col">
-            <div className="p-4 border-b border-slate-700 flex items-center justify-between">
-              <div className="flex items-center space-x-2">
-                <Sparkles className="w-5 h-5 text-cyan-500" />
-                <h3 className="font-semibold">KI-Assistent</h3>
-              </div>
-              <button onClick={() => setIsChatOpen(false)} className="text-slate-400 hover:text-white">
-                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div className="flex-1 p-4 overflow-y-auto">
-              <div className="bg-slate-800/50 rounded-lg p-3 mb-4">
-                <p className="text-sm text-slate-300">
-                  Hallo! Ich bin der KI-Assistent für Prozessoptimierung. Wie kann ich Ihnen helfen?
-                </p>
-              </div>
-            </div>
-            <div className="p-4 border-t border-slate-700">
-              <div className="space-y-2 mb-4">
-                <button className="w-full text-left px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors">
-                  Erkläre die Änderungen
-                </button>
-                <button className="w-full text-left px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors">
-                  Performance verbessern
-                </button>
-                <button className="w-full text-left px-3 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm transition-colors">
-                  Compliance-Check
-                </button>
-              </div>
-              <div className="flex space-x-2">
-                <input
-                  type="text"
-                  placeholder="Fragen Sie die KI..."
-                  className="flex-1 px-3 py-2 bg-slate-800 border border-slate-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500"
-                />
-                <button className="px-4 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 rounded-lg">
-                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                  </svg>
-                </button>
-              </div>
+        {/* 3. UNTERE SEKTION: KPIs & Metriken - Volle Breite */}
+        {processVisualization && processVisualization.success && processVisualization.graph && (
+          <div className="mb-12">
+            <div className="border-t-2 border-border pt-8">
+              <ProcessVisualization 
+                visualizationData={processVisualization}
+                processMetrics={processMetrics}
+                mode="metrics"
+              />
             </div>
           </div>
         )}
+
+        {/* 4. KONTEXT-ANALYSE: Requirements & Economic Agents */}
+        <div className="mb-12">
+          <h2 className="text-xl font-semibold mb-4 flex items-center space-x-3 font-display">
+            <Sparkles className="w-5 h-5 text-accent" />
+            <span>Kontext-Analyse</span>
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Requirements Agent */}
+            <div className="bg-background-surface border-2 border-accent-highlight/30 rounded-panel overflow-hidden shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-accent-highlight/50">
+              <button 
+                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                onClick={() => setExpandedExplainer(expandedExplainer === 'requirements' ? null : 'requirements')}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-accent-highlight/15 border border-accent-highlight/30 rounded-card flex items-center justify-center">
+                    <FileText className="w-5 h-5 text-accent-highlight" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-lg text-text-primary font-display">Requirements Agent</h3>
+                    <p className="text-text-muted text-sm">Anforderungsanalyse & Validierung</p>
+                  </div>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-accent-highlight transition-transform duration-200 ${expandedExplainer === 'requirements' ? 'rotate-90' : ''}`} />
+              </button>
+              
+              {expandedExplainer === 'requirements' && (
+                <div className="border-t border-accent-highlight/20 animate-fadeIn">
+                  <div className="p-5 bg-accent-highlight/5">
+                    <div className="bg-background-surface rounded-card p-4 max-h-[400px] overflow-y-auto border border-border">
+                      {agentOutputs?.requirements ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {agentOutputs.requirements}
+                        </ReactMarkdown>
+                      ) : (
+                        <p className="text-text-muted italic">Keine Requirements-Analyse verfügbar.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Economic Context Agent */}
+            <div className="bg-background-surface border-2 border-purple-500/30 rounded-panel overflow-hidden shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-purple-500/50">
+              <button 
+                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                onClick={() => setExpandedExplainer(expandedExplainer === 'economic' ? null : 'economic')}
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-purple-500/15 border border-purple-500/30 rounded-card flex items-center justify-center">
+                    <TrendingUp className="w-5 h-5 text-purple-400" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-lg text-text-primary font-display">Economic Context Agent</h3>
+                    <p className="text-text-muted text-sm">Wirtschaftlicher Kontext & Benchmarking</p>
+                  </div>
+                </div>
+                <ChevronRight className={`w-5 h-5 text-purple-400 transition-transform duration-200 ${expandedExplainer === 'economic' ? 'rotate-90' : ''}`} />
+              </button>
+              
+              {expandedExplainer === 'economic' && (
+                <div className="border-t border-purple-500/20 animate-fadeIn">
+                  <div className="p-5 bg-purple-500/5">
+                    <div className="bg-background-surface rounded-card p-4 max-h-[400px] overflow-y-auto border border-border">
+                      {agentOutputs?.economic ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {agentOutputs.economic}
+                        </ReactMarkdown>
+                      ) : (
+                        <p className="text-text-muted italic">Keine Economic-Analyse verfügbar.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,3 +1,6 @@
 Flask==3.0.0
 Flask-CORS==4.0.0
 Werkzeug==3.0.1
+pm4py>=2.7.0
+pandas>=2.0.0
+graphviz>=0.20

@@ -38,6 +38,14 @@ except Exception as e:
     print(f"⚠️  Analysis Engine Import Warning: {e}")
     ANALYSIS_AVAILABLE = False
 
+# Import Process Visualization
+try:
+    from process_visualization import ProcessVisualizer
+    VISUALIZATION_AVAILABLE = True
+except Exception as e:
+    print(f"⚠️  Process Visualization Import Warning: {e}")
+    VISUALIZATION_AVAILABLE = False
+
 # Import ETL Pipeline
 try:
     from pipeline import get_textual_data, get_event_log
@@ -45,6 +53,233 @@ try:
 except Exception as e:
     print(f"⚠️  ETL Pipeline Import Warning: {e}")
     ETL_AVAILABLE = False
+
+
+def extract_visualizable_metrics(kpis: Dict[str, Optional[str]]) -> Dict[str, Any]:
+    """
+    Extrahiert visualisierbare Metriken aus den berechneten KPIs
+    
+    Args:
+        kpis: Dictionary mit JSON-serialisierten KPIs (basic, performance, finance, compliance)
+        
+    Returns:
+        Dictionary mit strukturierten Daten für Frontend-Visualisierungen
+    """
+    metrics = {
+        'overview': {},           # Radar Chart Daten
+        'activityCosts': [],      # Bar Chart: Kosten pro Aktivität
+        'activityDurations': [],  # Bar Chart: Dauer pro Aktivität
+        'caseDurations': [],      # Histogramm: Durchlaufzeiten
+        'reworkStats': [],        # Bar Chart: Nacharbeit pro Aktivität
+        'resourceHeatmap': [],    # Heatmap: Ressourcen-Aktivitäten
+        'variantStats': [],       # Bar Chart: Varianten-Statistiken
+        'costDistribution': {}    # Kosten-Verteilung
+    }
+    
+    try:
+        # 1. Basic Information für Übersichts-Radar
+        if kpis.get('basic'):
+            basic_data = json.loads(kpis['basic'])
+            metrics['overview'] = {
+                'cases': basic_data.get('number_cases', 0),
+                'variants': basic_data.get('number_variants', 0),
+                'activities': basic_data.get('number_activities', 0),
+                'resources': basic_data.get('number_resources', 0),
+                'events': basic_data.get('number_events', 0)
+            }
+            
+            # Aktivitäten-Häufigkeit für Pie Chart
+            if basic_data.get('activities_frequency'):
+                metrics['activityFrequency'] = [
+                    {'name': name, 'value': count}
+                    for name, count in basic_data['activities_frequency'].items()
+                ]
+        
+        # 2. Performance Metriken
+        if kpis.get('performance'):
+            perf_data = json.loads(kpis['performance'])
+            
+            # Aktivitäten-Dauern für Bar Chart
+            if perf_data.get('activities_frequency_total_mean_durations'):
+                metrics['activityDurations'] = [
+                    {
+                        'activity': item.get('concept:name', 'Unknown'),
+                        'meanDuration': round(item.get('mean_activity_duration_hours', 0), 2),
+                        'totalDuration': round(item.get('overall_activity_duration_hours', 0), 2),
+                        'frequency': item.get('frequency', 0)
+                    }
+                    for item in perf_data['activities_frequency_total_mean_durations']
+                ]
+            
+            # Case-Dauer-Statistiken
+            if perf_data.get('case_durations_variance_standard_deviation'):
+                stats = perf_data['case_durations_variance_standard_deviation']
+                metrics['caseDurationStats'] = {
+                    'mean': stats.get('mean', 0),
+                    'variance': stats.get('variance', 0),
+                    'standardDeviation': stats.get('standard_deviation', 0)
+                }
+            
+            # Case-Dauern für Histogramm
+            if perf_data.get('case_durations'):
+                durations = [item.get('case_duration_hours', 0) for item in perf_data['case_durations']]
+                # Gruppiere in Bins für Histogramm
+                if durations:
+                    min_d, max_d = min(durations), max(durations)
+                    bin_size = (max_d - min_d) / 10 if max_d > min_d else 1
+                    bins = {}
+                    for d in durations:
+                        bin_idx = int((d - min_d) / bin_size) if bin_size > 0 else 0
+                        bin_label = f"{round(min_d + bin_idx * bin_size, 1)}-{round(min_d + (bin_idx + 1) * bin_size, 1)}"
+                        bins[bin_label] = bins.get(bin_label, 0) + 1
+                    metrics['caseDurations'] = [
+                        {'range': k, 'count': v}
+                        for k, v in bins.items()
+                    ]
+            
+            # Rework-Statistiken für Bar Chart
+            if perf_data.get('rework_cases_per_activity'):
+                metrics['reworkStats'] = [
+                    {'activity': name, 'reworkCases': count}
+                    for name, count in perf_data['rework_cases_per_activity'].items()
+                ]
+            
+            # Varianten-Statistiken
+            if perf_data.get('variants_frequency_total_mean_durations'):
+                metrics['variantStats'] = [
+                    {
+                        'variant': f"Variante {i+1}",
+                        'fullPath': item.get('@@variant_column', ''),
+                        'frequency': item.get('frequency', 0),
+                        'meanDuration': round(item.get('mean_variant_duration_hours', 0), 2)
+                    }
+                    for i, item in enumerate(perf_data['variants_frequency_total_mean_durations'][:10])
+                ]
+            
+            # Ressourcen-Aktivitäten Heatmap
+            if perf_data.get('activities_per_resources'):
+                heatmap_data = []
+                for item in perf_data['activities_per_resources']:
+                    resource = item.get('org:resource', 'Unknown')
+                    activities = item.get('concept:name', [])
+                    for activity in activities:
+                        # Finde existierenden Eintrag oder erstelle neuen
+                        existing = next((x for x in heatmap_data if x['resource'] == resource and x['activity'] == activity), None)
+                        if existing:
+                            existing['count'] += 1
+                        else:
+                            heatmap_data.append({'resource': resource, 'activity': activity, 'count': 1})
+                metrics['resourceHeatmap'] = heatmap_data
+        
+        # 3. Finance Metriken
+        if kpis.get('finance'):
+            finance_data = json.loads(kpis['finance'])
+            
+            # Kosten pro Aktivität für Bar Chart
+            if finance_data.get('total_mean_costs_per_activity'):
+                metrics['activityCosts'] = [
+                    {
+                        'activity': item.get('concept:name', 'Unknown'),
+                        'totalCost': round(item.get('total_costs', 0), 2),
+                        'meanCost': round(item.get('mean_costs', 0), 2)
+                    }
+                    for item in finance_data['total_mean_costs_per_activity']
+                ]
+            
+            # Kosten-Verteilung
+            if finance_data.get('total_costs_per_case'):
+                costs = [item.get('cost:amount', 0) for item in finance_data['total_costs_per_case']]
+                if costs:
+                    metrics['costDistribution'] = {
+                        'total': round(sum(costs), 2),
+                        'mean': round(sum(costs) / len(costs), 2),
+                        'min': round(min(costs), 2),
+                        'max': round(max(costs), 2),
+                        'caseCount': len(costs)
+                    }
+    
+    except Exception as e:
+        print(f"⚠️  Fehler beim Extrahieren der Visualisierungs-Metriken: {e}")
+        import traceback
+        traceback.print_exc()
+    
+    return metrics
+
+
+def generate_process_visualization(upload_dir: str, kpi_statistics: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+    """
+    Generiert Prozessvisualisierung aus XES/BPMN/CSV Dateien im Upload-Verzeichnis.
+    Verwendet die KPI-Statistiken aus der Analysis-Engine anstatt eigene zu berechnen.
+    
+    Args:
+        upload_dir: Pfad zum Upload-Verzeichnis
+        kpi_statistics: Optional - Statistiken aus den KPIs (cases, events, activities, variants)
+                        Diese werden anstelle der eigenen Berechnungen verwendet.
+        
+    Returns:
+        Dictionary mit Visualisierungsdaten (graph, image, statistics)
+    """
+    if not VISUALIZATION_AVAILABLE:
+        return {
+            'success': False,
+            'error': 'Process Visualization nicht verfügbar'
+        }
+    
+    try:
+        visualizer = ProcessVisualizer()
+        supported_extensions = {'.xes', '.bpmn', '.csv', '.xml'}
+        
+        # Sammle alle Prozessdateien mit Modifikationszeit
+        process_files = []
+        for filename in os.listdir(upload_dir):
+            filepath = os.path.join(upload_dir, filename)
+            ext = Path(filename).suffix.lower()
+            
+            if ext in supported_extensions and os.path.isfile(filepath):
+                # Priorität: XES > BPMN > CSV > XML
+                priority = {'.xes': 4, '.bpmn': 3, '.csv': 2, '.xml': 1}.get(ext, 0)
+                mtime = os.path.getmtime(filepath)
+                process_files.append((filepath, filename, priority, mtime))
+        
+        if not process_files:
+            return {
+                'success': False,
+                'error': 'Keine Prozessdateien (XES, BPMN, CSV) gefunden'
+            }
+        
+        # Sortiere: Höchste Priorität und neueste Modifikationszeit zuerst
+        process_files.sort(key=lambda x: (x[2], x[3]), reverse=True)
+        
+        # Nimm die beste/neueste Datei
+        best_file, filename, _, _ = process_files[0]
+        print(f"📊 Visualisiere Prozess aus: {filename}")
+        result = visualizer.visualize_from_file(best_file)
+        
+        if result.get('success'):
+            # WICHTIG: Überschreibe die Visualisierungs-Statistiken mit den KPI-Statistiken
+            # So haben wir konsistente Zahlen zwischen Visualisierung und Metriken
+            if kpi_statistics:
+                result['statistics'] = {
+                    'cases': kpi_statistics.get('cases', result.get('statistics', {}).get('cases', 0)),
+                    'events': kpi_statistics.get('events', result.get('statistics', {}).get('events', 0)),
+                    'activities': kpi_statistics.get('activities', result.get('statistics', {}).get('activities', 0)),
+                    'variants': kpi_statistics.get('variants', result.get('statistics', {}).get('variants', 0)),
+                    'top_activities': kpi_statistics.get('top_activities', result.get('statistics', {}).get('top_activities', {}))
+                }
+                print(f"   ✅ Statistiken aus KPIs übernommen: {result['statistics']['cases']} Cases, {result['statistics']['events']} Events")
+            return result
+        
+        return {
+            'success': False,
+            'error': f'Fehler beim Visualisieren von {filename}'
+        }
+        
+    except Exception as e:
+        print(f"❌ Fehler bei Prozessvisualisierung: {e}")
+        return {
+            'success': False,
+            'error': str(e)
+        }
 
 
 def extract_data_from_uploads(upload_dir: str) -> Dict[str, Any]:
@@ -305,10 +540,32 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
             import traceback
             traceback.print_exc()
         
+        # Extrahiere visualisierbare Metriken aus den KPIs
+        visualizable_metrics = extract_visualizable_metrics(kpis)
+        
+        # Extrahiere die KPI-Statistiken für die Visualisierung
+        # Diese werden an die Prozessvisualisierung übergeben für konsistente Zahlen
+        kpi_statistics = visualizable_metrics.get('overview', {})
+        
+        # Füge top_activities hinzu (für die Visualisierung)
+        if visualizable_metrics.get('activityFrequency'):
+            top_activities = {item['name']: item['value'] for item in visualizable_metrics['activityFrequency'][:10]}
+            kpi_statistics['top_activities'] = top_activities
+        
+        # Generiere Prozessvisualisierung MIT den KPI-Statistiken
+        print("📊 Generiere Prozessvisualisierung...")
+        process_viz = generate_process_visualization(upload_dir, kpi_statistics=kpi_statistics)
+        if process_viz.get('success'):
+            print(f"   ✅ Prozessvisualisierung erstellt: {process_viz.get('file_name', 'unknown')}")
+        else:
+            print(f"   ⚠️ Prozessvisualisierung: {process_viz.get('error', 'Keine Prozessdateien gefunden')}")
+        
         return {
             'success': True,
             'analysis_result': str(result),
             'agent_outputs': agent_outputs,
+            'process_metrics': visualizable_metrics,  # Neue strukturierte Metriken für Visualisierung
+            'process_visualization': process_viz,  # NEU: Prozessvisualisierung
             'data_summary': {
                 'has_textual_data': bool(extracted_data['textual_data']),
                 'has_event_log': extracted_data['event_log'] is not None,
@@ -320,6 +577,7 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
                 }
             }
         }
+
         
     except Exception as e:
         error_msg = f"Fehler bei KI-Analyse: {str(e)}"
