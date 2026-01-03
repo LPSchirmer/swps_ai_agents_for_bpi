@@ -18,7 +18,7 @@ llm_openai = LLM(
     model=os.getenv("BASE_MODEL_OPENAI"),
     api_key= os.getenv("API_KEY_OPENAI"),
     temperature=0.4,
-    max_tokens=1500
+    max_tokens=4096  # Erhöht von 1500 für vollständige Agenten-Ausgaben
 )
 
 # Instantiate tools - Make SerperDevTool optional

@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ChevronDown, Sparkles, Zap, DollarSign, Shield, FileText, TrendingUp, Activity, BarChart3 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Calendar } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ProcessMetrics } from './MetricsVisualization';
@@ -78,6 +78,52 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
       return newSet;
     });
   };
+  
+  // Parse Company, Process und Year aus Compliance-Output
+  const complianceMetadata = useMemo(() => {
+    if (!agentOutputs?.compliance) return null;
+    
+    const companyMatch = agentOutputs.compliance.match(/\*\*Company:\*\*\s*(.+)/i);
+    const processMatch = agentOutputs.compliance.match(/\*\*Process:\*\*\s*(.+)/i);
+    const yearMatch = agentOutputs.compliance.match(/\*\*Year:\*\*\s*(.+)/i);
+    
+    if (!companyMatch && !processMatch && !yearMatch) return null;
+    
+    return {
+      company: companyMatch ? companyMatch[1].trim() : null,
+      process: processMatch ? processMatch[1].trim() : null,
+      year: yearMatch ? yearMatch[1].trim() : null,
+    };
+  }, [agentOutputs?.compliance]);
+  
+  // Parse Issue-Counts aus allen Agents
+  const agentIssueCounts = useMemo(() => {
+    const counts: { performance: number | null; finance: number | null; compliance: number | null } = {
+      performance: null,
+      finance: null,
+      compliance: null,
+    };
+    
+    // Performance Issues
+    if (agentOutputs?.performance) {
+      const match = agentOutputs.performance.match(/\*\*Performance Issues Found:\*\*\s*(\d+)/i);
+      if (match) counts.performance = parseInt(match[1], 10);
+    }
+    
+    // Cost Drivers (Finance)
+    if (agentOutputs?.finance) {
+      const match = agentOutputs.finance.match(/\*\*Cost Drivers Found:\*\*\s*(\d+)/i);
+      if (match) counts.finance = parseInt(match[1], 10);
+    }
+    
+    // Compliance Issues
+    if (agentOutputs?.compliance) {
+      const match = agentOutputs.compliance.match(/\*\*Compliance Issues Found:\*\*\s*(\d+)/i);
+      if (match) counts.compliance = parseInt(match[1], 10);
+    }
+    
+    return counts;
+  }, [agentOutputs]);
   
   // Debug: Log wenn Component mountet und bei jeder Änderung
   console.log('📊 Dashboard gerendert mit:', {
@@ -164,14 +210,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
       {/* Header */}
       <div className="border-b border-border px-8 py-5">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-accent rounded-button flex items-center justify-center shadow-button">
-              <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-              </svg>
-            </div>
-            <span className="text-xl font-semibold font-display">ProcessAI</span>
-          </div>
+          <span className="text-xl font-semibold font-display">ProcessAI</span>
           <button 
             onClick={onNewAnalysis}
             className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-button font-medium transition-all duration-150 shadow-button hover:-translate-y-0.5"
@@ -194,26 +233,60 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             </div>
           </div>
           <h1 className="text-4xl font-semibold mb-6 font-display tracking-tight">Prozessanalyse-Dashboard</h1>
-          <div className="bg-background-surface border border-border rounded-panel p-5 inline-block shadow-card">
-            <p className="text-text-muted text-label-lg mb-3">Analysierte Dateien</p>
-            <div className="flex flex-wrap gap-2 justify-center">
-              {uploadedFiles && uploadedFiles.length > 0 ? (
-                uploadedFiles.map((file, index) => (
-                  <span key={index} className="px-3 py-1.5 bg-background-elevated border border-border rounded-button text-text-secondary text-sm flex items-center gap-2 transition-colors hover:border-accent/50">
-                    <FileText className="w-4 h-4 text-text-muted" />
-                    {file.filename}
-                  </span>
-                ))
-              ) : uploadedFile ? (
-                <span className="px-3 py-1.5 bg-background-elevated border border-border rounded-button text-text-secondary text-sm flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-text-muted" />
-                  {uploadedFile.filename}
-                </span>
-              ) : (
-                <span className="text-text-muted">Keine Dateien</span>
+          
+          {/* Prozess-Metadaten aus Compliance Agent */}
+          {complianceMetadata && (
+            <div className="flex flex-wrap gap-4 justify-center mb-6">
+              {complianceMetadata.company && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/20 rounded-button">
+                  <Building2 className="w-4 h-4 text-text-secondary" />
+                  <span className="text-text-muted text-sm">Unternehmen:</span>
+                  <span className="text-text-primary font-medium">{complianceMetadata.company}</span>
+                </div>
+              )}
+              {complianceMetadata.process && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/20 rounded-button">
+                  <GitBranch className="w-4 h-4 text-text-secondary" />
+                  <span className="text-text-muted text-sm">Prozess:</span>
+                  <span className="text-text-primary font-medium">{complianceMetadata.process}</span>
+                </div>
+              )}
+              {complianceMetadata.year && (
+                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/20 rounded-button">
+                  <Calendar className="w-4 h-4 text-text-secondary" />
+                  <span className="text-text-muted text-sm">Jahr:</span>
+                  <span className="text-text-primary font-medium">{complianceMetadata.year}</span>
+                </div>
               )}
             </div>
-          </div>
+          )}
+          
+          {/* Issue-Counts aus allen Agents */}
+          {(agentIssueCounts.compliance !== null || agentIssueCounts.performance !== null || agentIssueCounts.finance !== null) && (
+            <div className="flex flex-wrap gap-4 justify-center mb-6">
+              {agentIssueCounts.compliance !== null && (
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-accent/15 border border-accent/40 rounded-button shadow-sm">
+                  <Shield className="w-5 h-5 text-accent" />
+                  <span className="text-text-primary font-semibold text-lg">{agentIssueCounts.compliance}</span>
+                  <span className="text-text-muted text-sm">Compliance-Probleme</span>
+                </div>
+              )}
+              {agentIssueCounts.performance !== null && (
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-semantic-warning/15 border border-semantic-warning/40 rounded-button shadow-sm">
+                  <Zap className="w-5 h-5 text-semantic-warning" />
+                  <span className="text-text-primary font-semibold text-lg">{agentIssueCounts.performance}</span>
+                  <span className="text-text-muted text-sm">Performance-Issues</span>
+                </div>
+              )}
+              {agentIssueCounts.finance !== null && (
+                <div className="flex items-center gap-2 px-4 py-2.5 bg-semantic-success/15 border border-semantic-success/40 rounded-button shadow-sm">
+                  <DollarSign className="w-5 h-5 text-semantic-success" />
+                  <span className="text-text-primary font-semibold text-lg">{agentIssueCounts.finance}</span>
+                  <span className="text-text-muted text-sm">Kostentreiber</span>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 2. HAUPT-LAYOUT: Prozess-Visualisierung LINKS + KPIs RECHTS */}
@@ -320,18 +393,18 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             <div className="bg-background-surface border-2 border-accent/40 rounded-panel overflow-hidden shadow-card flex flex-col transition-all duration-300 hover:shadow-card-hover hover:border-accent/60">
               <button 
                 onClick={() => toggleAgent('compliance')}
-                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                className="w-full p-6 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
-                    <Shield className="w-6 h-6 text-accent" />
+                  <div className="w-14 h-14 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
+                    <Shield className="w-7 h-7 text-accent" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold text-lg text-text-primary font-display">Compliance Agent</h3>
-                    <p className="text-text-muted text-sm">Regulatorische Prüfung</p>
+                    <h3 className="font-semibold text-xl text-text-primary font-display">Compliance Agent</h3>
+                    <p className="text-text-muted text-sm mt-1">Regulatorische Prüfung</p>
                   </div>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-accent transition-transform duration-200 ${expandedAgents.has('compliance') ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-6 h-6 text-accent transition-transform duration-200 ${expandedAgents.has('compliance') ? 'rotate-180' : ''}`} />
               </button>
               
               {expandedAgents.has('compliance') && (
@@ -355,18 +428,18 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             <div className="bg-background-surface border-2 border-semantic-warning/40 rounded-panel overflow-hidden shadow-card flex flex-col transition-all duration-300 hover:shadow-card-hover hover:border-semantic-warning/60">
               <button 
                 onClick={() => toggleAgent('performance')}
-                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                className="w-full p-6 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-semantic-warning/15 border border-semantic-warning/40 rounded-card flex items-center justify-center">
-                    <Zap className="w-6 h-6 text-semantic-warning" />
+                  <div className="w-14 h-14 bg-semantic-warning/15 border border-semantic-warning/40 rounded-card flex items-center justify-center">
+                    <Zap className="w-7 h-7 text-semantic-warning" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold text-lg text-text-primary font-display">Performance Agent</h3>
-                    <p className="text-text-muted text-sm">Durchlaufzeiten & Bottlenecks</p>
+                    <h3 className="font-semibold text-xl text-text-primary font-display">Performance Agent</h3>
+                    <p className="text-text-muted text-sm mt-1">Durchlaufzeiten & Bottlenecks</p>
                   </div>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-semantic-warning transition-transform duration-200 ${expandedAgents.has('performance') ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-6 h-6 text-semantic-warning transition-transform duration-200 ${expandedAgents.has('performance') ? 'rotate-180' : ''}`} />
               </button>
               
               {expandedAgents.has('performance') && (
@@ -390,18 +463,18 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             <div className="bg-background-surface border-2 border-semantic-success/40 rounded-panel overflow-hidden shadow-card flex flex-col transition-all duration-300 hover:shadow-card-hover hover:border-semantic-success/60">
               <button 
                 onClick={() => toggleAgent('finance')}
-                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                className="w-full p-6 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
               >
                 <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-semantic-success/15 border border-semantic-success/40 rounded-card flex items-center justify-center">
-                    <DollarSign className="w-6 h-6 text-semantic-success" />
+                  <div className="w-14 h-14 bg-semantic-success/15 border border-semantic-success/40 rounded-card flex items-center justify-center">
+                    <DollarSign className="w-7 h-7 text-semantic-success" />
                   </div>
                   <div className="text-left">
-                    <h3 className="font-semibold text-lg text-text-primary font-display">Finance Agent</h3>
-                    <p className="text-text-muted text-sm">Kostenanalyse & ROI</p>
+                    <h3 className="font-semibold text-xl text-text-primary font-display">Finance Agent</h3>
+                    <p className="text-text-muted text-sm mt-1">Kostenanalyse & ROI</p>
                   </div>
                 </div>
-                <ChevronDown className={`w-5 h-5 text-semantic-success transition-transform duration-200 ${expandedAgents.has('finance') ? 'rotate-180' : ''}`} />
+                <ChevronDown className={`w-6 h-6 text-semantic-success transition-transform duration-200 ${expandedAgents.has('finance') ? 'rotate-180' : ''}`} />
               </button>
               
               {expandedAgents.has('finance') && (
@@ -414,86 +487,6 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
                         </ReactMarkdown>
                       ) : (
                         <p className="text-text-muted italic text-sm">Keine Finance-Analyse verfügbar.</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* 4. KONTEXT-ANALYSE: Requirements & Economic Agents */}
-        <div className="mb-12">
-          <h2 className="text-xl font-semibold mb-4 flex items-center space-x-3 font-display">
-            <Sparkles className="w-5 h-5 text-accent" />
-            <span>Kontext-Analyse</span>
-          </h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Requirements Agent */}
-            <div className="bg-background-surface border-2 border-accent-highlight/30 rounded-panel overflow-hidden shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-accent-highlight/50">
-              <button 
-                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                onClick={() => toggleAgent('requirements')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-accent-highlight/15 border border-accent-highlight/30 rounded-card flex items-center justify-center">
-                    <FileText className="w-5 h-5 text-accent-highlight" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-lg text-text-primary font-display">Requirements Agent</h3>
-                    <p className="text-text-muted text-sm">Anforderungsanalyse & Validierung</p>
-                  </div>
-                </div>
-                <ChevronDown className={`w-5 h-5 text-accent-highlight transition-transform duration-200 ${expandedAgents.has('requirements') ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {expandedAgents.has('requirements') && (
-                <div className="border-t border-accent-highlight/20 animate-fadeIn">
-                  <div className="p-5 bg-accent-highlight/5">
-                    <div className="bg-background-surface rounded-card p-4 max-h-[400px] overflow-y-auto border border-border">
-                      {agentOutputs?.requirements ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {agentOutputs.requirements}
-                        </ReactMarkdown>
-                      ) : (
-                        <p className="text-text-muted italic">Keine Requirements-Analyse verfügbar.</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Economic Context Agent */}
-            <div className="bg-background-surface border-2 border-purple-500/30 rounded-panel overflow-hidden shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-purple-500/50">
-              <button 
-                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                onClick={() => toggleAgent('economic')}
-              >
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 bg-purple-500/15 border border-purple-500/30 rounded-card flex items-center justify-center">
-                    <TrendingUp className="w-5 h-5 text-purple-400" />
-                  </div>
-                  <div className="text-left">
-                    <h3 className="font-semibold text-lg text-text-primary font-display">Economic Context Agent</h3>
-                    <p className="text-text-muted text-sm">Wirtschaftlicher Kontext & Benchmarking</p>
-                  </div>
-                </div>
-                <ChevronDown className={`w-5 h-5 text-purple-400 transition-transform duration-200 ${expandedAgents.has('economic') ? 'rotate-180' : ''}`} />
-              </button>
-              
-              {expandedAgents.has('economic') && (
-                <div className="border-t border-purple-500/20 animate-fadeIn">
-                  <div className="p-5 bg-purple-500/5">
-                    <div className="bg-background-surface rounded-card p-4 max-h-[400px] overflow-y-auto border border-border">
-                      {agentOutputs?.economic ? (
-                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                          {agentOutputs.economic}
-                        </ReactMarkdown>
-                      ) : (
-                        <p className="text-text-muted italic">Keine Economic-Analyse verfügbar.</p>
                       )}
                     </div>
                   </div>

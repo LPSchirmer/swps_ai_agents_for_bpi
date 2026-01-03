@@ -82,12 +82,16 @@ function App() {
   const [currentView, setCurrentView] = useState<ViewType>('upload');
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [processDescription, setProcessDescription] = useState<string>('');
   const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null);
   const [agentOutputs, setAgentOutputs] = useState<AgentOutputs | null>(null);
   const [processMetrics, setProcessMetrics] = useState<ProcessMetrics | null>(null);
   const [processVisualization, setProcessVisualization] = useState<ProcessVisualizationData | null>(null);
 
   const handleCombinedSubmit = async (text: string, files: File[]) => {
+    // Speichere die Prozessbeschreibung
+    setProcessDescription(text);
+    
     // Wechsle zum Processing Screen
     setCurrentView('processing');
     
@@ -242,6 +246,7 @@ function App() {
     setCurrentView('upload');
     setUploadedFile(null);
     setUploadedFiles([]);
+    setProcessDescription('');
     setAiAnalysisResult(null);
     setAgentOutputs(null);
     setProcessMetrics(null);
@@ -266,6 +271,7 @@ function App() {
         <Dashboard
           uploadedFile={uploadedFile}
           uploadedFiles={uploadedFiles}
+          processDescription={processDescription}
           onNewAnalysis={handleNewAnalysis}
           aiAnalysisResult={aiAnalysisResult}
           agentOutputs={agentOutputs}
