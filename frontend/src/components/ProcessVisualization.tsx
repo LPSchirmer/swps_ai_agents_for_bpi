@@ -134,7 +134,7 @@ interface ProcessVisualizationProps {
   visualizationData?: VisualizationResult | null;
   onVisualizationComplete?: (result: VisualizationResult) => void;
   processMetrics?: ProcessMetrics | null;
-  mode?: 'graph' | 'metrics' | 'all';  // graph = nur Graph, metrics = nur KPIs/Charts, all = alles
+  mode?: 'graph' | 'metrics' | 'kpis' | 'charts' | 'all';  // graph = nur Graph, kpis = nur KPI-Boxen, charts = nur Diagramme/Tabs, metrics = KPIs+Charts, all = alles
 }
 
 // ============================================================
@@ -685,10 +685,10 @@ const ProcessVisualization = ({
         </div>
       )}
 
-      {/* KPI Statistics - Premium Design - nur anzeigen wenn mode 'metrics' oder 'all' */}
-      {(mode === 'metrics' || mode === 'all') && (result.statistics || processMetrics?.overview) && (
-        <div className="border-t border-border p-5">
-          <div className="flex items-center justify-between mb-5">
+      {/* KPI Statistics - Premium Design - nur anzeigen wenn mode 'kpis', 'metrics' oder 'all' */}
+      {(mode === 'kpis' || mode === 'metrics' || mode === 'all') && (result.statistics || processMetrics?.overview) && (
+        <div className={mode === 'kpis' ? 'p-4' : 'border-t border-border p-5'}>
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <TrendingUp className="w-5 h-5 text-accent" />
               <h3 className="text-lg font-semibold text-text-primary font-display">Prozess-KPIs</h3>
@@ -696,7 +696,8 @@ const ProcessVisualization = ({
             <span className="px-2.5 py-1 bg-accent/10 text-accent text-xs rounded-button font-medium">Live-Daten</span>
           </div>
           
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {/* Vertikales Layout für mode='kpis', Grid für andere Modi */}
+          <div className={mode === 'kpis' ? 'flex flex-col gap-3' : 'grid grid-cols-2 md:grid-cols-4 gap-4'}>
             {/* Cases KPI */}
             <div className="border-2 border-accent/30 rounded-card overflow-hidden bg-accent/5 hover:bg-accent/10 hover:border-accent/50 transition-all duration-150">
               <button 
@@ -897,8 +898,8 @@ const ProcessVisualization = ({
         </div>
       )}
 
-      {/* Metrics Visualization Tabs - integriert aus MetricsVisualization - nur anzeigen wenn mode 'metrics' oder 'all' */}
-      {(mode === 'metrics' || mode === 'all') && processMetrics && (
+      {/* Metrics Visualization Tabs - integriert aus MetricsVisualization - nur anzeigen wenn mode 'charts', 'metrics' oder 'all' */}
+      {(mode === 'charts' || mode === 'metrics' || mode === 'all') && processMetrics && (
         <div className="border-t border-border p-5">
           {/* Tabs */}
           <div className="flex flex-wrap gap-2 mb-5">

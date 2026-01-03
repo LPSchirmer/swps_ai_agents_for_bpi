@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronRight, Sparkles, Zap, DollarSign, Shield, FileText, TrendingUp, Activity, X } from 'lucide-react';
+import { ChevronDown, Sparkles, Zap, DollarSign, Shield, FileText, TrendingUp, Activity, BarChart3 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { ProcessMetrics } from './MetricsVisualization';
@@ -63,7 +63,21 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysisResult, agentOutputs, processMetrics, processVisualization }: DashboardProps) => {
-  const [expandedExplainer, setExpandedExplainer] = useState<string | null>(null);
+  const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set());
+  const [showDetailedCharts, setShowDetailedCharts] = useState(false);
+  
+  // Toggle-Funktion für Agenten - mehrere können gleichzeitig offen sein
+  const toggleAgent = (agentId: string) => {
+    setExpandedAgents(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(agentId)) {
+        newSet.delete(agentId);
+      } else {
+        newSet.add(agentId);
+      }
+      return newSet;
+    });
+  };
   
   // Debug: Log wenn Component mountet und bei jeder Änderung
   console.log('📊 Dashboard gerendert mit:', {
@@ -202,19 +216,56 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
           </div>
         </div>
 
-        {/* 2. HAUPT-LAYOUT: Prozess-Visualisierung LINKS + Top 3 Agents RECHTS */}
+        {/* 2. HAUPT-LAYOUT: Prozess-Visualisierung LINKS + KPIs RECHTS */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* LINKS: Prozess-Visualisierung (2/3 Breite) - NUR GRAPH */}
+          {/* LINKS: Prozess-Visualisierung (2/3 Breite) - GRAPH + DIAGRAMME */}
           <div className="lg:col-span-2">
-            <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card h-full">
+            <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card">
               {processVisualization && processVisualization.success && processVisualization.graph ? (
-                <div className="p-6">
-                  <ProcessVisualization 
-                    visualizationData={processVisualization}
-                    processMetrics={processMetrics}
-                    mode="graph"
-                  />
-                </div>
+                <>
+                  {/* Prozess-Graph */}
+                  <div className="p-6">
+                    <ProcessVisualization 
+                      visualizationData={processVisualization}
+                      processMetrics={processMetrics}
+                      mode="graph"
+                    />
+                  </div>
+                  
+                  {/* Diagramme mit "Mehr erfahren" Button - DIREKT UNTER DEM GRAPH */}
+                  <div className="border-t border-border">
+                    <button
+                      onClick={() => setShowDetailedCharts(!showDetailedCharts)}
+                      className="w-full p-4 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
+                          <BarChart3 className="w-5 h-5 text-accent" />
+                        </div>
+                        <div className="text-left">
+                          <h3 className="font-semibold text-base text-text-primary font-display">Detaillierte Analyse-Diagramme</h3>
+                          <p className="text-text-muted text-xs">Performance, Kosten & Nacharbeit visualisiert</p>
+                        </div>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="px-3 py-1.5 bg-accent/10 text-accent text-sm rounded-button font-medium">
+                          {showDetailedCharts ? 'Ausblenden' : 'Mehr erfahren'}
+                        </span>
+                        <ChevronDown className={`w-5 h-5 text-accent transition-transform duration-200 ${showDetailedCharts ? 'rotate-180' : ''}`} />
+                      </div>
+                    </button>
+                    
+                    {showDetailedCharts && (
+                      <div className="border-t border-border animate-fadeIn">
+                        <ProcessVisualization 
+                          visualizationData={processVisualization}
+                          processMetrics={processMetrics}
+                          mode="charts"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </>
               ) : (
                 /* Fallback: Statische Platzhalter-Visualisierung */
                 <div className="p-10">
@@ -235,146 +286,142 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             </div>
           </div>
 
-          {/* RECHTS: Top 3 Agents - Compliance, Performance, Finance (1/3 Breite) */}
-          {/* EXKLUSIV-MODUS: Wenn ein Agent geöffnet ist, werden nur dieser angezeigt */}
-          <div className="flex flex-col gap-4 h-full">
-            {/* 1. Compliance Agent */}
-            {(!expandedExplainer || expandedExplainer === 'compliance') && (
-              <div className={`bg-background-surface border-2 border-accent/40 rounded-panel overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-accent/60 flex-1 flex flex-col`}>
-                <button 
-                  className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                  onClick={() => setExpandedExplainer(expandedExplainer === 'compliance' ? null : 'compliance')}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
-                      <Shield className="w-6 h-6 text-accent" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-lg text-text-primary font-display">Compliance Agent</h3>
-                      <p className="text-text-muted text-sm">Regulatorische Prüfung</p>
-                    </div>
-                  </div>
-                  {expandedExplainer === 'compliance' ? (
-                    <X className="w-5 h-5 text-accent" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-accent" />
-                  )}
-                </button>
-                
-                {expandedExplainer === 'compliance' && (
-                  <div className="border-t border-accent/20 animate-fadeIn flex-1">
-                    <div className="p-5 bg-accent/5 h-full">
-                      <div className="bg-background-surface rounded-card p-4 h-full min-h-[400px] max-h-[600px] overflow-y-auto border border-border">
-                        {agentOutputs?.compliance ? (
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                            {agentOutputs.compliance}
-                          </ReactMarkdown>
-                        ) : (
-                          <p className="text-text-muted italic text-sm">Keine Compliance-Analyse verfügbar.</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+          {/* RECHTS: KPIs - Untereinander angeordnet (1/3 Breite) */}
+          <div className="flex flex-col h-full">
+            {processVisualization && processVisualization.success && processVisualization.graph ? (
+              <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card h-full">
+                <ProcessVisualization 
+                  visualizationData={processVisualization}
+                  processMetrics={processMetrics}
+                  mode="kpis"
+                />
               </div>
-            )}
-
-            {/* 2. Performance Agent */}
-            {(!expandedExplainer || expandedExplainer === 'performance') && (
-              <div className={`bg-background-surface border-2 border-semantic-warning/40 rounded-panel overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-semantic-warning/60 flex-1 flex flex-col`}>
-                <button 
-                  className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                  onClick={() => setExpandedExplainer(expandedExplainer === 'performance' ? null : 'performance')}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-semantic-warning/15 border border-semantic-warning/40 rounded-card flex items-center justify-center">
-                      <Zap className="w-6 h-6 text-semantic-warning" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-lg text-text-primary font-display">Performance Agent</h3>
-                      <p className="text-text-muted text-sm">Durchlaufzeiten & Bottlenecks</p>
-                    </div>
-                  </div>
-                  {expandedExplainer === 'performance' ? (
-                    <X className="w-5 h-5 text-semantic-warning" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-semantic-warning" />
-                  )}
-                </button>
-                
-                {expandedExplainer === 'performance' && (
-                  <div className="border-t border-semantic-warning/20 animate-fadeIn flex-1">
-                    <div className="p-5 bg-semantic-warning/5 h-full">
-                      <div className="bg-background-surface rounded-card p-4 h-full min-h-[400px] max-h-[600px] overflow-y-auto border border-border">
-                        {agentOutputs?.performance ? (
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                            {agentOutputs.performance}
-                          </ReactMarkdown>
-                        ) : (
-                          <p className="text-text-muted italic text-sm">Keine Performance-Analyse verfügbar.</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* 3. Finance Agent */}
-            {(!expandedExplainer || expandedExplainer === 'finance') && (
-              <div className={`bg-background-surface border-2 border-semantic-success/40 rounded-panel overflow-hidden shadow-card transition-all duration-300 hover:shadow-card-hover hover:border-semantic-success/60 flex-1 flex flex-col`}>
-                <button 
-                  className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                  onClick={() => setExpandedExplainer(expandedExplainer === 'finance' ? null : 'finance')}
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 bg-semantic-success/15 border border-semantic-success/40 rounded-card flex items-center justify-center">
-                      <DollarSign className="w-6 h-6 text-semantic-success" />
-                    </div>
-                    <div className="text-left">
-                      <h3 className="font-semibold text-lg text-text-primary font-display">Finance Agent</h3>
-                      <p className="text-text-muted text-sm">Kostenanalyse & ROI</p>
-                    </div>
-                  </div>
-                  {expandedExplainer === 'finance' ? (
-                    <X className="w-5 h-5 text-semantic-success" />
-                  ) : (
-                    <ChevronRight className="w-5 h-5 text-semantic-success" />
-                  )}
-                </button>
-                
-                {expandedExplainer === 'finance' && (
-                  <div className="border-t border-semantic-success/20 animate-fadeIn flex-1">
-                    <div className="p-5 bg-semantic-success/5 h-full">
-                      <div className="bg-background-surface rounded-card p-4 h-full min-h-[400px] max-h-[600px] overflow-y-auto border border-border">
-                        {agentOutputs?.finance ? (
-                          <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                            {agentOutputs.finance}
-                          </ReactMarkdown>
-                        ) : (
-                          <p className="text-text-muted italic text-sm">Keine Finance-Analyse verfügbar.</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                )}
+            ) : (
+              <div className="bg-background-surface border border-border rounded-panel p-6 h-full flex flex-col items-center justify-center">
+                <BarChart3 className="w-12 h-12 text-text-muted mb-4" />
+                <p className="text-text-secondary text-center">Keine KPIs verfügbar</p>
+                <p className="text-text-muted text-sm text-center mt-2">
+                  Laden Sie eine Prozessdatei hoch
+                </p>
               </div>
             )}
           </div>
         </div>
 
-        {/* 3. UNTERE SEKTION: KPIs & Metriken - Volle Breite */}
-        {processVisualization && processVisualization.success && processVisualization.graph && (
-          <div className="mb-12">
-            <div className="border-t-2 border-border pt-8">
-              <ProcessVisualization 
-                visualizationData={processVisualization}
-                processMetrics={processMetrics}
-                mode="metrics"
-              />
+        {/* 3. AGENTEN-SEKTION: Compliance, Performance, Finance - Horizontal über volle Breite - TOGGLE */}
+        <div className="mb-8">
+          <h2 className="text-xl font-semibold mb-4 flex items-center space-x-3 font-display">
+            <Sparkles className="w-5 h-5 text-accent" />
+            <span>KI-Agenten Analyse</span>
+          </h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* 1. Compliance Agent - TOGGLE */}
+            <div className="bg-background-surface border-2 border-accent/40 rounded-panel overflow-hidden shadow-card flex flex-col transition-all duration-300 hover:shadow-card-hover hover:border-accent/60">
+              <button 
+                onClick={() => toggleAgent('compliance')}
+                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
+                    <Shield className="w-6 h-6 text-accent" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-lg text-text-primary font-display">Compliance Agent</h3>
+                    <p className="text-text-muted text-sm">Regulatorische Prüfung</p>
+                  </div>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-accent transition-transform duration-200 ${expandedAgents.has('compliance') ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedAgents.has('compliance') && (
+                <div className="border-t border-accent/20 animate-fadeIn">
+                  <div className="p-4 bg-accent/5">
+                    <div className="bg-background-surface rounded-card p-4 min-h-[350px] max-h-[500px] overflow-y-auto border border-border">
+                      {agentOutputs?.compliance ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {agentOutputs.compliance}
+                        </ReactMarkdown>
+                      ) : (
+                        <p className="text-text-muted italic text-sm">Keine Compliance-Analyse verfügbar.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 2. Performance Agent - TOGGLE */}
+            <div className="bg-background-surface border-2 border-semantic-warning/40 rounded-panel overflow-hidden shadow-card flex flex-col transition-all duration-300 hover:shadow-card-hover hover:border-semantic-warning/60">
+              <button 
+                onClick={() => toggleAgent('performance')}
+                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-semantic-warning/15 border border-semantic-warning/40 rounded-card flex items-center justify-center">
+                    <Zap className="w-6 h-6 text-semantic-warning" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-lg text-text-primary font-display">Performance Agent</h3>
+                    <p className="text-text-muted text-sm">Durchlaufzeiten & Bottlenecks</p>
+                  </div>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-semantic-warning transition-transform duration-200 ${expandedAgents.has('performance') ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedAgents.has('performance') && (
+                <div className="border-t border-semantic-warning/20 animate-fadeIn">
+                  <div className="p-4 bg-semantic-warning/5">
+                    <div className="bg-background-surface rounded-card p-4 min-h-[350px] max-h-[500px] overflow-y-auto border border-border">
+                      {agentOutputs?.performance ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {agentOutputs.performance}
+                        </ReactMarkdown>
+                      ) : (
+                        <p className="text-text-muted italic text-sm">Keine Performance-Analyse verfügbar.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* 3. Finance Agent - TOGGLE */}
+            <div className="bg-background-surface border-2 border-semantic-success/40 rounded-panel overflow-hidden shadow-card flex flex-col transition-all duration-300 hover:shadow-card-hover hover:border-semantic-success/60">
+              <button 
+                onClick={() => toggleAgent('finance')}
+                className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="w-12 h-12 bg-semantic-success/15 border border-semantic-success/40 rounded-card flex items-center justify-center">
+                    <DollarSign className="w-6 h-6 text-semantic-success" />
+                  </div>
+                  <div className="text-left">
+                    <h3 className="font-semibold text-lg text-text-primary font-display">Finance Agent</h3>
+                    <p className="text-text-muted text-sm">Kostenanalyse & ROI</p>
+                  </div>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-semantic-success transition-transform duration-200 ${expandedAgents.has('finance') ? 'rotate-180' : ''}`} />
+              </button>
+              
+              {expandedAgents.has('finance') && (
+                <div className="border-t border-semantic-success/20 animate-fadeIn">
+                  <div className="p-4 bg-semantic-success/5">
+                    <div className="bg-background-surface rounded-card p-4 min-h-[350px] max-h-[500px] overflow-y-auto border border-border">
+                      {agentOutputs?.finance ? (
+                        <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                          {agentOutputs.finance}
+                        </ReactMarkdown>
+                      ) : (
+                        <p className="text-text-muted italic text-sm">Keine Finance-Analyse verfügbar.</p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-        )}
+        </div>
 
         {/* 4. KONTEXT-ANALYSE: Requirements & Economic Agents */}
         <div className="mb-12">
@@ -388,7 +435,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             <div className="bg-background-surface border-2 border-accent-highlight/30 rounded-panel overflow-hidden shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-accent-highlight/50">
               <button 
                 className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                onClick={() => setExpandedExplainer(expandedExplainer === 'requirements' ? null : 'requirements')}
+                onClick={() => toggleAgent('requirements')}
               >
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-accent-highlight/15 border border-accent-highlight/30 rounded-card flex items-center justify-center">
@@ -399,10 +446,10 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
                     <p className="text-text-muted text-sm">Anforderungsanalyse & Validierung</p>
                   </div>
                 </div>
-                <ChevronRight className={`w-5 h-5 text-accent-highlight transition-transform duration-200 ${expandedExplainer === 'requirements' ? 'rotate-90' : ''}`} />
+                <ChevronDown className={`w-5 h-5 text-accent-highlight transition-transform duration-200 ${expandedAgents.has('requirements') ? 'rotate-180' : ''}`} />
               </button>
               
-              {expandedExplainer === 'requirements' && (
+              {expandedAgents.has('requirements') && (
                 <div className="border-t border-accent-highlight/20 animate-fadeIn">
                   <div className="p-5 bg-accent-highlight/5">
                     <div className="bg-background-surface rounded-card p-4 max-h-[400px] overflow-y-auto border border-border">
@@ -423,7 +470,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
             <div className="bg-background-surface border-2 border-purple-500/30 rounded-panel overflow-hidden shadow-card transition-all duration-200 hover:shadow-card-hover hover:border-purple-500/50">
               <button 
                 className="w-full p-5 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                onClick={() => setExpandedExplainer(expandedExplainer === 'economic' ? null : 'economic')}
+                onClick={() => toggleAgent('economic')}
               >
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-purple-500/15 border border-purple-500/30 rounded-card flex items-center justify-center">
@@ -434,10 +481,10 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
                     <p className="text-text-muted text-sm">Wirtschaftlicher Kontext & Benchmarking</p>
                   </div>
                 </div>
-                <ChevronRight className={`w-5 h-5 text-purple-400 transition-transform duration-200 ${expandedExplainer === 'economic' ? 'rotate-90' : ''}`} />
+                <ChevronDown className={`w-5 h-5 text-purple-400 transition-transform duration-200 ${expandedAgents.has('economic') ? 'rotate-180' : ''}`} />
               </button>
               
-              {expandedExplainer === 'economic' && (
+              {expandedAgents.has('economic') && (
                 <div className="border-t border-purple-500/20 animate-fadeIn">
                   <div className="p-5 bg-purple-500/5">
                     <div className="bg-background-surface rounded-card p-4 max-h-[400px] overflow-y-auto border border-border">
