@@ -53,6 +53,20 @@ def delete_file(filepath):
     except Exception as e:
         print(f"⚠️ Fehler beim Löschen von {filepath}: {e}")
 
+
+def cleanup_old_exports():
+    """Löscht alle alten raw_data_export Dateien aus dem uploads-Ordner"""
+    try:
+        upload_folder = app.config['UPLOAD_FOLDER']
+        if os.path.exists(upload_folder):
+            for filename in os.listdir(upload_folder):
+                if filename.startswith('raw_data_export_') and filename.endswith('.txt'):
+                    filepath = os.path.join(upload_folder, filename)
+                    delete_file(filepath)
+                    print(f"🧹 Alte Export-Datei entfernt: {filename}")
+    except Exception as e:
+        print(f"⚠️ Fehler beim Aufräumen alter Exports: {e}")
+
 @app.route('/api/etl-ready-uploads', methods=['GET'])
 def list_etl_ready_uploads():
     """Listet alle für den ETL-Prozess geeigneten Dateien auf"""
@@ -218,6 +232,9 @@ def combined_upload():
     """Handle combined text and file uploads"""
     created_filepaths = []
     try:
+        # Alte Export-Dateien löschen bei neuer Analyse
+        cleanup_old_exports()
+        
         uploaded_files = []
         text_file_info = None
         etl_results = []
