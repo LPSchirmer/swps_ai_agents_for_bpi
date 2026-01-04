@@ -305,6 +305,7 @@ def extract_data_from_uploads(upload_dir: str) -> Dict[str, Any]:
     try:
         # Textuelle Daten extrahieren
         textual_data = get_textual_data(upload_dir)
+        textual_data_clean = None
         if textual_data:
             textual_data_clean = {k: " ".join(v.split()) for k, v in textual_data.items()}
         result['textual_data'] = textual_data_clean
