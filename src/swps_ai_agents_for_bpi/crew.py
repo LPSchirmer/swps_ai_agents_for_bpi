@@ -55,18 +55,9 @@ class SwpsAiAgentsForBpi():
     agents: List[BaseAgent]
     tasks: List[Task]
     
-    # Add knowledge source mit absoluten Pfaden
-    # _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
-    # _knowledge_path1 = os.path.join(_project_root, 'knowledge', 'bpi_process_redesign_patterns.json')
-    # print(_knowledge_path1)
-    
-    # bpi_json_source = None
-    # if os.path.exists(_knowledge_path1):
-    #     bpi_json_source = JSONKnowledgeSource(
-    #         file_paths=[_knowledge_path1]
-    #     )
+    # Add knowledge source - use relative path for CrewAI
     bpi_json_source = JSONKnowledgeSource(
-        file_paths=["../../knowledge/process_redesign_patterns.json"]
+        file_paths=["process_redesign_patterns.json"]
     )
 
     @agent

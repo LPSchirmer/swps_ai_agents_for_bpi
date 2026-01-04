@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<log xes.version="1849" xmlns="http://www.xes-standard.org/">
+    <global scope="trace">
+        <string key="concept:name" value="case"/>
+    </global>
+    <global scope="event">
+        <string key="concept:name" value="activity"/>
+        <string key="org:resource" value="resource"/>
+        <string key="lifecycle:transition" value="transition"/>
+    </global>
+    <trace>
+        <string key="concept:name" value="Case 1"/>
+        <event>
+            <string key="concept:name" value="register request"/>
+            <string key="org:resource" value="Digital Portal"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="automated triage"/>
+            <string key="org:resource" value="AI System"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="check ticket"/>
+            <string key="org:resource" value="System"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="examine casually"/>
+            <string key="org:resource" value="Generalist Staff"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="decide"/>
+            <string key="org:resource" value="Sara"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="pay compensation"/>
+            <string key="org:resource" value="System"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+    </trace>
+    <trace>
+        <string key="concept:name" value="Case 2"/>
+        <event>
+            <string key="concept:name" value="register request"/>
+            <string key="org:resource" value="Digital Portal"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="automated triage"/>
+            <string key="org:resource" value="AI System"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="check ticket"/>
+            <string key="org:resource" value="System"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="examine thoroughly"/>
+            <string key="org:resource" value="Sean"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="decide"/>
+            <string key="org:resource" value="Sara"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+        <event>
+            <string key="concept:name" value="reject request"/>
+            <string key="org:resource" value="System"/>
+            <string key="lifecycle:transition" value="complete"/>
+        </event>
+    </trace>
+    <!-- Weitere Fälle entsprechend der neuen Prozessstruktur -->
+</log>

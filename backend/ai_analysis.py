@@ -400,17 +400,43 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
     # 4. Bereite Input für Agenten vor
     current_year = datetime.now().year
     
+    # WICHTIG: Kürze textuelle Daten um Token-Limits einzuhalten
+    # OpenAI gpt-4.1 hat ein TPM Limit von 30000 Tokens
+    MAX_TEXT_CHARS = 8000  # ~2000 Tokens
+    MAX_KPI_CHARS = 3000   # ~750 Tokens pro KPI
+    
+    textual_input = extracted_data['textual_data'] or "Keine textuellen Eingaben vorhanden."
+    if isinstance(textual_input, dict):
+        # Konvertiere Dict zu String und kürze
+        textual_str = "\n".join([f"{k}: {v}" for k, v in textual_input.items()])
+        if len(textual_str) > MAX_TEXT_CHARS:
+            textual_str = textual_str[:MAX_TEXT_CHARS] + "\n... [GEKÜRZT]"
+        textual_input = textual_str
+    elif isinstance(textual_input, str) and len(textual_input) > MAX_TEXT_CHARS:
+        textual_input = textual_input[:MAX_TEXT_CHARS] + "\n... [GEKÜRZT]"
+    
+    # Kürze KPIs falls nötig
+    def truncate_kpi(kpi_data, max_chars=MAX_KPI_CHARS):
+        if kpi_data and len(str(kpi_data)) > max_chars:
+            return str(kpi_data)[:max_chars] + "... [GEKÜRZT]"
+        return kpi_data
+    
     crew_inputs = {
         'topic': 'Process',
-        'textual_user_input': extracted_data['textual_data'] or "Keine textuellen Eingaben vorhanden.",
-        'process_data_basic': kpis.get('basic'),
-        'process_kpis_performance': kpis.get('performance'),
-        'process_kpis_finance': kpis.get('finance'),
-        'process_kpis_compliance': kpis.get('compliance'),
+        'textual_user_input': textual_input,
+        'process_data_basic': truncate_kpi(kpis.get('basic')),
+        'process_kpis_performance': truncate_kpi(kpis.get('performance')),
+        'process_kpis_finance': truncate_kpi(kpis.get('finance')),
+        'process_kpis_compliance': truncate_kpi(kpis.get('compliance')),
         'current_year': current_year,
         'last_year': current_year - 1,
         'next_year': current_year + 1
     }
+    
+    # Berechne geschätzte Token-Anzahl
+    total_chars = sum(len(str(v)) for v in crew_inputs.values())
+    estimated_tokens = total_chars // 4  # ~4 chars per token
+    print(f"\n📏 Input-Größe: ~{total_chars} Zeichen (~{estimated_tokens} Tokens)")
     
     print(f"\n📝 Input-Zusammenfassung:")
     print(f"   - Textuelle Daten: {'✅ Vorhanden' if extracted_data['textual_data'] else '❌ Keine'}")

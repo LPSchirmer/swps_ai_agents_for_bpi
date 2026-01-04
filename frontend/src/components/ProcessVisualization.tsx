@@ -173,6 +173,47 @@ const InteractiveGraph = ({
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [selectedNode, setSelectedNode] = useState<ProcessNode | null>(null);
   const [nodePositions, setNodePositions] = useState<Map<string, NodePosition>>(new Map());
+  
+  // Drag-State für Pan-Funktionalität
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+
+  // Mouse-Event-Handler für Drag & Pan
+  const handleMouseDown = (e: React.MouseEvent<SVGSVGElement>) => {
+    // Nur linke Maustaste
+    if (e.button !== 0) return;
+    setIsDragging(true);
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    if (!isDragging) return;
+    
+    const dx = (e.clientX - dragStart.x) / zoom;
+    const dy = (e.clientY - dragStart.y) / zoom;
+    
+    setPan(prev => ({
+      x: prev.x + dx,
+      y: prev.y + dy
+    }));
+    
+    setDragStart({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  // Mausrad-Zoom
+  const handleWheel = (e: React.WheelEvent<SVGSVGElement>) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? 0.9 : 1.1;
+    setZoom(z => Math.min(Math.max(z * delta, 0.3), 3));
+  };
 
   // Layout-Berechnung für den Graphen (HORIZONTAL: Links nach Rechts)
   useEffect(() => {
@@ -263,10 +304,6 @@ const InteractiveGraph = ({
 
   const handleZoomIn = () => setZoom(z => Math.min(z * 1.2, 3));
   const handleZoomOut = () => setZoom(z => Math.max(z / 1.2, 0.3));
-  const handleReset = () => {
-    setZoom(1);
-    setPan({ x: 0, y: 0 });
-  };
 
   // Berechne Kantenpfade (HORIZONTAL: Links nach Rechts)
   const getEdgePath = (edge: ProcessEdge): string => {
@@ -307,13 +344,6 @@ const InteractiveGraph = ({
         >
           <ZoomOut className="w-4 h-4 text-text-secondary" />
         </button>
-        <button
-          onClick={handleReset}
-          className="p-2 bg-background-elevated hover:bg-border border border-border rounded-button transition-colors duration-150"
-          title="Reset View"
-        >
-          <RefreshCw className="w-4 h-4 text-text-secondary" />
-        </button>
       </div>
 
       {/* Selected Node Info */}
@@ -346,7 +376,13 @@ const InteractiveGraph = ({
         width="100%"
         height="100%"
         viewBox={`${-pan.x} ${-pan.y} ${width / zoom} ${height / zoom}`}
-        className="cursor-grab active:cursor-grabbing"
+        className={`${isDragging ? 'cursor-grabbing' : 'cursor-grab'}`}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseLeave}
+        onWheel={handleWheel}
+        style={{ userSelect: 'none' }}
       >
         <defs>
           <marker

@@ -492,6 +492,62 @@ def visualize_all_files():
         }), 500
 
 
+@app.route('/api/visualize-optimized-process', methods=['GET'])
+def visualize_optimized_process():
+    """
+    Visualisiert die neueste optimized_process_*.xes Datei aus dem verbesserungen-Ordner.
+    
+    Returns
+    -------
+    JSON mit Prozessgraph (nodes, edges), Base64-Bild und Statistiken
+    """
+    try:
+        # Finde die neueste optimized_process_*.xes Datei
+        pattern = os.path.join(VERBESSERUNGEN_FOLDER, 'optimized_process_*.xes')
+        xes_files = glob.glob(pattern)
+        
+        if not xes_files:
+            return jsonify({
+                'success': False,
+                'error': 'Keine optimierte Prozessdatei gefunden. Bitte zuerst eine Prozess-Optimierung durchführen.'
+            }), 404
+        
+        # Sortiere nach Datum (neueste zuerst) - Dateiname enthält Timestamp
+        xes_files.sort(reverse=True)
+        latest_xes = xes_files[0]
+        
+        print(f"📊 Visualisiere optimierten Prozess: {latest_xes}")
+        
+        # Prozess visualisieren
+        visualizer = ProcessVisualizer()
+        result = visualizer.visualize_from_file(latest_xes)
+        
+        # Füge den Dateinamen hinzu
+        result['optimized_filename'] = os.path.basename(latest_xes)
+        
+        return jsonify(result), 200
+        
+    except FileNotFoundError as e:
+        return jsonify({
+            'success': False,
+            'error': f'Datei nicht gefunden: {str(e)}'
+        }), 404
+        
+    except ValueError as e:
+        return jsonify({
+            'success': False,
+            'error': f'Ungültiges Format: {str(e)}'
+        }), 400
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 @app.route('/api/process-graph', methods=['POST'])
 def get_process_graph():
     """
