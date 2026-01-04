@@ -1,14 +1,13 @@
-# CrewAI
+# CrewAI Imports
 from crewai import LLM, Agent, Crew, Process, Task
 from crewai.project import CrewBase, agent, crew, task
 from crewai.agents.agent_builder.base_agent import BaseAgent
-from crewai_tools import SerperDevTool
-from crewai.knowledge.source.text_file_knowledge_source import TextFileKnowledgeSource
-# Type annotations
-from typing import List, Optional, Union
+from crewai.knowledge.source.json_knowledge_source import JSONKnowledgeSource
+# Type annotation imports
+from typing import List
 
-# Structuring Agent Output
-from pydantic import BaseModel
+# Structuring Agent Output imports
+from pydantic import BaseModel, Field
 
 # LLM API Settings
 from dotenv import load_dotenv
@@ -18,7 +17,7 @@ llm_openai = LLM(
     model=os.getenv("BASE_MODEL_OPENAI"),
     api_key= os.getenv("API_KEY_OPENAI"),
     temperature=0.4,
-    max_tokens=1500
+    max_tokens=4096  # Erhöht von 1500 für vollständige Agenten-Ausgaben
 )
 
 # Instantiate tools - Make SerperDevTool optional
@@ -28,16 +27,19 @@ try:
 except:
     web_search_tool = None
 
+# Structuring Output of Requirements Agent
 class Requirements(BaseModel):
-    process_name: str
-    company_information: str
+    process_name: str = Field(description="Name of the given business process (e.g., Order to Cash, Warranty Handling, etc.)")
+    company_name: str = Field(description="Name of the company in which the process is embedded.")
+    company_information: List[str] = Field(description="Relevant information about the company in which the process is embedded.")
     process_information: dict
     identified_process_issues: List[str]
     process_improvement_goals: List[str]
     process_compliance_restrictions: List[str]
-    process_risk_information: Optional[Union[int, str]]
+    process_risk_information: List[str]
     non_categorizable_information: List[str]
 
+# Structuring Output of Economic Context Agent
 class EconomicContext(BaseModel):
     company_overview: dict
     financial_posture: dict
@@ -46,10 +48,6 @@ class EconomicContext(BaseModel):
     regional_macroeconomic_conditions: dict
     process_redesign_considerations: List[str]
 
-# If you want to run a snippet of code before or after the crew starts,
-# you can use the @before_kickoff and @after_kickoff decorators
-# https://docs.crewai.com/concepts/crews#example-crew-class-with-decorators
-
 @CrewBase
 class SwpsAiAgentsForBpi():
     """SwpsAiAgentsForBpi crew"""
@@ -57,17 +55,19 @@ class SwpsAiAgentsForBpi():
     agents: List[BaseAgent]
     tasks: List[Task]
     
-    # Add knowledge sources mit absoluten Pfaden
-    import os
-    _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..'))
-    _knowledge_path1 = os.path.join(_project_root, 'knowledge', 'bpi_patterns_1.txt')
-    _knowledge_path2 = os.path.join(_project_root, 'knowledge', 'bpi_patterns_2.txt')
+    # Add knowledge source mit absoluten Pfaden
+    # _project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '../..'))
+    # _knowledge_path1 = os.path.join(_project_root, 'knowledge', 'bpi_process_redesign_patterns.json')
+    # print(_knowledge_path1)
     
-    bpi_text_source = None
-    if os.path.exists(_knowledge_path1) and os.path.exists(_knowledge_path2):
-        bpi_text_source = TextFileKnowledgeSource(
-            file_paths=[_knowledge_path1, _knowledge_path2]
-        )
+    # bpi_json_source = None
+    # if os.path.exists(_knowledge_path1):
+    #     bpi_json_source = JSONKnowledgeSource(
+    #         file_paths=[_knowledge_path1]
+    #     )
+    bpi_json_source = JSONKnowledgeSource(
+        file_paths=["../../knowledge/process_redesign_patterns.json"]
+    )
 
     @agent
     def requirements_agent(self) -> Agent:
@@ -99,12 +99,10 @@ class SwpsAiAgentsForBpi():
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
-            'max_iter': 5
+            'max_iter': 10
         }
         if web_search_tool is not None:
             agent_config['tools'] = [web_search_tool]
-        if self.bpi_text_source is not None:
-            agent_config['knowledge_sources'] = [self.bpi_text_source]
         return Agent(**agent_config)
     
     @agent
@@ -114,12 +112,10 @@ class SwpsAiAgentsForBpi():
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
-            'max_iter': 5
+            'max_iter': 10
         }
         if web_search_tool is not None:
             agent_config['tools'] = [web_search_tool]
-        if self.bpi_text_source is not None:
-            agent_config['knowledge_sources'] = [self.bpi_text_source]
         return Agent(**agent_config)
     
     @agent
@@ -129,7 +125,7 @@ class SwpsAiAgentsForBpi():
             'llm': llm_openai,
             'verbose': True,
             'allow_delegation': False,
-            'max_iter': 5
+            'max_iter': 10
         }
         if web_search_tool is not None:
             agent_config['tools'] = [web_search_tool]
@@ -158,7 +154,7 @@ class SwpsAiAgentsForBpi():
             config=self.tasks_config['performance_analysis_task'],
             agent=self.performance_agent(),
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()],
-            markdown=True,
+            markdown=True
             # async_execution=True # Task is performed in parallel with finance and compliance analysis
         )
     
@@ -168,7 +164,7 @@ class SwpsAiAgentsForBpi():
             config=self.tasks_config['finance_analysis_task'],
             agent=self.finance_agent(), 
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()], 
-            markdown=True,
+            markdown=True
             # async_execution=True # Task is performed in parallel with performance and compliance analysis
         )
     
@@ -178,7 +174,7 @@ class SwpsAiAgentsForBpi():
             config=self.tasks_config['compliance_analysis_task'],
             agent=self.compliance_agent(),
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()],
-            markdown=True,
+            markdown=True
             # async_execution=True # Task is performed in parallel with performance and finance analysis
         )
 
@@ -187,9 +183,10 @@ class SwpsAiAgentsForBpi():
         """Creates the SwpsAiAgentsForBpi crew"""
 
         return Crew(
-            agents=self.agents, # Automatically created by the @agent decorator
-            tasks=self.tasks, # Automatically created by the @task decorator
+            agents=self.agents,
+            tasks=self.tasks,
             process=Process.sequential,
-            verbose=True
+            verbose=True,
+            knowledge_sources=[self.bpi_json_source]
             # memory=True
         )
