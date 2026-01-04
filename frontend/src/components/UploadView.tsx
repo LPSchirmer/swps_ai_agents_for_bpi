@@ -117,12 +117,16 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
             KI-gestützte Prozessanalyse
           </h1>
           <p className="text-xl text-text-secondary max-w-2xl mx-auto mb-4">
-            Laden Sie Ihre <span className="text-accent font-medium">Prozess-Datei</span>  hoch und 
-            beschreiben Sie Ihr Unternehmen sowie den zu analysierenden Prozess.
+            Beschreiben Sie Ihren <span className="text-accent font-medium">Prozess</span>, 
+            laden Sie <span className="text-accent font-medium">prozessbezogene Dateien</span> (z.B. Event-Logs, BPMN-Daten) 
+            hoch und erhalten Sie maßgeschneiderte, domänenspezifische <span className="text-accent font-medium">Prozessverbesserungen</span>.
           </p>
           <p className="text-base text-text-muted max-w-2xl mx-auto">
-            💡 Optional: Fügen Sie <span className="text-accent">Compliance-Vorgaben</span>, Richtlinien oder andere 
-            relevante Dokumente hinzu, um die Analyse zu verfeinern.
+            💡 Tipp: Geben Sie den Namen Ihrer <span className="text-accent">Organisation</span> an, um eine kontextuelle Anreicherung der Daten zu ermöglichen.
+          </p>
+          <p className="text-base text-text-muted max-w-2xl mx-auto">
+            📄 Optional: Geben Sie <span className="text-accent">Prozessoptimierungsziele</span>, <span className="text-accent">Compliance-Vorgaben</span> oder andere 
+            prozessrelevante Daten an, um die Analyse zu verfeinern.
           </p>
         </div>
 
@@ -131,19 +135,19 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
           <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
             <div className="text-sm text-text-secondary mb-2">🏢 Beispiel-Eingabe</div>
             <div className="text-text-primary text-sm">
-              "Siemens AG, Garantieabwicklungsprozess – Analyse auf Compliance mit ISO 10002"
+              "Siemens AG, Garantieabwicklung – Prüfe das angehängte BPMN-Modell auf die Einhaltung unserer internen Compliance-Richtlinien (PDF-Anhang) und auf die ISO-Norm 10002"
             </div>
           </div>
           <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
             <div className="text-sm text-text-secondary mb-2">🏭 Beispiel-Eingabe</div>
             <div className="text-text-primary text-sm">
-              "BMW Group, Beschaffungsprozess – Optimierung der Durchlaufzeiten"
+              "BMW Group, Beschaffungsprozess – Optimiere die Performance des angehängten Prozesses (Event-Log). Beachte hierbei die internen Restriktionen (Word-Anhang)"
             </div>
           </div>
           <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
             <div className="text-sm text-text-secondary mb-2">🏥 Beispiel-Eingabe</div>
             <div className="text-text-primary text-sm">
-              "Charité Berlin, Patientenaufnahmeprozess – Engpass-Analyse"
+              "Charité Berlin, Patientenaufnahme – Steigere die finanzielle Effizienz des angehängten Prozesses (PDF-Datei). Halte dabei gesetzliche Vorgaben für Krankenhäuser ein"
             </div>
           </div>
         </div>
@@ -195,7 +199,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Geben Sie Ihr Unternehmen und den Prozesstyp an, z.B.: 'Deutsche Bank, Kreditgenehmigungsprozess – Compliance-Prüfung nach MaRisk'"
+                placeholder="Beschreiben Sie Ihren Prozess, laden prozessbezogene Dateien hoch und stellen Kontextinformationen bereit..."
                 className="w-full px-6 py-5 bg-transparent text-text-primary placeholder-text-muted focus:outline-none resize-none min-h-[80px] max-h-[300px]"
                 rows={3}
               />
