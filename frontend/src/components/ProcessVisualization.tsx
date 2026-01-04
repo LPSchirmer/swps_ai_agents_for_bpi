@@ -60,8 +60,6 @@ interface ProcessGraph {
 }
 
 interface ProcessStatistics {
-  cases?: number;
-  events?: number;
   activities?: number;
   variants?: number;
   top_activities?: Record<string, number>;
@@ -70,11 +68,9 @@ interface ProcessStatistics {
 // ProcessMetrics Type für die Visualisierungscharts
 interface ProcessMetrics {
   overview?: {
-    cases: number;
     variants: number;
     activities: number;
     resources: number;
-    events: number;
   };
   activityCosts?: Array<{
     activity: string;
@@ -597,11 +593,9 @@ const ProcessVisualization = ({
 
   // Radar-Chart Daten für Übersicht
   const radarData = processMetrics?.overview ? [
-    { subject: 'Cases', A: Math.min(processMetrics.overview.cases, 100), fullMark: 100 },
     { subject: 'Varianten', A: Math.min(processMetrics.overview.variants, 50), fullMark: 50 },
     { subject: 'Aktivitäten', A: Math.min(processMetrics.overview.activities, 30), fullMark: 30 },
-    { subject: 'Ressourcen', A: Math.min(processMetrics.overview.resources, 20), fullMark: 20 },
-    { subject: 'Events (k)', A: Math.min(processMetrics.overview.events / 1000, 10), fullMark: 10 }
+    { subject: 'Ressourcen', A: Math.min(processMetrics.overview.resources, 20), fullMark: 20 }
   ] : [];
 
   // Loading State
@@ -698,58 +692,6 @@ const ProcessVisualization = ({
           
           {/* Vertikales Layout für mode='kpis', Grid für andere Modi */}
           <div className={mode === 'kpis' ? 'flex flex-col gap-3' : 'grid grid-cols-2 md:grid-cols-4 gap-4'}>
-            {/* Cases KPI */}
-            <div className="border-2 border-accent/30 rounded-card overflow-hidden bg-accent/5 hover:bg-accent/10 hover:border-accent/50 transition-all duration-150">
-              <button 
-                onClick={() => setExpandedKpi(expandedKpi === 'cases' ? null : 'cases')}
-                className="w-full flex items-center justify-between p-3"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-accent/20 rounded-button flex items-center justify-center">
-                    <Layers className="w-4 h-4 text-accent" />
-                  </div>
-                  <span className="text-accent text-label font-medium">Cases</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-accent text-lg font-display">
-                    {(processMetrics?.overview?.cases ?? result.statistics?.cases ?? 0).toLocaleString('de-DE')}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-accent/70 transition-transform duration-200 ${expandedKpi === 'cases' ? 'rotate-180' : ''}`} />
-                </div>
-              </button>
-              {expandedKpi === 'cases' && (
-                <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface animate-fadeIn">
-                  Anzahl der eindeutigen Prozessinstanzen im Event Log.
-                </div>
-              )}
-            </div>
-
-            {/* Events KPI */}
-            <div className="border-2 border-semantic-success/30 rounded-card overflow-hidden bg-semantic-success/5 hover:bg-semantic-success/10 hover:border-semantic-success/50 transition-all duration-150">
-              <button 
-                onClick={() => setExpandedKpi(expandedKpi === 'events' ? null : 'events')}
-                className="w-full flex items-center justify-between p-3"
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-semantic-success/20 rounded-button flex items-center justify-center">
-                    <Activity className="w-4 h-4 text-semantic-success" />
-                  </div>
-                  <span className="text-semantic-success text-label font-medium">Events</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-semantic-success text-lg font-display">
-                    {(processMetrics?.overview?.events ?? result.statistics?.events ?? 0).toLocaleString('de-DE')}
-                  </span>
-                  <ChevronDown className={`w-4 h-4 text-semantic-success/70 transition-transform duration-200 ${expandedKpi === 'events' ? 'rotate-180' : ''}`} />
-                </div>
-              </button>
-              {expandedKpi === 'events' && (
-                <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface animate-fadeIn">
-                  Gesamtanzahl der Events (Aktivitätsausführungen).
-                </div>
-              )}
-            </div>
-
             {/* Aktivitäten KPI */}
             <div className="border-2 border-semantic-warning/30 rounded-card overflow-hidden bg-semantic-warning/5 hover:bg-semantic-warning/10 hover:border-semantic-warning/50 transition-all duration-150">
               <button 

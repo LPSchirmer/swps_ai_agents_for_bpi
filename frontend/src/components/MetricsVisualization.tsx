@@ -25,11 +25,9 @@ import { BarChart3, Activity, Clock, DollarSign, Users, RefreshCw, TrendingUp } 
 // TypeScript Interfaces
 export interface ProcessMetrics {
   overview?: {
-    cases: number;
     variants: number;
     activities: number;
     resources: number;
-    events: number;
   };
   activityCosts?: Array<{
     activity: string;
@@ -100,8 +98,7 @@ const MetricsVisualization = ({ metrics }: MetricsVisualizationProps) => {
   }
 
   // Überprüfe ob überhaupt Daten vorhanden sind
-  const hasData = metrics.overview && (
-    metrics.overview.cases > 0 || 
+  const hasData = metrics.overview && ( 
     metrics.overview.variants > 0 ||
     (metrics.activityDurations && metrics.activityDurations.length > 0) ||
     (metrics.activityCosts && metrics.activityCosts.length > 0)
@@ -119,11 +116,9 @@ const MetricsVisualization = ({ metrics }: MetricsVisualizationProps) => {
 
   // Radar-Chart Daten für Übersicht
   const radarData = metrics.overview ? [
-    { subject: 'Cases', A: Math.min(metrics.overview.cases, 100), fullMark: 100 },
     { subject: 'Varianten', A: Math.min(metrics.overview.variants, 50), fullMark: 50 },
     { subject: 'Aktivitäten', A: Math.min(metrics.overview.activities, 30), fullMark: 30 },
-    { subject: 'Ressourcen', A: Math.min(metrics.overview.resources, 20), fullMark: 20 },
-    { subject: 'Events (k)', A: Math.min(metrics.overview.events / 1000, 10), fullMark: 10 }
+    { subject: 'Ressourcen', A: Math.min(metrics.overview.resources, 20), fullMark: 20 }
   ] : [];
 
   // Chart Tabs

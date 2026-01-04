@@ -41,8 +41,6 @@ interface ProcessVisualizationData {
   };
   image?: string;
   statistics?: {
-    cases?: number;
-    events?: number;
     activities?: number;
     variants?: number;
     top_activities?: Record<string, number>;
@@ -316,7 +314,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
                           <BarChart3 className="w-5 h-5 text-accent" />
                         </div>
                         <div className="text-left">
-                          <h3 className="font-semibold text-base text-text-primary font-display">Detaillierte Analyse-Diagramme</h3>
+                          <h3 className="font-semibold text-base text-text-primary font-display">Detaillierte KPI-Analyse</h3>
                           <p className="text-text-muted text-xs">Performance, Kosten & Nacharbeit visualisiert</p>
                         </div>
                       </div>
