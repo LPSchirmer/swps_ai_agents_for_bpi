@@ -8,11 +8,11 @@ analyze_user_input_task:
     JSON format. Do not make assumptions or infer missing information.
     Do not include filler words or paraphrases provided by the user. Only include
     fields that are directly provided. Textual User input: {textual_user_input}, Process data: {process_data_basic}.
-    If Process data is given, process_information should inlcude all that data.
+    If Process data is given, process_information should include all that data.
   expected_output: >
     A structured JSON object containing all explicitly provided information.
     
-# Phase 1.2: Provided company name -> Enrich the given input with publicly available company-information and macro-data
+# Phase 1.2: Provided company name -> Enrich the given input with publicly available maxroeconomic data, industry context, and company information
 analyze_economic_context_task:
   description: >
     Analyze the organization named in the user input by gathering contextual company information
@@ -20,20 +20,26 @@ analyze_economic_context_task:
     Summarize the company’s current financial posture, strategic orientation, market position and regional macroeconomic conditions.
     Use only information that is explicitly provided or can be reliably researched.
     Based on these findings, explicitly derive the key implications that
-    are relevant for process redesign and performance improvement suggestions for the given company, industry sector and macroeconomic context.
+    are relevant for process redesign and improvement suggestions for the given company, industry sector and macroeconomic context.
   expected_output: >
     A structured JSON object containing all researched information.
 
-# Phase 2: Enriched User Input -> Domain-Specific Analysis
+# Phase 2: Enriched User Input (Outer Layers) -> Enrich User Input (Process Level, Inner Layer) -> Domain Specific Analysis
 performance_analysis_task:
   description: >
     Redesign the given process with the explicit goal of improving performance, neglecting aspects like compliance issues, process costs or similar.
-    Base the redesign strictly on the explicitly provided information, including structured data, KPIs, extracted textual inputs, and any supplied
-    process redesign options as primary guidance.
+    Use the process redesign patterns available in the Knowledge Repository as the primary
+    structuring foundation for the redesign.
+    Select, adapt, and combine suitable patterns to best address the identified performance issues.
+    In addition, actively use targeted web searches to identify industry-specific best practices, or reference process
+    structures that are applicable to the given process, company context, and industry.
+    Web research is an explicit and expected step whenever it helps to identify stronger
+    or more suitable redesign options than those already provided.
+    Base all redesign decisions strictly on explicitly available information, including
+    structured data, KPIs, extracted textual inputs, supplied redesign options, knowledge
+    repository patterns, and researched external best-practices.
     All redesign decisions must be consistent with the given
     company characteristics and the current macroeconomic context.
-    If needed, perform targeted web searches to identify applicable redesign patterns or
-    best-practice process structures relevant to the given process, company and industry context.
     Do not provide generic or non-actionable recommendations (e.g., “implement KPIs”, “continuous monitoring”, etc.).
     Do not include vague statements such as “redesign the process”, “consider parallelization”, or similar, 
     instead provide concrete process designs that implement those suggestions.
@@ -43,15 +49,25 @@ performance_analysis_task:
     Your task is to deliver concrete, directly implementable process designs that measurably increase performance.
     Available process kpi's: {process_kpis_performance}
   expected_output: >
-    A structured optimization proposal containing clear performance-improved process designs.
-    Describe only the flow of the redesigned process in approximately 100-200 words. Do not include introductions, conclusions, summaries, narrative commentary 
-    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
+    A structured optimization proposal describing one or more performance-improved process
+    designs. For each design, explicitly list the applied process redesign patterns and
+    clearly indicate whether they originate from the Knowledge Repository or from web
+    research. Describe only the resulting process flows in approximately 100–200 words.
+    Do not include introductions, conclusions, summaries, or evaluative commentary.
 
 finance_analysis_task:
   description: >
     Redesign the given process with the explicit goal of reducing costs, neglecting aspects like compliance issues, process performance or similar.
-    Base the redesign strictly on the explicitly provided information, including structured data, KPIs, extracted textual inputs, and any supplied
-    process redesign options as primary guidance.
+    Use the process redesign patterns available in the Knowledge Repository as the primary
+    structuring foundation for the redesign.
+    Select, adapt, and combine suitable patterns to best address the identified cost issues.
+    In addition, actively use targeted web searches to identify industry-specific best practices, or reference process
+    structures that are applicable to the given process, company context, and industry.
+    Web research is an explicit and expected step whenever it helps to identify stronger
+    or more suitable redesign options than those already provided.
+    Base all redesign decisions strictly on explicitly available information, including
+    structured data, KPIs, extracted textual inputs, supplied redesign options, knowledge
+    repository patterns, and researched external best-practices.
     All redesign decisions must be consistent with the given
     company characteristics and the current macroeconomic context.
     If needed, perform targeted web searches to identify applicable redesign patterns or
@@ -65,9 +81,11 @@ finance_analysis_task:
     Your task is to deliver concrete, directly implementable process designs that measurably reduce costs.
     Available process kpi's: {process_kpis_finance}
   expected_output: >
-    A structured optimization proposal containing clear cost-improved process designs.
-    Describe only the flow of the redesigned process in approximately 100-200 words. Do not include introductions, conclusions, summaries, narrative commentary 
-    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
+    A structured optimization proposal describing one or more cost-improved process
+    designs. For each design, explicitly list the applied process redesign patterns and
+    clearly indicate whether they originate from the Knowledge Repository or from web
+    research. Describe only the resulting process flows in approximately 100–200 words.
+    Do not include introductions, conclusions, summaries, or evaluative commentary.
 
 compliance_analysis_task:
   description: >
@@ -83,3 +101,4 @@ compliance_analysis_task:
     A structured optimization proposal summarizing the compliance analysis. Clearly describe the
     identified or researched legal/regulatory norms, how the process adheres or violates these norms,
     and compliance improvement options (main emphasis).
+    Do not include introductions, conclusions, summaries, or narrative commentary.
