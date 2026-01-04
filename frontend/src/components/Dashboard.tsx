@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
-import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Calendar } from 'lucide-react';
+import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Calendar, Download, Database, Loader2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import axios from 'axios';
 import { ProcessMetrics } from './MetricsVisualization';
 import ProcessVisualization from './ProcessVisualization';
 
@@ -55,6 +56,7 @@ interface ProcessVisualizationData {
 interface DashboardProps {
   uploadedFile: { filename: string } | null;
   uploadedFiles?: UploadedFile[];
+  processDescription?: string;
   onNewAnalysis: () => void;
   aiAnalysisResult?: string | null;
   agentOutputs?: AgentOutputs | null;
@@ -62,9 +64,11 @@ interface DashboardProps {
   processVisualization?: ProcessVisualizationData | null;
 }
 
-const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysisResult, agentOutputs, processMetrics, processVisualization }: DashboardProps) => {
+const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', onNewAnalysis, aiAnalysisResult, agentOutputs, processMetrics, processVisualization }: DashboardProps) => {
   const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set());
   const [showDetailedCharts, setShowDetailedCharts] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState<{ success: boolean; message: string; filename?: string } | null>(null);
   
   // Toggle-Funktion für Agenten - mehrere können gleichzeitig offen sein
   const toggleAgent = (agentId: string) => {
@@ -492,6 +496,138 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], onNewAnalysis, aiAnalysis
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* ROHDATEN-EXPORT SEKTION */}
+        <div className="mt-10 mb-8">
+          <div className="bg-gradient-to-br from-accent/5 to-accent/10 border-2 border-accent/30 rounded-panel p-8 shadow-card">
+            <div className="flex items-start space-x-6">
+              <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Database className="w-8 h-8 text-accent" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-2xl font-display font-semibold text-text-primary mb-3">
+                  Vollständige Rohdaten exportieren
+                </h3>
+                <p className="text-text-secondary mb-4">
+                  Exportiert alle Daten dieser Analyse-Session in einer strukturierten Textdatei:
+                </p>
+                <ul className="text-sm text-text-secondary mb-6 space-y-2">
+                  <li className="flex items-center space-x-3">
+                    <div className="w-5 h-5 bg-semantic-success/20 rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 text-semantic-success" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span>Alle User-Uploads (Log-Dateien, Textbeschreibungen, hochgeladene Dateien)</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <div className="w-5 h-5 bg-semantic-success/20 rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 text-semantic-success" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span>Alle Agenten-Outputs (Compliance, Performance, Finance)</span>
+                  </li>
+                  <li className="flex items-center space-x-3">
+                    <div className="w-5 h-5 bg-semantic-success/20 rounded-full flex items-center justify-center">
+                      <svg className="w-3 h-3 text-semantic-success" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                      </svg>
+                    </div>
+                    <span>Terminal-Logs der CrewAI-Analyse (gesamter Prozess)</span>
+                  </li>
+                </ul>
+                
+                <button
+                  onClick={async () => {
+                    setIsExporting(true);
+                    setExportStatus(null);
+                    
+                    try {
+                      const response = await axios.post('http://localhost:5001/api/export-raw-data', {
+                        aiAnalysisResult: aiAnalysisResult || '',
+                        agentOutputs: agentOutputs || {},
+                        processMetrics: processMetrics || {},
+                        processDescription: processDescription,
+                        uploadedFiles: uploadedFiles
+                      });
+                      
+                      if (response.data.success) {
+                        // Automatischer Download der Datei
+                        const blob = new Blob([response.data.content], { type: 'text/plain;charset=utf-8' });
+                        const url = window.URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = response.data.filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(url);
+                        
+                        setExportStatus({
+                          success: true,
+                          message: `Rohdaten erfolgreich exportiert: ${response.data.filename}`,
+                          filename: response.data.filename
+                        });
+                      } else {
+                        setExportStatus({
+                          success: false,
+                          message: `Export fehlgeschlagen: ${response.data.error}`
+                        });
+                      }
+                    } catch (error) {
+                      console.error('Export error:', error);
+                      setExportStatus({
+                        success: false,
+                        message: `Export-Fehler: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`
+                      });
+                    } finally {
+                      setIsExporting(false);
+                    }
+                  }}
+                  disabled={isExporting}
+                  className={`flex items-center space-x-3 px-8 py-4 rounded-button font-medium text-lg transition-all duration-150 ${
+                    isExporting 
+                      ? 'bg-accent/50 cursor-not-allowed' 
+                      : 'bg-accent hover:bg-accent/80 hover:shadow-lg hover:-translate-y-0.5'
+                  } text-white shadow-button`}
+                >
+                  {isExporting ? (
+                    <>
+                      <Loader2 className="w-6 h-6 animate-spin" />
+                      <span>Exportiere Rohdaten...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-6 h-6" />
+                      <span>Rohdaten als Datei exportieren</span>
+                    </>
+                  )}
+                </button>
+                
+                {/* Export Status Message */}
+                {exportStatus && (
+                  <div className={`mt-4 p-4 rounded-card ${
+                    exportStatus.success 
+                      ? 'bg-semantic-success/10 border border-semantic-success/30' 
+                      : 'bg-semantic-error/10 border border-semantic-error/30'
+                  }`}>
+                    <p className={`text-sm font-medium ${
+                      exportStatus.success ? 'text-semantic-success' : 'text-semantic-error'
+                    }`}>
+                      {exportStatus.message}
+                    </p>
+                    {exportStatus.filename && (
+                      <p className="text-xs text-text-secondary mt-1">
+                        📁 Datei auch gespeichert im uploads-Ordner: {exportStatus.filename}
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

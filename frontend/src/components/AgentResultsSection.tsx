@@ -1,10 +1,29 @@
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { ChevronDown, ChevronRight, Sparkles, CheckCircle, AlertTriangle, TrendingUp, Shield, FileText, BarChart3 } from 'lucide-react';
+import axios from 'axios';
+import { ChevronDown, ChevronRight, Sparkles, CheckCircle, AlertTriangle, TrendingUp, Shield, FileText, BarChart3, Download, Database, Loader2 } from 'lucide-react';
+import { ProcessMetrics } from './MetricsVisualization';
+
+interface AgentOutputs {
+  performance?: string;
+  finance?: string;
+  compliance?: string;
+  requirements?: string;
+  economic?: string;
+}
 
 interface AgentResultsSectionProps {
   aiAnalysisResult: string;
+  agentOutputs?: AgentOutputs | null;
+  processMetrics?: ProcessMetrics | null;
+  processDescription?: string;
+  uploadedFiles?: Array<{
+    filename: string;
+    storedFilename: string;
+    fileSize: number;
+    uploadTime: string;
+  }>;
 }
 
 interface ParsedSection {
@@ -17,9 +36,17 @@ interface ParsedSection {
   borderColor: string;
 }
 
-const AgentResultsSection = ({ aiAnalysisResult }: AgentResultsSectionProps) => {
+const AgentResultsSection = ({ 
+  aiAnalysisResult,
+  agentOutputs,
+  processMetrics,
+  processDescription,
+  uploadedFiles
+}: AgentResultsSectionProps) => {
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['summary']));
   const [showRawData, setShowRawData] = useState(false);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportStatus, setExportStatus] = useState<{ success: boolean; message: string; filename?: string } | null>(null);
 
   // Parse the markdown content into structured sections
   const parseMarkdownSections = (markdown: string): ParsedSection[] => {
@@ -145,6 +172,54 @@ const AgentResultsSection = ({ aiAnalysisResult }: AgentResultsSectionProps) => 
 
   const collapseAll = () => {
     setExpandedSections(new Set());
+  };
+
+  // Export-Funktion für Rohdaten
+  const handleExportRawData = async () => {
+    setIsExporting(true);
+    setExportStatus(null);
+    
+    try {
+      const response = await axios.post('http://localhost:5001/api/export-raw-data', {
+        aiAnalysisResult,
+        agentOutputs: agentOutputs || {},
+        processMetrics: processMetrics || {},
+        processDescription: processDescription || '',
+        uploadedFiles: uploadedFiles || []
+      });
+      
+      if (response.data.success) {
+        // Automatischer Download der Datei
+        const blob = new Blob([response.data.content], { type: 'text/plain;charset=utf-8' });
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = response.data.filename;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+        
+        setExportStatus({
+          success: true,
+          message: `Rohdaten erfolgreich exportiert: ${response.data.filename}`,
+          filename: response.data.filename
+        });
+      } else {
+        setExportStatus({
+          success: false,
+          message: `Export fehlgeschlagen: ${response.data.error}`
+        });
+      }
+    } catch (error) {
+      console.error('Export error:', error);
+      setExportStatus({
+        success: false,
+        message: `Export-Fehler: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`
+      });
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const parsedSections = parseMarkdownSections(aiAnalysisResult);
@@ -364,6 +439,81 @@ const AgentResultsSection = ({ aiAnalysisResult }: AgentResultsSectionProps) => 
             </pre>
           </div>
         )}
+      </div>
+
+      {/* Rohdaten-Export Button */}
+      <div className="border-t border-border pt-6 mt-6">
+        <div className="bg-gradient-to-br from-accent/5 to-accent/10 border border-accent/20 rounded-card p-6">
+          <div className="flex items-start space-x-4">
+            <div className="w-12 h-12 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Database className="w-6 h-6 text-accent" />
+            </div>
+            <div className="flex-1">
+              <h3 className="text-lg font-display font-semibold text-text-primary mb-2">
+                Vollständige Rohdaten exportieren
+              </h3>
+              <p className="text-sm text-text-secondary mb-4">
+                Exportiert alle Daten in einer strukturierten Textdatei:
+              </p>
+              <ul className="text-sm text-text-secondary mb-4 space-y-1">
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-semantic-success" />
+                  <span>Alle User-Uploads (Log-Dateien, Textbeschreibungen, etc.)</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-semantic-success" />
+                  <span>Alle Agenten-Outputs und Analyse-Ergebnisse</span>
+                </li>
+                <li className="flex items-center space-x-2">
+                  <CheckCircle className="w-4 h-4 text-semantic-success" />
+                  <span>Terminal-Logs der CrewAI-Analyse</span>
+                </li>
+              </ul>
+              
+              <button
+                onClick={handleExportRawData}
+                disabled={isExporting}
+                className={`flex items-center space-x-2 px-6 py-3 rounded-button font-medium transition-all duration-150 ${
+                  isExporting 
+                    ? 'bg-accent/50 cursor-not-allowed' 
+                    : 'bg-accent hover:bg-accent/80 hover:shadow-lg'
+                } text-white`}
+              >
+                {isExporting ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    <span>Exportiere...</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-5 h-5" />
+                    <span>Rohdaten als Datei exportieren</span>
+                  </>
+                )}
+              </button>
+              
+              {/* Export Status Message */}
+              {exportStatus && (
+                <div className={`mt-4 p-3 rounded-lg ${
+                  exportStatus.success 
+                    ? 'bg-semantic-success/10 border border-semantic-success/30' 
+                    : 'bg-semantic-error/10 border border-semantic-error/30'
+                }`}>
+                  <p className={`text-sm ${
+                    exportStatus.success ? 'text-semantic-success' : 'text-semantic-error'
+                  }`}>
+                    {exportStatus.message}
+                  </p>
+                  {exportStatus.filename && (
+                    <p className="text-xs text-text-secondary mt-1">
+                      Datei gespeichert im uploads-Ordner: {exportStatus.filename}
+                    </p>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

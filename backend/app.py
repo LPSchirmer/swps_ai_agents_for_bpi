@@ -534,6 +534,251 @@ def get_process_graph():
             delete_file(filepath)
 
 
+# ============================================================
+# ROHDATEN-EXPORT ENDPOINT
+# ============================================================
+
+# Globale Variable zum Speichern der Crew-Logs während der Analyse
+crew_execution_logs = []
+
+def log_crew_output(message: str):
+    """Fügt eine Log-Nachricht zur globalen Log-Liste hinzu"""
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    crew_execution_logs.append(f"[{timestamp}] {message}")
+
+@app.route('/api/export-raw-data', methods=['POST'])
+def export_raw_data():
+    """
+    Exportiert alle Rohdaten in strukturierter Form als eine große Datei.
+    Beinhaltet:
+    - Alle User-Uploads (Log-Dateien, Textbeschreibungen, etc.)
+    - Alle Agenten-Outputs
+    - Terminal/Crew-Logs während der Analyse
+    """
+    try:
+        data = request.get_json() or {}
+        
+        # Daten aus dem Frontend
+        agent_outputs = data.get('agentOutputs', {})
+        ai_analysis_result = data.get('aiAnalysisResult', '')
+        process_metrics = data.get('processMetrics', {})
+        process_description = data.get('processDescription', '')
+        uploaded_files_info = data.get('uploadedFiles', [])
+        
+        # Timestamp für den Export
+        export_timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        
+        # Strukturierter Export-Inhalt
+        export_content = []
+        export_content.append("=" * 80)
+        export_content.append("ROHDATEN-EXPORT - SWPS AI Agents for BPI")
+        export_content.append(f"Export-Zeitpunkt: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        export_content.append("=" * 80)
+        export_content.append("")
+        
+        # ============================================================
+        # SEKTION 1: USER UPLOADS
+        # ============================================================
+        export_content.append("")
+        export_content.append("#" * 80)
+        export_content.append("# SEKTION 1: USER UPLOADS")
+        export_content.append("#" * 80)
+        export_content.append("")
+        
+        # Prozessbeschreibung vom User
+        if process_description:
+            export_content.append("-" * 40)
+            export_content.append("## Prozessbeschreibung (User-Input)")
+            export_content.append("-" * 40)
+            export_content.append(process_description)
+            export_content.append("")
+        
+        # Alle Dateien im Upload-Ordner auslesen
+        export_content.append("-" * 40)
+        export_content.append("## Hochgeladene Dateien")
+        export_content.append("-" * 40)
+        
+        upload_folder = app.config['UPLOAD_FOLDER']
+        if os.path.exists(upload_folder):
+            files_in_folder = os.listdir(upload_folder)
+            for filename in files_in_folder:
+                filepath = os.path.join(upload_folder, filename)
+                if os.path.isfile(filepath):
+                    export_content.append(f"\n### Datei: {filename}")
+                    export_content.append(f"Größe: {os.path.getsize(filepath)} Bytes")
+                    export_content.append(f"Geändert: {datetime.fromtimestamp(os.path.getmtime(filepath)).isoformat()}")
+                    
+                    # Textdateien vollständig einlesen
+                    ext = Path(filename).suffix.lower()
+                    if ext in {'.txt', '.csv', '.xes', '.bpmn'}:
+                        try:
+                            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                                content = f.read()
+                                # Limitiere auf 50000 Zeichen pro Datei
+                                if len(content) > 50000:
+                                    content = content[:50000] + "\n... [INHALT GEKÜRZT - " + str(len(content)) + " Zeichen insgesamt]"
+                                export_content.append("--- INHALT ---")
+                                export_content.append(content)
+                                export_content.append("--- ENDE INHALT ---")
+                        except Exception as e:
+                            export_content.append(f"[Fehler beim Lesen: {str(e)}]")
+                    else:
+                        export_content.append(f"[Binärdatei - nicht angezeigt]")
+        else:
+            export_content.append("[Kein Upload-Ordner gefunden]")
+        
+        # ============================================================
+        # SEKTION 2: AGENTEN-OUTPUTS
+        # ============================================================
+        export_content.append("")
+        export_content.append("#" * 80)
+        export_content.append("# SEKTION 2: AGENTEN-OUTPUTS")
+        export_content.append("#" * 80)
+        export_content.append("")
+        
+        # Hauptanalyse-Ergebnis
+        if ai_analysis_result:
+            export_content.append("-" * 40)
+            export_content.append("## Haupt-Analyse-Ergebnis")
+            export_content.append("-" * 40)
+            export_content.append(ai_analysis_result)
+            export_content.append("")
+        
+        # Einzelne Agenten-Outputs
+        if agent_outputs:
+            for agent_name, output in agent_outputs.items():
+                if output:
+                    export_content.append("-" * 40)
+                    export_content.append(f"## Agent: {agent_name.upper()}")
+                    export_content.append("-" * 40)
+                    export_content.append(str(output))
+                    export_content.append("")
+        
+        # ============================================================
+        # SEKTION 3: PROZESS-METRIKEN
+        # ============================================================
+        export_content.append("")
+        export_content.append("#" * 80)
+        export_content.append("# SEKTION 3: PROZESS-METRIKEN")
+        export_content.append("#" * 80)
+        export_content.append("")
+        
+        if process_metrics:
+            export_content.append("-" * 40)
+            export_content.append("## Berechnete Metriken (JSON)")
+            export_content.append("-" * 40)
+            try:
+                import json
+                export_content.append(json.dumps(process_metrics, indent=2, ensure_ascii=False, default=str))
+            except Exception as e:
+                export_content.append(f"[Fehler bei JSON-Serialisierung: {str(e)}]")
+                export_content.append(str(process_metrics))
+            export_content.append("")
+        
+        # ============================================================
+        # SEKTION 4: CREW-AI TERMINAL-LOGS
+        # ============================================================
+        export_content.append("")
+        export_content.append("#" * 80)
+        export_content.append("# SEKTION 4: CREWAI TERMINAL-LOGS")
+        export_content.append("#" * 80)
+        export_content.append("")
+        
+        # Versuche die Log-Datei zu lesen, falls vorhanden
+        backend_dir = os.path.dirname(__file__)
+        log_files_to_check = [
+            os.path.join(backend_dir, 'backend.log'),
+            os.path.join(backend_dir, 'crew_output.log'),
+            os.path.join(backend_dir, '..', 'crew_output.log'),
+        ]
+        
+        logs_found = False
+        for log_file in log_files_to_check:
+            if os.path.exists(log_file):
+                try:
+                    with open(log_file, 'r', encoding='utf-8', errors='ignore') as f:
+                        log_content = f.read()
+                        export_content.append(f"-" * 40)
+                        export_content.append(f"## Log-Datei: {os.path.basename(log_file)}")
+                        export_content.append(f"-" * 40)
+                        export_content.append(log_content)
+                        export_content.append("")
+                        logs_found = True
+                except Exception as e:
+                    export_content.append(f"[Fehler beim Lesen von {log_file}: {str(e)}]")
+        
+        # Globale Logs hinzufügen
+        if crew_execution_logs:
+            export_content.append("-" * 40)
+            export_content.append("## Crew-Execution-Logs (Session)")
+            export_content.append("-" * 40)
+            export_content.append("\n".join(crew_execution_logs))
+            export_content.append("")
+        
+        if not logs_found and not crew_execution_logs:
+            export_content.append("[Keine Terminal-Logs gefunden]")
+            export_content.append("Hinweis: Um Terminal-Logs zu erfassen, starten Sie das Backend mit:")
+            export_content.append("python app.py 2>&1 | tee crew_output.log")
+        
+        # ============================================================
+        # DATEI SPEICHERN
+        # ============================================================
+        export_filename = f"raw_data_export_{export_timestamp}.txt"
+        export_filepath = os.path.join(app.config['UPLOAD_FOLDER'], export_filename)
+        
+        full_content = "\n".join(export_content)
+        
+        with open(export_filepath, 'w', encoding='utf-8') as f:
+            f.write(full_content)
+        
+        return jsonify({
+            'success': True,
+            'message': 'Rohdaten erfolgreich exportiert',
+            'filename': export_filename,
+            'filepath': export_filepath,
+            'file_size': os.path.getsize(export_filepath),
+            'export_time': export_timestamp,
+            'content': full_content  # Auch direkt zurückgeben für Download
+        }), 200
+        
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
+@app.route('/api/download-raw-data/<filename>', methods=['GET'])
+def download_raw_data(filename):
+    """
+    Ermöglicht den Download einer exportierten Rohdaten-Datei
+    """
+    try:
+        from flask import send_file
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        if not os.path.exists(filepath):
+            return jsonify({
+                'success': False,
+                'error': f'Datei nicht gefunden: {filename}'
+            }), 404
+        
+        return send_file(
+            filepath,
+            mimetype='text/plain',
+            as_attachment=True,
+            download_name=filename
+        )
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     print(f"🚀 Flask Backend starting...")
     print(f"📁 Upload folder: {os.path.abspath(UPLOAD_FOLDER)}")
