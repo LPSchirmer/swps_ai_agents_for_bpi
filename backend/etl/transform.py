@@ -6,7 +6,8 @@ column_map = {
     "concept:name":["activity", "activity_name", "event", "event_name", "task", "operation", "step"],
     "time:timestamp":["timestamp", "time", "datetime", "date", "eventtime"],
     "org:resource":["resource", "user", "worker", "agent", "performer"],
-    "cost:amount":["cost", "costs"]
+    "cost:amount":["cost", "costs"],
+    "lifecycle:transition":["lifecycle", "transition", "event_type", "eventtype"]
 }
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -22,13 +23,15 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
 
 def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
     df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="ignore")
-    df["cost:amount"] = pd.to_numeric(df["cost:amount"], errors="ignore")
+    if "cost:amount" in df.columns:
+        df["cost:amount"] = pd.to_numeric(df["cost:amount"], errors="ignore")
     # Be careful with sorting, don't know if we really need that
     df.sort_values(by=["case:concept:name", "time:timestamp"], ascending=[True, True])
     return df
     
 def bpmn_to_df(bpmn_model: pm4py.BPMN) -> pd.DataFrame:
-    simulated_event_log = pm4py.sim.play_out(pm4py.convert_to_process_tree(bpmn_model))
+    pn, im, fm = pm4py.convert_to_petri_net(bpmn_model)
+    simulated_event_log = pm4py.sim.play_out(pn, im, fm)
     rows = []
     for i, trace in enumerate(simulated_event_log):
         for event in trace:
