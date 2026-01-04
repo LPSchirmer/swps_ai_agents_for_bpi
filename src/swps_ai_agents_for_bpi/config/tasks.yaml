@@ -48,12 +48,37 @@ performance_analysis_task:
     Do not analyze or mention costs or compliance topics, focus exclusively on process performance.
     Your task is to deliver concrete, directly implementable process designs that measurably increase performance.
     Available process kpi's: {process_kpis_performance}
+    
+    CRITICAL OUTPUT FORMAT REQUIREMENT: Your response MUST begin with the metadata line. This is mandatory.
   expected_output: >
-    A structured optimization proposal describing one or more performance-improved process
-    designs. For each design, explicitly list the applied process redesign patterns and
-    clearly indicate whether they originate from the Knowledge Repository or from web
-    research. Describe only the resulting process flows in approximately 100–200 words.
-    Do not include introductions, conclusions, summaries, or evaluative commentary.
+    A structured optimization proposal in Markdown format.
+    
+    MANDATORY: Your response MUST start with this EXACT line at the very beginning:
+    
+    **Performance Issues Found:** [number]
+    
+    ---
+    
+    Example of correct start:
+    **Performance Issues Found:** 3
+    
+    ---
+    
+    After the metadata, continue with:
+    
+    ## 1. Identified Performance Issues
+    List the key performance bottlenecks and inefficiencies found in the current process.
+    
+    ## 2. Root Cause Analysis  
+    Explain the underlying causes of each identified issue.
+    
+    ## 3. Redesigned Process Flow
+    Describe the optimized process flow with concrete, implementable changes.
+    
+    ## 4. Expected Performance Improvements
+    Quantify the expected improvements where possible (e.g., time savings, throughput increase).
+    
+    REMINDER: Do NOT skip the metadata header. The first line must be **Performance Issues Found:**
 
 finance_analysis_task:
   description: >
@@ -80,12 +105,37 @@ finance_analysis_task:
     Do not analyze or mention performance or compliance topics, focus exclusively on process costs.
     Your task is to deliver concrete, directly implementable process designs that measurably reduce costs.
     Available process kpi's: {process_kpis_finance}
+    
+    CRITICAL OUTPUT FORMAT REQUIREMENT: Your response MUST begin with the metadata line. This is mandatory.
   expected_output: >
-    A structured optimization proposal describing one or more cost-improved process
-    designs. For each design, explicitly list the applied process redesign patterns and
-    clearly indicate whether they originate from the Knowledge Repository or from web
-    research. Describe only the resulting process flows in approximately 100–200 words.
-    Do not include introductions, conclusions, summaries, or evaluative commentary.
+    A structured optimization proposal in Markdown format.
+    
+    MANDATORY: Your response MUST start with this EXACT line at the very beginning:
+    
+    **Cost Drivers Found:** [number]
+    
+    ---
+    
+    Example of correct start:
+    **Cost Drivers Found:** 4
+    
+    ---
+    
+    After the metadata, continue with:
+    
+    ## 1. Identified Cost Drivers
+    List the key cost drivers and inefficiencies found in the current process.
+    
+    ## 2. Root Cause Analysis  
+    Explain the underlying causes of each identified cost issue.
+    
+    ## 3. Redesigned Process Flow
+    Describe the optimized process flow with concrete, cost-reducing changes.
+    
+    ## 4. Expected Cost Savings
+    Quantify the expected savings where possible (e.g., cost reduction percentages, resource savings).
+    
+    REMINDER: Do NOT skip the metadata header. The first line must be **Cost Drivers Found:**
 
 compliance_analysis_task:
   description: >
@@ -97,8 +147,40 @@ compliance_analysis_task:
     With these results, identify rule violations and non-compliant activities in the given process and
     propose detailed, data-supported compliance improvements without adding generic or speculative content.
     Available process kpi's: {process_kpis_compliance}
+    
+    CRITICAL OUTPUT FORMAT REQUIREMENT: Your response MUST begin with exactly these 4 metadata lines. This is mandatory and non-negotiable.
   expected_output: >
-    A structured optimization proposal summarizing the compliance analysis. Clearly describe the
-    identified or researched legal/regulatory norms, how the process adheres or violates these norms,
-    and compliance improvement options (main emphasis).
-    Do not include introductions, conclusions, summaries, or narrative commentary.
+    A structured optimization proposal in Markdown format.
+    
+    MANDATORY: Your response MUST start with these EXACT 4 lines at the very beginning (replace brackets with actual values):
+    
+    **Company:** [company name]
+    **Process:** [process name]  
+    **Year:** [year]
+    **Compliance Issues Found:** [number]
+    
+    ---
+    
+    Example of correct start:
+    **Company:** Siemens AG
+    **Process:** Order-to-Cash
+    **Year:** 2026
+    **Compliance Issues Found:** 4
+    
+    ---
+    
+    After the metadata, continue with:
+    
+    ## 1. Relevant Legal & Regulatory Norms
+    List the applicable laws, regulations, and industry standards for the process.
+    
+    ## 2. Compliance Assessment
+    Evaluate how the current process adheres to or violates these norms.
+    
+    ## 3. Identified Violations & Gaps
+    Detail specific non-compliant activities and compliance gaps.
+    
+    ## 4. Compliance Improvement Recommendations
+    Propose concrete, implementable changes to achieve full compliance.
+    
+    REMINDER: Do NOT skip the metadata header. The first 4 lines of your response must be the Company, Process, Year, and Compliance Issues Found fields.

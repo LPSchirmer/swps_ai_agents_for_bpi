@@ -106,14 +106,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
     <div className="min-h-screen bg-background flex flex-col p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <div className="flex items-center space-x-3">
-          <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center">
-            <svg className="w-6 h-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
-            </svg>
-          </div>
-          <span className="text-xl font-display font-bold text-text-primary">ProcessAI</span>
-        </div>
+        <span className="text-xl font-display font-bold text-text-primary">ProcessAI</span>
       </div>
 
       {/* Main Content - ChatGPT Style */}
@@ -121,32 +114,36 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
         {/* Welcome Message */}
         <div className="text-center mb-12">
           <h1 className="text-5xl font-display font-bold text-text-primary mb-4">
-            Analysieren Sie Ihre Geschäftsprozesse
+            KI-gestützte Prozessanalyse
           </h1>
-          <p className="text-xl text-text-secondary max-w-2xl mx-auto">
-            Beschreiben Sie Ihren Prozess in eigenen Worten und laden Sie relevante Dateien hoch – 
-            <span className="text-accent"> beides gleichzeitig ist möglich</span>
+          <p className="text-xl text-text-secondary max-w-2xl mx-auto mb-4">
+            Laden Sie Ihre <span className="text-accent font-medium">Prozess-Datei</span>  hoch und 
+            beschreiben Sie Ihr Unternehmen sowie den zu analysierenden Prozess.
+          </p>
+          <p className="text-base text-text-muted max-w-2xl mx-auto">
+            💡 Optional: Fügen Sie <span className="text-accent">Compliance-Vorgaben</span>, Richtlinien oder andere 
+            relevante Dokumente hinzu, um die Analyse zu verfeinern.
           </p>
         </div>
 
         {/* Example Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full mb-12">
           <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
-            <div className="text-sm text-text-secondary mb-2">📊 Beispiel</div>
+            <div className="text-sm text-text-secondary mb-2">🏢 Beispiel-Eingabe</div>
             <div className="text-text-primary text-sm">
-              "Analysiere meinen Bestellprozess und finde Engpässe"
+              "Siemens AG, Garantieabwicklungsprozess – Analyse auf Compliance mit ISO 10002"
             </div>
           </div>
           <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
-            <div className="text-sm text-text-secondary mb-2">🔍 Beispiel</div>
+            <div className="text-sm text-text-secondary mb-2">🏭 Beispiel-Eingabe</div>
             <div className="text-text-primary text-sm">
-              "Optimiere den Genehmigungsworkflow unter Einhaltung von ISO 9001"
+              "BMW Group, Beschaffungsprozess – Optimierung der Durchlaufzeiten"
             </div>
           </div>
           <div className="bg-background-surface border border-border rounded-card p-4 hover:border-accent/30 transition-all duration-150 cursor-pointer">
-            <div className="text-sm text-text-secondary mb-2">📁 Beispiel</div>
+            <div className="text-sm text-text-secondary mb-2">🏥 Beispiel-Eingabe</div>
             <div className="text-text-primary text-sm">
-              "Hier ist mein Event-Log. Zeige mir die häufigsten Prozessvarianten"
+              "Charité Berlin, Patientenaufnahmeprozess – Engpass-Analyse"
             </div>
           </div>
         </div>
@@ -198,7 +195,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                 value={textInput}
                 onChange={(e) => setTextInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Beschreiben Sie Ihren Prozess, Ihre Optimierungsziele, Compliance-Anforderungen... Oder laden Sie Dateien hoch."
+                placeholder="Geben Sie Ihr Unternehmen und den Prozesstyp an, z.B.: 'Deutsche Bank, Kreditgenehmigungsprozess – Compliance-Prüfung nach MaRisk'"
                 className="w-full px-6 py-5 bg-transparent text-text-primary placeholder-text-muted focus:outline-none resize-none min-h-[80px] max-h-[300px]"
                 rows={3}
               />
@@ -242,14 +239,6 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
             </div>
           </div>
 
-          {/* Helper Text */}
-          <div className="text-center mt-4 text-sm text-text-muted">
-            <span className="inline-flex items-center space-x-2">
-              <span>💡 Tipp: Sie können Text und Dateien</span>
-              <span className="text-accent font-medium">gleichzeitig</span>
-              <span>einreichen</span>
-            </span>
-          </div>
         </div>
       </div>
     </div>
