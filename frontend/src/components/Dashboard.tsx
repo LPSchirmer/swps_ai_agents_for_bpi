@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Calendar, Download, Database, Loader2 } from 'lucide-react';
+import { useState, useMemo, useEffect, useRef } from 'react';
+import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Calendar, Database, Loader2, Wand2, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
@@ -69,6 +69,57 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
   const [showDetailedCharts, setShowDetailedCharts] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ success: boolean; message: string; filename?: string } | null>(null);
+  
+  // Prozess-Optimierung States
+  const [isOptimizing, setIsOptimizing] = useState(false);
+  const [optimizationResult, setOptimizationResult] = useState<{
+    success: boolean;
+    explanation?: string;
+    xes_content?: string;
+    xes_filename?: string;
+    error?: string;
+    warning?: string;
+  } | null>(null);
+  const [showOptimizationDetails, setShowOptimizationDetails] = useState(false);
+  
+  // Ref um zu verhindern, dass der Export mehrfach ausgeführt wird
+  const hasExportedRef = useRef(false);
+  
+  // Automatischer Export der Rohdaten beim Laden des Dashboards
+  useEffect(() => {
+    const autoExportRawData = async () => {
+      // Nur einmal exportieren
+      if (hasExportedRef.current) return;
+      hasExportedRef.current = true;
+      
+      try {
+        console.log('📁 Automatischer Export der Rohdaten...');
+        const response = await axios.post('http://localhost:5001/api/export-raw-data', {
+          aiAnalysisResult: aiAnalysisResult || '',
+          agentOutputs: agentOutputs || {},
+          processMetrics: processMetrics || {},
+          processDescription: processDescription,
+          uploadedFiles: uploadedFiles
+        });
+        
+        if (response.data.success) {
+          console.log(`✅ Rohdaten automatisch gespeichert: ${response.data.filename}`);
+          setExportStatus({
+            success: true,
+            message: 'Rohdaten automatisch gespeichert',
+            filename: response.data.filename
+          });
+        } else {
+          console.error('❌ Auto-Export fehlgeschlagen:', response.data.error);
+        }
+      } catch (error) {
+        console.error('❌ Auto-Export Fehler:', error);
+      }
+    };
+    
+    // Export starten sobald Dashboard geladen ist
+    autoExportRawData();
+  }, []); // Leeres Dependency-Array = nur beim ersten Render
   
   // Toggle-Funktion für Agenten - mehrere können gleichzeitig offen sein
   const toggleAgent = (agentId: string) => {
@@ -500,137 +551,204 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
           </div>
         </div>
 
-        {/* ROHDATEN-EXPORT SEKTION */}
+        {/* PROZESS-OPTIMIERUNG MIT KI SEKTION */}
         <div className="mt-10 mb-8">
-          <div className="bg-gradient-to-br from-accent/5 to-accent/10 border-2 border-accent/30 rounded-panel p-8 shadow-card">
-            <div className="flex items-start space-x-6">
-              <div className="w-16 h-16 bg-accent/20 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Database className="w-8 h-8 text-accent" />
+          <div className="relative overflow-hidden bg-gradient-to-br from-slate-800/50 via-slate-700/30 to-slate-800/50 border border-slate-600/40 rounded-panel p-10 shadow-card backdrop-blur-sm">
+            {/* Animierter Hintergrund-Effekt */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+              <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-teal-500/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
+            </div>
+            
+            {/* Zentrierter Inhalt */}
+            <div className="relative z-10 flex flex-col items-center text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 border border-cyan-500/30 rounded-xl flex items-center justify-center mb-6">
+                <Wand2 className="w-8 h-8 text-cyan-400" />
               </div>
-              <div className="flex-1">
-                <h3 className="text-2xl font-display font-semibold text-text-primary mb-3">
-                  Vollständige Rohdaten exportieren
-                </h3>
-                <p className="text-text-secondary mb-4">
-                  Exportiert alle Daten dieser Analyse-Session in einer strukturierten Textdatei:
-                </p>
-                <ul className="text-sm text-text-secondary mb-6 space-y-2">
-                  <li className="flex items-center space-x-3">
-                    <div className="w-5 h-5 bg-semantic-success/20 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-semantic-success" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span>Alle User-Uploads (Log-Dateien, Textbeschreibungen, hochgeladene Dateien)</span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-5 h-5 bg-semantic-success/20 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-semantic-success" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span>Alle Agenten-Outputs (Compliance, Performance, Finance)</span>
-                  </li>
-                  <li className="flex items-center space-x-3">
-                    <div className="w-5 h-5 bg-semantic-success/20 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-semantic-success" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
-                    </div>
-                    <span>Terminal-Logs der CrewAI-Analyse (gesamter Prozess)</span>
-                  </li>
-                </ul>
-                
+              
+              <h3 className="text-2xl font-display font-semibold text-text-primary mb-3">
+                KI-Gestützte Prozess-Optimierung
+              </h3>
+              <p className="text-text-secondary mb-6 max-w-xl">
+                Lassen Sie GPT-4 basierend auf den Agenten-Analysen einen optimierten Prozess erstellen
+              </p>
+              
+              <ul className="text-sm text-text-secondary mb-8 space-y-3">
+                <li className="flex items-center justify-center space-x-3">
+                  <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span>Analysiert alle Erkenntnisse aus Compliance, Performance & Finance Agenten</span>
+                </li>
+                <li className="flex items-center justify-center space-x-3">
+                  <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span>Erstellt einen optimierten Prozess im XES-Format (IEEE 1849)</span>
+                </li>
+                <li className="flex items-center justify-center space-x-3">
+                  <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
+                    <svg className="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                  <span>Detaillierte Erklärung aller vorgenommenen Verbesserungen</span>
+                </li>
+              </ul>
+              
+              <div className="flex flex-col items-center space-y-4">
                 <button
                   onClick={async () => {
-                    setIsExporting(true);
-                    setExportStatus(null);
+                    setIsOptimizing(true);
+                    setOptimizationResult(null);
                     
                     try {
-                      const response = await axios.post('http://localhost:5001/api/export-raw-data', {
-                        aiAnalysisResult: aiAnalysisResult || '',
-                        agentOutputs: agentOutputs || {},
-                        processMetrics: processMetrics || {},
-                        processDescription: processDescription,
-                        uploadedFiles: uploadedFiles
-                      });
+                      const response = await axios.post('http://localhost:5001/api/optimize-process');
                       
                       if (response.data.success) {
-                        // Automatischer Download der Datei
-                        const blob = new Blob([response.data.content], { type: 'text/plain;charset=utf-8' });
-                        const url = window.URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = response.data.filename;
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        window.URL.revokeObjectURL(url);
-                        
-                        setExportStatus({
+                        setOptimizationResult({
                           success: true,
-                          message: `Rohdaten erfolgreich exportiert: ${response.data.filename}`,
-                          filename: response.data.filename
+                          explanation: response.data.explanation,
+                          xes_content: response.data.xes_content,
+                          xes_filename: response.data.xes_filename,
+                          warning: response.data.warning
                         });
+                        setShowOptimizationDetails(true);
                       } else {
-                        setExportStatus({
+                        setOptimizationResult({
                           success: false,
-                          message: `Export fehlgeschlagen: ${response.data.error}`
+                          error: response.data.error
                         });
                       }
                     } catch (error) {
-                      console.error('Export error:', error);
-                      setExportStatus({
+                      console.error('Optimization error:', error);
+                      setOptimizationResult({
                         success: false,
-                        message: `Export-Fehler: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`
+                        error: error instanceof Error ? error.message : 'Unbekannter Fehler bei der Optimierung'
                       });
                     } finally {
-                      setIsExporting(false);
+                      setIsOptimizing(false);
                     }
                   }}
-                  disabled={isExporting}
-                  className={`flex items-center space-x-3 px-8 py-4 rounded-button font-medium text-lg transition-all duration-150 ${
-                    isExporting 
-                      ? 'bg-accent/50 cursor-not-allowed' 
-                      : 'bg-accent hover:bg-accent/80 hover:shadow-lg hover:-translate-y-0.5'
+                  disabled={isOptimizing}
+                  className={`flex items-center justify-center space-x-3 px-10 py-4 rounded-button font-medium text-lg transition-all duration-300 ${
+                    isOptimizing 
+                      ? 'bg-slate-600/50 cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-0.5'
                   } text-white shadow-button`}
                 >
-                  {isExporting ? (
+                  {isOptimizing ? (
                     <>
                       <Loader2 className="w-6 h-6 animate-spin" />
-                      <span>Exportiere Rohdaten...</span>
+                      <span>KI analysiert und optimiert Prozess...</span>
                     </>
                   ) : (
                     <>
-                      <Download className="w-6 h-6" />
-                      <span>Rohdaten als Datei exportieren</span>
+                      <Wand2 className="w-6 h-6" />
+                      <span>Optimierten Prozess mit GPT-4 generieren</span>
                     </>
                   )}
                 </button>
-                
-                {/* Export Status Message */}
-                {exportStatus && (
-                  <div className={`mt-4 p-4 rounded-card ${
-                    exportStatus.success 
-                      ? 'bg-semantic-success/10 border border-semantic-success/30' 
-                      : 'bg-semantic-error/10 border border-semantic-error/30'
-                  }`}>
-                    <p className={`text-sm font-medium ${
-                      exportStatus.success ? 'text-semantic-success' : 'text-semantic-error'
-                    }`}>
-                      {exportStatus.message}
-                    </p>
-                    {exportStatus.filename && (
-                      <p className="text-xs text-text-secondary mt-1">
-                        📁 Datei auch gespeichert im uploads-Ordner: {exportStatus.filename}
-                      </p>
-                    )}
-                  </div>
-                )}
               </div>
+              
+              {/* Optimierung Ergebnis */}
+              {optimizationResult && (
+                <div className="mt-8 w-full max-w-2xl">
+                  {optimizationResult.success ? (
+                    <div className="space-y-4">
+                      {/* Erfolgs-Header */}
+                      <div className="flex items-center justify-center space-x-3 p-4 bg-semantic-success/10 border border-semantic-success/30 rounded-card">
+                        <CheckCircle2 className="w-6 h-6 text-semantic-success" />
+                        <div className="text-left">
+                          <p className="text-semantic-success font-medium">
+                            Prozess-Optimierung erfolgreich abgeschlossen!
+                          </p>
+                          {optimizationResult.warning && (
+                            <p className="text-semantic-warning text-sm mt-1">
+                              {optimizationResult.warning}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* XES Download Button */}
+                      {optimizationResult.xes_content && (
+                        <button
+                          onClick={() => {
+                            const blob = new Blob([optimizationResult.xes_content!], { type: 'application/xml;charset=utf-8' });
+                            const url = window.URL.createObjectURL(blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = optimizationResult.xes_filename || 'optimized_process.xes';
+                            document.body.appendChild(link);
+                            link.click();
+                            document.body.removeChild(link);
+                            window.URL.revokeObjectURL(url);
+                          }}
+                          className="w-full flex items-center justify-center space-x-3 px-6 py-3 bg-semantic-success hover:bg-semantic-success/80 text-white rounded-button font-medium transition-all duration-150 shadow-button hover:-translate-y-0.5"
+                        >
+                          <FileCode className="w-5 h-5" />
+                          <span>Optimierte XES-Datei herunterladen</span>
+                          <span className="text-xs opacity-80">({optimizationResult.xes_filename})</span>
+                        </button>
+                      )}
+                      
+                      {/* Erklärung Toggle */}
+                      <div className="border border-slate-600/40 rounded-card overflow-hidden">
+                        <button
+                          onClick={() => setShowOptimizationDetails(!showOptimizationDetails)}
+                          className="w-full p-4 flex items-center justify-between hover:bg-slate-700/30 transition-colors duration-150"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <Sparkles className="w-5 h-5 text-cyan-400" />
+                            <span className="font-medium text-text-primary">KI-Erklärung der Optimierungen</span>
+                          </div>
+                          <ChevronDown className={`w-5 h-5 text-text-secondary transition-transform duration-200 ${showOptimizationDetails ? 'rotate-180' : ''}`} />
+                        </button>
+                        
+                        {showOptimizationDetails && optimizationResult.explanation && (
+                          <div className="border-t border-slate-600/40 p-6 bg-slate-800/30 max-h-[600px] overflow-y-auto">
+                            <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
+                              {optimizationResult.explanation}
+                            </ReactMarkdown>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center space-x-3 p-4 bg-semantic-error/10 border border-semantic-error/30 rounded-card">
+                      <AlertCircle className="w-6 h-6 text-semantic-error" />
+                      <div className="text-left">
+                        <p className="text-semantic-error font-medium">Optimierung fehlgeschlagen</p>
+                        <p className="text-semantic-error/80 text-sm mt-1">{optimizationResult.error}</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {/* ROHDATEN DOWNLOAD BUTTON */}
+        {exportStatus && exportStatus.success && (
+          <div className="mb-8">
+            <a
+              href={`http://localhost:5001/api/download-raw-data/${exportStatus.filename}`}
+              download={exportStatus.filename}
+              className="w-full flex items-center justify-center space-x-3 px-6 py-4 bg-gradient-to-r from-slate-700 to-slate-600 hover:from-slate-600 hover:to-slate-500 rounded-button text-white font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5 cursor-pointer"
+            >
+              <Database className="w-5 h-5" />
+              <span>Rohdaten herunterladen</span>
+              <span className="text-slate-400 text-sm">({exportStatus.filename})</span>
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
