@@ -749,7 +749,7 @@ const ProcessVisualization = ({
               </button>
               {expandedKpi === 'activities' && (
                 <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface animate-fadeIn">
-                  Eindeutige Prozessschritte im Workflow.
+                  Anzahl eindeutiger Prozessschritte.
                 </div>
               )}
             </div>
@@ -775,7 +775,7 @@ const ProcessVisualization = ({
               </button>
               {expandedKpi === 'variants' && (
                 <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface animate-fadeIn">
-                  Unterschiedliche Ausführungspfade des Prozesses.
+                  Anzahl eindeutiger Ausführungspfade.
                 </div>
               )}
             </div>
@@ -801,7 +801,7 @@ const ProcessVisualization = ({
               </button>
               {expandedKpi === 'resources' && (
                 <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface animate-fadeIn">
-                  Beteiligte Mitarbeiter, Systeme oder Abteilungen im Prozess.
+                  Anzahl beteiligter Mitarbeiter oder Systeme im Prozess.
                 </div>
               )}
             </div>
@@ -833,7 +833,7 @@ const ProcessVisualization = ({
                 </button>
                 {expandedKpi === 'duration' && (
                   <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface space-y-1 animate-fadeIn">
-                    <p>Durchschnittliche Zeit vom Start bis zum Abschluss eines Falls.</p>
+                    <p>Durchschnittliche Durchlaufzeit einer Prozessinstanz.</p>
                     <p className="text-text-muted">Standardabweichung: {processMetrics.caseDurationStats.standardDeviation.toFixed(1)} Min</p>
                   </div>
                 )}
@@ -862,7 +862,7 @@ const ProcessVisualization = ({
                 </button>
                 {expandedKpi === 'costs' && (
                   <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface space-y-1 animate-fadeIn">
-                    <p>Durchschnittliche Kosten pro Prozessdurchlauf.</p>
+                    <p>Durchschnittliche Kosten einer Prozessinstanz.</p>
                     <div className="flex justify-between text-text-muted mt-1">
                       <span>Min: {processMetrics.costDistribution.min.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
                       <span>Max: {processMetrics.costDistribution.max.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>

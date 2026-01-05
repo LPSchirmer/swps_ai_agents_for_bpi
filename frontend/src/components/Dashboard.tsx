@@ -493,7 +493,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                   </div>
                   <div className="text-left">
                     <h3 className="font-semibold text-xl text-text-primary font-display">Performance Agent</h3>
-                    <p className="text-text-muted text-sm mt-1">Durchlaufzeiten & Bottlenecks</p>
+                    <p className="text-text-muted text-sm mt-1">Durchlaufzeiten & Engpässe</p>
                   </div>
                 </div>
                 <ChevronDown className={`w-6 h-6 text-semantic-warning transition-transform duration-200 ${expandedAgents.has('performance') ? 'rotate-180' : ''}`} />
@@ -528,7 +528,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                   </div>
                   <div className="text-left">
                     <h3 className="font-semibold text-xl text-text-primary font-display">Finance Agent</h3>
-                    <p className="text-text-muted text-sm mt-1">Kostenanalyse & ROI</p>
+                    <p className="text-text-muted text-sm mt-1">Finanzielle Effizienz</p>
                   </div>
                 </div>
                 <ChevronDown className={`w-6 h-6 text-semantic-success transition-transform duration-200 ${expandedAgents.has('finance') ? 'rotate-180' : ''}`} />
