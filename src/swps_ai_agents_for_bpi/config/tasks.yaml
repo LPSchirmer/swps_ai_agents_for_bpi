@@ -10,7 +10,7 @@ analyze_user_input_task:
     fields that are directly provided. Textual User input: {textual_user_input}, Process data: {process_data_basic}.
     If Process data is given, process_information should include all that data.
   expected_output: >
-    A structured JSON object containing all explicitly provided information.
+    A structured JSON object (language: english) containing all explicitly provided information.
     
 # Phase 1.2: Provided company name -> Enrich the given input with publicly available maxroeconomic data, industry context, and company information
 analyze_economic_context_task:
@@ -22,7 +22,7 @@ analyze_economic_context_task:
     Based on these findings, explicitly derive the key implications that
     are relevant for process redesign and improvement suggestions for the given company, industry sector and macroeconomic context.
   expected_output: >
-    A structured JSON object containing all researched information.
+    A structured JSON object (language: english) containing all researched information.
 
 # Phase 2: Enriched User Input (Outer Layers) -> Enrich User Input (Process Level, Inner Layer) -> Domain Specific Analysis
 performance_analysis_task:
@@ -48,12 +48,13 @@ performance_analysis_task:
     Do not analyze or mention costs or compliance topics, focus exclusively on process performance.
     Your task is to deliver concrete, directly implementable process designs that measurably increase performance.
     Available process kpi's: {process_kpis_performance}
-    
     CRITICAL OUTPUT FORMAT REQUIREMENT: Your response MUST begin with the metadata line. This is mandatory.
   expected_output: >
-    A structured optimization proposal in Markdown format.
+    A structured optimization proposal in syntactically correct Markdown format (language: english), containing clear performance-improved process designs.
+    Describe the flow of the redesigned process in approximately 100-200 words and its major changes compared to the previous process. Do not include introductions, conclusions, summaries, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
     
-    MANDATORY: Your response MUST start with this EXACT line at the very beginning:
+    MANDATORY: Your response MUST start with this EXACT line at the very beginning (replace brackets with actual values):
     
     **Performance Issues Found:** [number]
     
@@ -64,19 +65,16 @@ performance_analysis_task:
     
     ---
     
-    After the metadata, continue with:
+    After the metadata, the main emphasis starts:
     
-    ## 1. Identified Performance Issues
-    List the key performance bottlenecks and inefficiencies found in the current process.
+    ## 1. Redesigned Process Flow
+    Describe the optimized process flow with concrete, implementable changes. Structure this text in detailed bullet points.
+
+    ## 2. Major changes
+    Briefly describe the most important changes in the new process compared to the previous process.
     
-    ## 2. Root Cause Analysis  
-    Explain the underlying causes of each identified issue.
-    
-    ## 3. Redesigned Process Flow
-    Describe the optimized process flow with concrete, implementable changes.
-    
-    ## 4. Expected Performance Improvements
-    Quantify the expected improvements where possible (e.g., time savings, throughput increase).
+    ## 3. Used process redesign patterns
+    List (as an enumeration) the names of the process redesign patterns used.
     
     REMINDER: Do NOT skip the metadata header. The first line must be **Performance Issues Found:**
 
@@ -105,82 +103,84 @@ finance_analysis_task:
     Do not analyze or mention performance or compliance topics, focus exclusively on process costs.
     Your task is to deliver concrete, directly implementable process designs that measurably reduce costs.
     Available process kpi's: {process_kpis_finance}
-    
     CRITICAL OUTPUT FORMAT REQUIREMENT: Your response MUST begin with the metadata line. This is mandatory.
   expected_output: >
-    A structured optimization proposal in Markdown format.
+    A structured optimization proposal in syntactically correct Markdown format (language: english), containing clear cost-improved process designs.
+    Describe the flow of the redesigned process in approximately 100-200 words and its major changes compared to the previous process. Do not include introductions, conclusions, summaries, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
     
-    MANDATORY: Your response MUST start with this EXACT line at the very beginning:
+    MANDATORY: Your response MUST start with this EXACT line at the very beginning (replace brackets with actual values):
     
     **Cost Drivers Found:** [number]
     
     ---
     
     Example of correct start:
-    **Cost Drivers Found:** 4
+    **Cost Divers Found:** 3
     
     ---
     
-    After the metadata, continue with:
+    After the metadata, the main emphasis starts:
     
-    ## 1. Identified Cost Drivers
-    List the key cost drivers and inefficiencies found in the current process.
+    ## 1. Redesigned Process Flow
+    Describe the optimized process flow with concrete, implementable changes. Structure this text in detailed bullet points.
+
+    ## 2. Major changes
+    Briefly describe the most important changes in the new process compared to the previous process.
     
-    ## 2. Root Cause Analysis  
-    Explain the underlying causes of each identified cost issue.
-    
-    ## 3. Redesigned Process Flow
-    Describe the optimized process flow with concrete, cost-reducing changes.
-    
-    ## 4. Expected Cost Savings
-    Quantify the expected savings where possible (e.g., cost reduction percentages, resource savings).
+    ## 3. Used process redesign patterns
+    List (as an enumeration) the names of the process redesign patterns used.
     
     REMINDER: Do NOT skip the metadata header. The first line must be **Cost Drivers Found:**
 
 compliance_analysis_task:
   description: >
-    Analyze all available compliance-related information from structured data, KPIs, or extracted textual inputs.
-    If explicit legal or regulatory norms are provided, research these norms online and evaluate
-    the given process against them. If no norms are given, use the provided company information and
-    the given process to research potentially relevant laws, regulations, or industry
-    standards the given process may need to comply with in the year {current_year}.
-    With these results, identify rule violations and non-compliant activities in the given process and
-    propose detailed, data-supported compliance improvements without adding generic or speculative content.
+    Analyze all available compliance-related information from structured data, KPIs, and extracted textual inputs.
+    Evaluate the given process against potentially given internal compliance rules,
+    policies, governance guidelines, or company-specific control requirements that are explicitly
+    provided or can be inferred from the company context.
+    If explicit external legal, regulatory, or industry norms are provided, research these norms
+    online and assess the process against them. In addition, always research other potentially
+    relevant external laws, regulations, or standards applicable to the given process, company,
+    and industry context in the year {current_year}, even if some norms are already provided.
+    Based on internal and external requirements, identify rule-violations, non-compliant activities and structural
+    compliance gaps in the process. Propose concrete, directly implementable compliance
+    improvements. The knowledge repository of process redesign patterns may be used as an
+    optional support if helpful.
+    Base all findings and improvements strictly on explicitly available information, researched norms, internal
+    compliance requirements, and applicable redesign patterns.
     Available process kpi's: {process_kpis_compliance}
-    
     CRITICAL OUTPUT FORMAT REQUIREMENT: Your response MUST begin with exactly these 4 metadata lines. This is mandatory and non-negotiable.
   expected_output: >
-    A structured optimization proposal in Markdown format.
+    A structured optimization proposal in syntactically correct Markdown format (language: english), summarizing the compliance analysis.
+    Clearly describe the identified or researched legal and regulatory norms, assess how the existing process complies with or violates these norms
+    and any given internal compliance guidelines. Based on that, describe concrete and directly applicable compliance improvement recommendations that ensure 
+    compliance with the researched legal and regulatory norms as well as any given internal compliance guidelines. Do not include introductions, conclusions, summaries, narrative commentary 
+    or things like the advantages/opportunities of the redesigned process, expected results of the new process designs or similar.
     
-    MANDATORY: Your response MUST start with these EXACT 4 lines at the very beginning (replace brackets with actual values):
+    MANDATORY: Your response MUST start with this EXACT line at the very beginning (replace brackets with actual values):
     
-    **Company:** [company name]
-    **Process:** [process name]  
-    **Year:** [year]
     **Compliance Issues Found:** [number]
     
     ---
     
     Example of correct start:
-    **Company:** Siemens AG
-    **Process:** Order-to-Cash
-    **Year:** 2026
     **Compliance Issues Found:** 4
     
     ---
     
-    After the metadata, continue with:
+    After the metadata, the main emphasis starts:
     
     ## 1. Relevant Legal & Regulatory Norms
-    List the applicable laws, regulations, and industry standards for the process.
+    List the researched and applicable legal and regulatory norms with its key requirements.
     
-    ## 2. Compliance Assessment
-    Evaluate how the current process adheres to or violates these norms.
-    
-    ## 3. Identified Violations & Gaps
-    Detail specific non-compliant activities and compliance gaps.
+    ## 2. Compliance Assessment (External norms)
+    Describe the identified legal/regulatory norm violations in the given business process.
+
+    ## 3. Compliance Assessment (Internal regulations)
+    Describe the internal compliance violations in the given business process.
     
     ## 4. Compliance Improvement Recommendations
     Propose concrete, implementable changes to achieve full compliance.
     
-    REMINDER: Do NOT skip the metadata header. The first 4 lines of your response must be the Company, Process, Year, and Compliance Issues Found fields.
+    REMINDER: Do NOT skip the metadata header. The first line of your response must be the number of found compliance issues.
