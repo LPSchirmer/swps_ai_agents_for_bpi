@@ -88,6 +88,9 @@ interface ProcessMetrics {
     count: number;
   }>;
   caseDurationStats?: {
+    min: number;
+    max: number;
+    median: number;
     mean: number;
     variance: number;
     standardDeviation: number;
@@ -108,9 +111,12 @@ interface ProcessMetrics {
   }>;
   costDistribution?: {
     total: number;
-    mean: number;
     min: number;
     max: number;
+    median: number;
+    mean: number;
+    variance: number;
+    standardDeviation: number;
     caseCount: number;
   };
 }
@@ -821,11 +827,9 @@ const ProcessVisualization = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-semantic-success text-lg font-display">
-                      {processMetrics.caseDurationStats.mean >= 1440 
-                        ? `${(processMetrics.caseDurationStats.mean / 1440).toFixed(1)} Tage`
-                        : processMetrics.caseDurationStats.mean >= 60
-                          ? `${(processMetrics.caseDurationStats.mean / 60).toFixed(1)} Std`
-                          : `${processMetrics.caseDurationStats.mean.toFixed(0)} Min`
+                      {processMetrics.caseDurationStats.mean >= 24 
+                        ? `${(processMetrics.caseDurationStats.mean / 24).toFixed(1)} Tage`
+                          : `${processMetrics.caseDurationStats.mean.toFixed(0)} Stunden`
                       }
                     </span>
                     <ChevronDown className={`w-4 h-4 text-semantic-success/70 transition-transform duration-200 ${expandedKpi === 'duration' ? 'rotate-180' : ''}`} />
@@ -834,7 +838,14 @@ const ProcessVisualization = ({
                 {expandedKpi === 'duration' && (
                   <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface space-y-1 animate-fadeIn">
                     <p>Durchschnittliche Durchlaufzeit einer Prozessinstanz.</p>
-                    <p className="text-text-muted">Standardabweichung: {processMetrics.caseDurationStats.standardDeviation.toFixed(1)} Min</p>
+                    <div className="flex justify-between text-text-muted mt-1">
+                      <span>Min: {processMetrics.caseDurationStats.min.toFixed(1)} Stunden</span>
+                      <span>Max: {processMetrics.caseDurationStats.max.toFixed(1)} Stunden</span>
+                    </div>
+                    <div className="flex justify-between text-text-muted">
+                      <span>Median: {processMetrics.caseDurationStats.median.toFixed(1)} Stunden</span>
+                      <span>Std: {processMetrics.caseDurationStats.standardDeviation.toFixed(1)} Stunden</span>
+                    </div>
                   </div>
                 )}
               </div>
@@ -867,7 +878,10 @@ const ProcessVisualization = ({
                       <span>Min: {processMetrics.costDistribution.min.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
                       <span>Max: {processMetrics.costDistribution.max.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
                     </div>
-                    <p className="text-text-muted">Gesamt: {processMetrics.costDistribution.total.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</p>
+                    <div className="flex justify-between text-text-muted">
+                      <span>Median: {processMetrics.costDistribution.median.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
+                      <span>Std: {processMetrics.costDistribution.standardDeviation.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
+                    </div>
                   </div>
                 )}
               </div>

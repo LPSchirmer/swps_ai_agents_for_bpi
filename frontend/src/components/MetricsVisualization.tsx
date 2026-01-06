@@ -45,6 +45,9 @@ export interface ProcessMetrics {
     count: number;
   }>;
   caseDurationStats?: {
+    min: number;
+    max: number;
+    median: number;
     mean: number;
     variance: number;
     standardDeviation: number;
@@ -70,9 +73,12 @@ export interface ProcessMetrics {
   }>;
   costDistribution?: {
     total: number;
-    mean: number;
     min: number;
     max: number;
+    median: number;
+    mean: number;
+    variance: number;
+    standardDeviation: number;
     caseCount: number;
   };
 }

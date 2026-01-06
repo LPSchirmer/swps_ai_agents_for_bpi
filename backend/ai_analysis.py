@@ -112,9 +112,12 @@ def extract_visualizable_metrics(kpis: Dict[str, Optional[str]]) -> Dict[str, An
                 ]
             
             # Case-Dauer-Statistiken
-            if perf_data.get('case_durations_variance_standard_deviation'):
-                stats = perf_data['case_durations_variance_standard_deviation']
+            if perf_data.get('case_durations_statistics'):
+                stats = perf_data['case_durations_statistics']
                 metrics['caseDurationStats'] = {
+                    'min': stats.get('min', 0),
+                    'max': stats.get('max', 0),
+                    'median': stats.get('median', 0),
                     'mean': stats.get('mean', 0),
                     'variance': stats.get('variance', 0),
                     'standardDeviation': stats.get('standard_deviation', 0)
@@ -185,18 +188,28 @@ def extract_visualizable_metrics(kpis: Dict[str, Optional[str]]) -> Dict[str, An
                     }
                     for item in finance_data['total_mean_costs_per_activity']
                 ]
-            
+
+            metrics['costDistribution'] = {}
+
             # Kosten-Verteilung
+            if finance_data.get('case_costs_statistics'):
+                costs = finance_data['case_costs_statistics']
+                metrics['costDistribution'].update({
+                    'min': costs.get('min', 0),
+                    'max': costs.get('max', 0),
+                    'median': costs.get('median', 0),
+                    'mean': costs.get('mean', 0),
+                    'variance': costs.get('variance', 0),
+                    'standardDeviation': costs.get('standard_deviation', 0)
+                    })
+                
             if finance_data.get('total_costs_per_case'):
-                costs = [item.get('cost:amount', 0) for item in finance_data['total_costs_per_case']]
-                if costs:
-                    metrics['costDistribution'] = {
-                        'total': round(sum(costs), 2),
-                        'mean': round(sum(costs) / len(costs), 2),
-                        'min': round(min(costs), 2),
-                        'max': round(max(costs), 2),
-                        'caseCount': len(costs)
-                    }
+                costs_helper = [item.get('cost:amount', 0) for item in finance_data['total_costs_per_case']]
+                if costs_helper:
+                    metrics['costDistribution'].update({
+                        'total': round(sum(costs_helper), 2),
+                        'caseCount': len(costs_helper)
+                    })
     
     except Exception as e:
         print(f"⚠️  Fehler beim Extrahieren der Visualisierungs-Metriken: {e}")
