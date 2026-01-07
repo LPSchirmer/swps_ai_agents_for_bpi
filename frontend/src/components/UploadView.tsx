@@ -121,13 +121,6 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
             laden Sie <span className="text-accent font-medium">prozessbezogene Dateien</span> (z.B. Event-Logs, BPMN-Daten) 
             hoch und erhalten Sie maßgeschneiderte, domänenspezifische <span className="text-accent font-medium">Prozessverbesserungen</span>.
           </p>
-          <p className="text-base text-text-muted max-w-2xl mx-auto">
-            💡 Tipp: Geben Sie den Namen Ihrer <span className="text-accent">Organisation</span> an, um eine kontextuelle Anreicherung der Daten zu ermöglichen.
-          </p>
-          <p className="text-base text-text-muted max-w-2xl mx-auto">
-            📄 Optional: Geben Sie <span className="text-accent">Prozessoptimierungsziele</span>, <span className="text-accent">Compliance-Vorgaben</span> oder andere 
-            prozessrelevante Daten an, um die Analyse zu verfeinern.
-          </p>
         </div>
 
         {/* Example Cards */}
@@ -241,6 +234,17 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Tips Section - Below Input */}
+          <div className="mt-4 text-center space-y-2">
+            <p className="text-sm text-text-muted max-w-2xl mx-auto">
+              💡 <span className="font-medium">Tipp:</span> Geben Sie den Namen Ihrer <span className="text-accent">Organisation</span> an, um eine kontextuelle Anreicherung der Daten zu ermöglichen.
+            </p>
+            <p className="text-sm text-text-muted max-w-2xl mx-auto">
+              📄 <span className="font-medium">Optional:</span> Geben Sie <span className="text-accent">Prozessoptimierungsziele</span>, <span className="text-accent">Compliance-Vorgaben</span> oder andere 
+              prozessrelevante Daten an, um die Analyse zu verfeinern.
+            </p>
           </div>
 
         </div>

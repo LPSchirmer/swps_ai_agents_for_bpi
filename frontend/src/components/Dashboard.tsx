@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Calendar, Database, Loader2, Wand2, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Database, Loader2, Wand2, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
@@ -136,22 +136,36 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
     });
   };
   
-  // Parse Company, Process und Year aus Compliance-Output
+  // Parse Company und Process aus Requirements-Output
   const complianceMetadata = useMemo(() => {
-    if (!agentOutputs?.compliance) return null;
+    if (!agentOutputs?.requirements) return null;
     
-    const companyMatch = agentOutputs.compliance.match(/\*\*Company:\*\*\s*(.+)/i);
-    const processMatch = agentOutputs.compliance.match(/\*\*Process:\*\*\s*(.+)/i);
-    const yearMatch = agentOutputs.compliance.match(/\*\*Year:\*\*\s*(.+)/i);
+    try {
+      // Der Requirements Agent gibt JSON zurück - versuche es zu parsen
+      const jsonMatch = agentOutputs.requirements.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[0]);
+        return {
+          company: data.company_name || null,
+          process: data.process_name || null,
+        };
+      }
+    } catch (e) {
+      // Falls JSON-Parsing fehlschlägt, versuche Regex
+      console.warn('Requirements JSON parsing failed, trying regex:', e);
+    }
     
-    if (!companyMatch && !processMatch && !yearMatch) return null;
+    // Fallback: Versuche Regex-Matching
+    const companyMatch = agentOutputs.requirements.match(/["']?company_name["']?\s*:\s*["']([^"'\n,}]+)["']?/i);
+    const processMatch = agentOutputs.requirements.match(/["']?process_name["']?\s*:\s*["']([^"'\n,}]+)["']?/i);
+    
+    if (!companyMatch && !processMatch) return null;
     
     return {
       company: companyMatch ? companyMatch[1].trim() : null,
       process: processMatch ? processMatch[1].trim() : null,
-      year: yearMatch ? yearMatch[1].trim() : null,
     };
-  }, [agentOutputs?.compliance]);
+  }, [agentOutputs?.requirements]);
   
   // Parse Issue-Counts aus allen Agents
   const agentIssueCounts = useMemo(() => {
@@ -306,13 +320,6 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                   <GitBranch className="w-4 h-4 text-text-secondary" />
                   <span className="text-text-muted text-sm">Prozess:</span>
                   <span className="text-text-primary font-medium">{complianceMetadata.process}</span>
-                </div>
-              )}
-              {complianceMetadata.year && (
-                <div className="flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/20 rounded-button">
-                  <Calendar className="w-4 h-4 text-text-secondary" />
-                  <span className="text-text-muted text-sm">Jahr:</span>
-                  <span className="text-text-primary font-medium">{complianceMetadata.year}</span>
                 </div>
               )}
             </div>
