@@ -1,0 +1,264 @@
+================================================================================
+ROHDATEN-EXPORT - SWPS AI Agents for BPI
+Export-Zeitpunkt: 2026-01-08 11:42:47
+================================================================================
+
+
+################################################################################
+# SEKTION 1: USER UPLOADS
+################################################################################
+
+----------------------------------------
+## Hochgeladene Dateien
+----------------------------------------
+
+### Datei: .gitkeep
+Größe: 45 Bytes
+Geändert: 2026-01-07T20:05:03.721479
+[Binärdatei - nicht angezeigt]
+
+################################################################################
+# SEKTION 2: AGENTEN-OUTPUTS
+################################################################################
+
+----------------------------------------
+## Haupt-Analyse-Ergebnis
+----------------------------------------
+**Compliance Issues Found:** 4
+---
+## 1. Relevant Legal & Regulatory Norms
+- **Data Privacy & Protection**  
+  - *General Data Protection Regulation (GDPR, EU)*: Requires lawful, fair, and transparent processing of personal data, data minimization, purpose limitation, security, and breach notification.
+  - *California Consumer Privacy Act (CCPA, US)*: Grants consumers rights over personal information, including access, deletion, and opt-out.
+  - *Global Data Protection Laws (2026)*: Heightened requirements for cross-border data transfers, consent, and data subject rights.
+- **Cybersecurity**
+  - *NIS2 Directive (EU, 2024+)*: Expanded cybersecurity obligations for essential and important entities, incident reporting, supply chain risk management.
+  - *ISO/IEC 27001:2022*: Information security management system standard, requiring risk assessment, controls, and continual improvement.
+- **ESG (Environmental, Social, Governance)**
+  - *Corporate Sustainability Reporting Directive (CSRD, EU, 2024+)*: Mandates sustainability reporting, including environmental impact, social responsibility, and governance.
+  - *Carbon Border Adjustment Mechanism (EU, 2026)*: Requires reporting and payment for carbon emissions on imports.
+- **AI & Automation Compliance**
+  - *EU AI Act (expected 2026)*: Requires risk assessment, transparency, and human oversight for high-risk AI systems.
+  - *Global AI Governance Norms*: Emphasis on explainability, bias mitigation, and accountability.
+- **Corporate Governance**
+  - *SOX (Sarbanes-Oxley Act, US)*: Requires internal controls over financial reporting, documentation, and audit trails.
+  - *Global Anti-Bribery Laws (FCPA, UK Bribery Act)*: Prohibits bribery, mandates due diligence, and requires whistleblower protections.
+
+## 2. Compliance Assessment (External norms)
+- **Data Privacy & Protection**
+  - No evidence of data minimization, lawful basis for processing, or cross-border transfer controls.
+  - No explicit mechanism for data subject rights (access, deletion, opt-out).
+- **Cybersecurity**
+  - No information on risk assessments, incident response, or supply chain cybersecurity controls.
+  - Absence of documented information security management system.
+- **ESG**
+  - No process for sustainability reporting, carbon impact measurement, or ESG data capture.
+- **AI & Automation Compliance**
+  - No risk assessment or transparency controls for automated or AI-driven activities.
+- **Corporate Governance**
+  - No documentation of internal controls, audit trails, or whistleblower mechanisms.
+
+## 3. Compliance Assessment (Internal regulations)
+- No internal compliance rules, policies, or governance guidelines are provided.
+- No evidence of segregation-of-duties, documentation standards, or internal audit mechanisms.
+- No process-specific controls or compliance checkpoints identified.
+
+## 4. Compliance Improvement Recommendations
+- **Data Privacy & Protection**
+  - Implement a data inventory and mapping process.
+  - Establish consent management and data subject rights workflows.
+  - Define and document lawful bases for all personal data processing.
+  - Apply technical and organizational measures for cross-border data transfers.
+- **Cybersecurity**
+  - Adopt ISO/IEC 27001 or equivalent information security management system.
+  - Conduct regular risk assessments and document incident response plans.
+  - Implement supply chain cybersecurity due diligence.
+- **ESG**
+  - Integrate sustainability data capture into business processes.
+  - Establish carbon accounting and reporting mechanisms.
+  - Prepare for CSRD-aligned sustainability disclosures.
+- **AI & Automation Compliance**
+  - Perform risk assessments for all AI/automated process components.
+  - Document transparency, explainability, and human oversight controls.
+  - Monitor for algorithmic bias and maintain audit trails for AI decisions.
+- **Corporate Governance**
+  - Define and document internal controls for all critical business processes.
+  - Ensure audit trails for financial and compliance-relevant actions.
+  - Implement whistleblower protection and reporting mechanisms.
+- **General Process Controls**
+  - Introduce segregation-of-duties where applicable.
+  - Standardize documentation and retention policies for all compliance-relevant activities.
+  - Schedule regular internal audits and compliance reviews.
+
+```markdown
+## Example Process Redesign Patterns
+- *Automate for environmental impact*: Automate reporting and compliance data collection to reduce manual errors and environmental footprint.
+- *Green Compensation*: If process changes are infeasible, implement certified environmental compensation activities.
+- *Human Process Performance*: Assign compliance-critical decision points to human operators with documented oversight.
+
+```
+
+
+----------------------------------------
+## Agent: COMPLIANCE
+----------------------------------------
+**Compliance Issues Found:** 4
+---
+## 1. Relevant Legal & Regulatory Norms
+- **Data Privacy & Protection**  
+  - *General Data Protection Regulation (GDPR, EU)*: Requires lawful, fair, and transparent processing of personal data, data minimization, purpose limitation, security, and breach notification.
+  - *California Consumer Privacy Act (CCPA, US)*: Grants consumers rights over personal information, including access, deletion, and opt-out.
+  - *Global Data Protection Laws (2026)*: Heightened requirements for cross-border data transfers, consent, and data subject rights.
+- **Cybersecurity**
+  - *NIS2 Directive (EU, 2024+)*: Expanded cybersecurity obligations for essential and important entities, incident reporting, supply chain risk management.
+  - *ISO/IEC 27001:2022*: Information security management system standard, requiring risk assessment, controls, and continual improvement.
+- **ESG (Environmental, Social, Governance)**
+  - *Corporate Sustainability Reporting Directive (CSRD, EU, 2024+)*: Mandates sustainability reporting, including environmental impact, social responsibility, and governance.
+  - *Carbon Border Adjustment Mechanism (EU, 2026)*: Requires reporting and payment for carbon emissions on imports.
+- **AI & Automation Compliance**
+  - *EU AI Act (expected 2026)*: Requires risk assessment, transparency, and human oversight for high-risk AI systems.
+  - *Global AI Governance Norms*: Emphasis on explainability, bias mitigation, and accountability.
+- **Corporate Governance**
+  - *SOX (Sarbanes-Oxley Act, US)*: Requires internal controls over financial reporting, documentation, and audit trails.
+  - *Global Anti-Bribery Laws (FCPA, UK Bribery Act)*: Prohibits bribery, mandates due diligence, and requires whistleblower protections.
+
+## 2. Compliance Assessment (External norms)
+- **Data Privacy & Protection**
+  - No evidence of data minimization, lawful basis for processing, or cross-border transfer controls.
+  - No explicit mechanism for data subject rights (access, deletion, opt-out).
+- **Cybersecurity**
+  - No information on risk assessments, incident response, or supply chain cybersecurity controls.
+  - Absence of documented information security management system.
+- **ESG**
+  - No process for sustainability reporting, carbon impact measurement, or ESG data capture.
+- **AI & Automation Compliance**
+  - No risk assessment or transparency controls for automated or AI-driven activities.
+- **Corporate Governance**
+  - No documentation of internal controls, audit trails, or whistleblower mechanisms.
+
+## 3. Compliance Assessment (Internal regulations)
+- No internal compliance rules, policies, or governance guidelines are provided.
+- No evidence of segregation-of-duties, documentation standards, or internal audit mechanisms.
+- No process-specific controls or compliance checkpoints identified.
+
+## 4. Compliance Improvement Recommendations
+- **Data Privacy & Protection**
+  - Implement a data inventory and mapping process.
+  - Establish consent management and data subject rights workflows.
+  - Define and document lawful bases for all personal data processing.
+  - Apply technical and organizational measures for cross-border data transfers.
+- **Cybersecurity**
+  - Adopt ISO/IEC 27001 or equivalent information security management system.
+  - Conduct regular risk assessments and document incident response plans.
+  - Implement supply chain cybersecurity due diligence.
+- **ESG**
+  - Integrate sustainability data capture into business processes.
+  - Establish carbon accounting and reporting mechanisms.
+  - Prepare for CSRD-aligned sustainability disclosures.
+- **AI & Automation Compliance**
+  - Perform risk assessments for all AI/automated process components.
+  - Document transparency, explainability, and human oversight controls.
+  - Monitor for algorithmic bias and maintain audit trails for AI decisions.
+- **Corporate Governance**
+  - Define and document internal controls for all critical business processes.
+  - Ensure audit trails for financial and compliance-relevant actions.
+  - Implement whistleblower protection and reporting mechanisms.
+- **General Process Controls**
+  - Introduce segregation-of-duties where applicable.
+  - Standardize documentation and retention policies for all compliance-relevant activities.
+  - Schedule regular internal audits and compliance reviews.
+
+```markdown
+## Example Process Redesign Patterns
+- *Automate for environmental impact*: Automate reporting and compliance data collection to reduce manual errors and environmental footprint.
+- *Green Compensation*: If process changes are infeasible, implement certified environmental compensation activities.
+- *Human Process Performance*: Assign compliance-critical decision points to human operators with documented oversight.
+
+```
+
+
+----------------------------------------
+## Agent: ECONOMIC
+----------------------------------------
+{
+  "company_overview": {},
+  "financial_posture": {},
+  "strategic_orientation": {},
+  "market_position": {},
+  "regional_macroeconomic_conditions": {},
+  "process_redesign_considerations": []
+}
+
+----------------------------------------
+## Agent: FINANCE
+----------------------------------------
+**Cost Drivers Found:** 0
+---
+## 1. Redesigned Process Flow
+- No process flow can be redesigned as there is no explicit process information provided.
+
+## 2. Major changes
+- No changes are possible due to the absence of process context.
+
+## 3. Used process redesign patterns
+- None (no applicable patterns without process context).
+
+----------------------------------------
+## Agent: PERFORMANCE
+----------------------------------------
+**Performance Issues Found:** 0
+---
+## 1. Redesigned Process Flow
+- No process issues or inefficiencies have been explicitly identified in the provided information.
+- No process flow, activities, or steps have been described for the process under review.
+- No KPIs, bottlenecks, delays, or rework have been reported or described.
+- As a result, no concrete, actionable changes can be defined for process performance improvement.
+
+## 2. Major changes
+- No changes applied due to the absence of explicit process information and identified performance issues.
+
+## 3. Used process redesign patterns
+- None (no patterns applied due to lack of process data or issues).
+
+----------------------------------------
+## Agent: REQUIREMENTS
+----------------------------------------
+{
+  "process_name": "",
+  "company_name": "",
+  "company_information": [],
+  "process_information": {},
+  "identified_process_issues": [],
+  "process_improvement_goals": [],
+  "process_compliance_restrictions": [],
+  "process_risk_information": [],
+  "non_categorizable_information": []
+}
+
+
+################################################################################
+# SEKTION 3: PROZESS-METRIKEN
+################################################################################
+
+----------------------------------------
+## Berechnete Metriken (JSON)
+----------------------------------------
+{
+  "activityCosts": [],
+  "activityDurations": [],
+  "caseDurations": [],
+  "costDistribution": {},
+  "overview": {},
+  "resourceHeatmap": [],
+  "reworkStats": [],
+  "variantStats": []
+}
+
+
+################################################################################
+# SEKTION 4: CREWAI TERMINAL-LOGS
+################################################################################
+
+[Keine Terminal-Logs gefunden]
+Hinweis: Um Terminal-Logs zu erfassen, starten Sie das Backend mit:
+python app.py 2>&1 | tee crew_output.log

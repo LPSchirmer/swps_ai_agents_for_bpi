@@ -1,0 +1,306 @@
+================================================================================
+ROHDATEN-EXPORT - SWPS AI Agents for BPI
+Export-Zeitpunkt: 2026-01-08 11:14:06
+================================================================================
+
+
+################################################################################
+# SEKTION 1: USER UPLOADS
+################################################################################
+
+----------------------------------------
+## Hochgeladene Dateien
+----------------------------------------
+
+### Datei: .gitkeep
+Größe: 45 Bytes
+Geändert: 2026-01-07T20:05:03.721479
+[Binärdatei - nicht angezeigt]
+
+################################################################################
+# SEKTION 2: AGENTEN-OUTPUTS
+################################################################################
+
+----------------------------------------
+## Haupt-Analyse-Ergebnis
+----------------------------------------
+```
+**Compliance Issues Found:** 2
+---
+
+## 1. Relevant Legal & Regulatory Norms
+
+- **EU Corporate Sustainability Reporting Directive (CSRD) 2024/2026**
+  - Requires large and listed companies operating in the EU to report on environmental, social, and governance (ESG) factors, including process-level environmental impacts and the availability of sustainable alternatives.
+  - Mandates transparency in offering and communicating green alternatives, preventing misleading environmental claims (greenwashing).
+
+- **ISO 14001:2015 Environmental Management Systems**
+  - Requires organizations to systematically manage their environmental responsibilities, including continual improvement, compliance obligations, and communication of environmental options to stakeholders.
+
+- **EU Unfair Commercial Practices Directive (UCPD)**
+  - Prohibits misleading environmental claims and requires that any green alternatives or eco-friendly features are clearly and accurately communicated to customers.
+
+- **Global Reporting Initiative (GRI) Standards**
+  - Requires disclosure of the environmental impacts of business processes and the availability and uptake of greener process variants.
+
+## 2. Compliance Assessment (External norms)
+
+- **CSRD & ISO 14001:2015**
+  - The process proposes offering a green variant alongside the conventional process, but there is no explicit mention of mechanisms to ensure accurate reporting, measurement, or monitoring of environmental impact for each variant, as required by CSRD and ISO 14001.
+  - Lack of explicit procedures for documenting and communicating the environmental benefits and trade-offs of each process variant to customers and stakeholders.
+
+- **EU UCPD**
+  - The process allows customers to choose between conventional and green variants, but there is no explicit mention of controls to prevent misleading environmental claims or ensure that green alternatives are substantiated and clearly described.
+
+- **GRI Standards**
+  - No explicit procedures for tracking, reporting, or disclosing the uptake rates or environmental outcomes of the green process variant.
+
+## 3. Compliance Assessment (Internal regulations)
+
+- No explicit internal compliance rules, policies, or governance guidelines are provided in the available information. Therefore, no internal violations can be identified.
+
+## 4. Compliance Improvement Recommendations
+
+- **Implement Environmental Impact Measurement and Reporting:**
+  - Establish clear metrics and procedures for measuring the environmental impact of both conventional and green process variants in accordance with CSRD and ISO 14001 requirements.
+  - Integrate environmental KPIs into process monitoring systems to enable transparent reporting.
+
+- **Enhance Customer Communication and Choice Transparency:**
+  - Develop standardized communication materials that clearly explain the environmental benefits and trade-offs of each process variant, ensuring compliance with the EU UCPD and ISO 14001.
+  - Ensure that all green claims are substantiated with verifiable data and that customers are not misled by marketing materials (anti-greenwashing controls).
+
+- **Document and Disclose Process Variant Uptake and Impact:**
+  - Track and report on the proportion of customers choosing the green variant and the resulting environmental outcomes, in line with GRI Standards and CSRD.
+  - Regularly publish these results in sustainability reports or public disclosures.
+
+- **Establish Internal Review and Audit Mechanisms:**
+  - Set up periodic internal audits to verify the accuracy of environmental claims, the effectiveness of customer communication, and the integrity of environmental data collection processes.
+  - Update process documentation to reflect all compliance-related controls and procedures.
+
+- **Certification and External Validation:**
+  - Where feasible, obtain third-party certification for the green process variant or compensation activities (e.g., carbon offsetting) to enhance credibility and compliance with ISO 14001 and CSRD.
+
+```
+
+----------------------------------------
+## Agent: COMPLIANCE
+----------------------------------------
+```
+**Compliance Issues Found:** 2
+---
+
+## 1. Relevant Legal & Regulatory Norms
+
+- **EU Corporate Sustainability Reporting Directive (CSRD) 2024/2026**
+  - Requires large and listed companies operating in the EU to report on environmental, social, and governance (ESG) factors, including process-level environmental impacts and the availability of sustainable alternatives.
+  - Mandates transparency in offering and communicating green alternatives, preventing misleading environmental claims (greenwashing).
+
+- **ISO 14001:2015 Environmental Management Systems**
+  - Requires organizations to systematically manage their environmental responsibilities, including continual improvement, compliance obligations, and communication of environmental options to stakeholders.
+
+- **EU Unfair Commercial Practices Directive (UCPD)**
+  - Prohibits misleading environmental claims and requires that any green alternatives or eco-friendly features are clearly and accurately communicated to customers.
+
+- **Global Reporting Initiative (GRI) Standards**
+  - Requires disclosure of the environmental impacts of business processes and the availability and uptake of greener process variants.
+
+## 2. Compliance Assessment (External norms)
+
+- **CSRD & ISO 14001:2015**
+  - The process proposes offering a green variant alongside the conventional process, but there is no explicit mention of mechanisms to ensure accurate reporting, measurement, or monitoring of environmental impact for each variant, as required by CSRD and ISO 14001.
+  - Lack of explicit procedures for documenting and communicating the environmental benefits and trade-offs of each process variant to customers and stakeholders.
+
+- **EU UCPD**
+  - The process allows customers to choose between conventional and green variants, but there is no explicit mention of controls to prevent misleading environmental claims or ensure that green alternatives are substantiated and clearly described.
+
+- **GRI Standards**
+  - No explicit procedures for tracking, reporting, or disclosing the uptake rates or environmental outcomes of the green process variant.
+
+## 3. Compliance Assessment (Internal regulations)
+
+- No explicit internal compliance rules, policies, or governance guidelines are provided in the available information. Therefore, no internal violations can be identified.
+
+## 4. Compliance Improvement Recommendations
+
+- **Implement Environmental Impact Measurement and Reporting:**
+  - Establish clear metrics and procedures for measuring the environmental impact of both conventional and green process variants in accordance with CSRD and ISO 14001 requirements.
+  - Integrate environmental KPIs into process monitoring systems to enable transparent reporting.
+
+- **Enhance Customer Communication and Choice Transparency:**
+  - Develop standardized communication materials that clearly explain the environmental benefits and trade-offs of each process variant, ensuring compliance with the EU UCPD and ISO 14001.
+  - Ensure that all green claims are substantiated with verifiable data and that customers are not misled by marketing materials (anti-greenwashing controls).
+
+- **Document and Disclose Process Variant Uptake and Impact:**
+  - Track and report on the proportion of customers choosing the green variant and the resulting environmental outcomes, in line with GRI Standards and CSRD.
+  - Regularly publish these results in sustainability reports or public disclosures.
+
+- **Establish Internal Review and Audit Mechanisms:**
+  - Set up periodic internal audits to verify the accuracy of environmental claims, the effectiveness of customer communication, and the integrity of environmental data collection processes.
+  - Update process documentation to reflect all compliance-related controls and procedures.
+
+- **Certification and External Validation:**
+  - Where feasible, obtain third-party certification for the green process variant or compensation activities (e.g., carbon offsetting) to enhance credibility and compliance with ISO 14001 and CSRD.
+
+```
+
+----------------------------------------
+## Agent: ECONOMIC
+----------------------------------------
+{
+  "company_overview": {},
+  "financial_posture": {},
+  "strategic_orientation": {},
+  "market_position": {},
+  "regional_macroeconomic_conditions": {},
+  "process_redesign_considerations": [
+    "No company specified. Please provide a valid company name to enable analysis."
+  ]
+}
+
+----------------------------------------
+## Agent: FINANCE
+----------------------------------------
+**Cost Drivers Found:** 2
+---
+## 1. Redesigned Process Flow
+- Analyze all current process steps and identify activities that do not contribute directly to the value from a cost perspective (e.g., redundant checks, manual data entry, or duplicated approval steps).
+- Eliminate non-value-adding activities, especially any control, reconciliation, or approval steps that do not directly affect the outcome.
+- Combine small, related tasks into composite activities to reduce setup and transition times. For example, merge data collection and initial validation into a single step executed by one resource.
+- Consolidate similar work items and process them in batches where feasible (e.g., group invoice processing, document reviews, or order fulfillment into daily batches instead of ad-hoc handling).
+- Assign tasks based on workload to ensure optimal resource utilization and minimize idle time or overtime costs.
+- Replace high-cost resources (e.g., expensive machines or external contractors) with lower-cost alternatives where possible, such as using in-house staff for quality checks instead of specialized equipment, provided the functional outcome remains unchanged.
+- For process steps requiring external information, buffer and subscribe to updates instead of repeated individual requests, reducing transaction and information retrieval costs.
+
+## 2. Major changes
+- Removal of all non-value-adding activities and redundant approvals.
+- Combination of fragmented tasks into larger, more efficient work packages.
+- Introduction of batch processing for similar work items to minimize transition and handling costs.
+- Shift from high-cost resource usage to lower-cost alternatives where possible.
+- Implementation of workload-based task assignment to optimize resource utilization.
+- Adoption of information buffering to reduce repeated external data retrieval costs.
+
+## 3. Used process redesign patterns
+1. Eliminate activities
+2. Combine activities
+3. Consolidate Work (Batch Processing)
+4. Workload-based task assignment
+5. Replace underlying resources with lower-cost alternatives
+6. Buffer information
+
+----------------------------------------
+## Agent: PERFORMANCE
+----------------------------------------
+**Performance Issues Found:** 0
+---
+## 1. Redesigned Process Flow
+- Maintain the original business process without structural changes.
+- Introduce an alternative, environmentally friendly process variant that achieves the same functional outcome as the original process.
+- Allow customers or stakeholders to select between the conventional process and the green variant at the point of process initiation (e.g., order placement, service request).
+- The green variant uses different process steps, resources, or partners specifically chosen to reduce environmental impact (e.g., eco-friendly materials, renewable energy sources, manual activities replacing polluting machinery).
+- Both process variants operate in parallel, and the selection is recorded for tracking and performance measurement.
+- Ensure that the green process variant is fully integrated into existing operational systems, enabling seamless execution regardless of the selected variant.
+- Monitor execution of both variants to ensure consistent performance and functional outcomes.
+
+## 2. Major changes
+- Addition of an alternative green process variant that customers can select.
+- Use of eco-friendly resources and/or human-performed activities in the green variant.
+- Parallel operation of conventional and green process variants with customer-driven selection at process initiation.
+
+## 3. Used process redesign patterns
+1. Decrease environmental impact while retaining original process
+2. Replace underlying resources with eco-friendly alternatives
+3. Human Process Performance
+
+----------------------------------------
+## Agent: REQUIREMENTS
+----------------------------------------
+{
+  "process_name": "",
+  "company_name": "",
+  "company_information": [],
+  "process_information": {
+    "Decrease environmental impact while retaining original process": {
+      "detailed_description": "Within the optimization of business processes, organizations may not change their business processes to a greener one without making them, for instance, more expensive or violating internal policies (green trade-off). Doing so would probably lead to a decrease in market share. However, organizations may be able to offer an alternative business process variant that has less environmental impact than the original one and gives the customers the opportunity to decide between the conventional and the green variant.",
+      "challenges": "In this case it is important to assure the same functional outcome of the process. Consequently, processes must be analyzed and restructured with respect to this objective, however, obtaining a decreased environmental impact.",
+      "solution": "The organization provides an alternative green business process variant that achieves the same result as before. However, it may use different process steps, resources, or partners to perform the process. The previous existing business process remains.",
+      "results": "Based on certain criteria like the customers decision, different variants of the process with the same functional outcome can be provided. Depending on which of the variants is being executed, different key performance indicators and ecological parameters hold.",
+      "example": "A trading company usually uses conventional plastic or styrofoam to wrap their goods. Using this pattern, the company can offer an alternative packaging method, using non-plastic and renewable materials, e.g. made out of corn, to pack the goods. In case of increasing costs they can provide this offer as a customer’s choice, i.e. customers decide whether they want conventional packaging or if they pay an extra charge for alternative packaging.",
+      "variations": "In the first place variations are achieved by conditioning the decision based on a certain criteria. Secondly, it would be possible to provide slightly different services or products. Depending on the business partners or customers choice, the service is performed differently (maybe with a different outcome) or products have another shape."
+    },
+    "Human Process Performance": {
+      "short_description": "Consider whether it is eco-friendly to let humans work over machines. How can the environmental impact of a process be decreased by changing certain activities, so that they are executed by humans?",
+      "detailed_description": "Organizations are based on both human and IT supported activities and processes that aim to achieve a certain strategic objective. These activities need to be organized in such a way that organizations are most profitable and also reach certain ecological goals within a given environment. Performing some activities by human workers can be one possibility to reach this objective.",
+      "challenges": "Determining activities in a workflow which may be replaced by human activities in order to improve the ecological footprint of a certain business process.",
+      "solution": "Replace certain activities which are enacted by machines that pollute the environment with human performed activities to obtain a greener business process.",
+      "results": "By replacing certain activities of a workflow so that they are enacted by humans, the environmental impact of a business process may be reduced.",
+      "example": "Consider an organization that manufactures specialized metal parts for engineering. The parts are produced in small batch series. Instead of using a high-tech laser-scanning machine which scans each part for quality assurance, an employee checks the corresponding part. This saves the organization costs (at least to some extend) and decreases the environmental impact which is created through the manufacturing and operation of such a specialized machine.",
+      "variations": "Single activities must not be executed by humans in total. They can also be se nsumption can be reduced, for example."
+    },
+    "Buffer information": {
+      "short_description": "Buffer external information and subscribe to updates. Instead of requesting information from an external source, buffer it and subscribe to updates.",
+      "detailed_description": "Obtaining information from other parties is a major, time consuming part in many workflows. By having information directly available when it is required, throughput times may be substantially reduced. Note that this buffering is a weak form of the integration pattern. Instead of direct access to the original source of information in the integration alternative a copy is maintained.",
+      "performance_considerations": "This pattern can be compared to the caching principle microprocessors apply. Of course, the subscription fee for information updates may be rather costly. This is especially so when we consider the situation that an information source may contain far more information than is ever used. Substantial cost may also be involved with storing all the information."
+    },
+    "Combine activities": {
+      "short_description": "Combine small activities into composite activities. A technique for combining smaller tasks into larger ones to reduce setup times and improve the quality of work.",
+      "detailed_description": "Task Combination is a process optimization technique that involves combining smaller tasks into larger ones. This technique reduces setup times, which are the time that resources need to become familiar with the specifics of a case, and can improve the quality of work. However, it is important to strike a balance between the size of the tasks and their workability. Tasks that are too large can result in smaller run-time flexibility and lower quality. Smaller tasks, on the other hand, can result in longer setup times.",
+      "performance_considerations": "By finding the optimal balance, organizations can achieve the best of both worlds: shorter setup times, higher quality, and greater flexibility."
+    },
+    "Consolidate Work": {
+      "short_description": "Collect similar work items and work in batches. Rather than addressing each case individually, consolidate multiple cases and execute activities in batches.",
+      "detailed_description": "Batch processing is an organized method of handling tasks by grouping similar activities together and executing them collectively, as opposed to dealing with each task individually. This systematic approach aims to enhance efficiency and streamline workflows by minimizing transitions between different types of tasks, allowing for a more structured and optimized workflow. Consider batch processing as a way of categorizing and addressing tasks akin to organizing household chores. Much like cleaning all the rooms at once instead of moving back and forth, batch processing involves identifying tasks that share commonalities, such as similar steps or resource requirements. For instance, tasks like processing invoices or sorting data entries are prime candidates for grouping into batches, allowing for a more efficient and effective handling of these activities.",
+      "application": "Batch processing is about figuring out which tasks can be done together because they're kind of alike. For example, if you're processing a bunch of invoices or sorting through data entries, these are tasks that share common steps. So, you group them into batches and handle them more efficiently. While batch processing offers notable advantages, it is essential to maintain a focus on quality control and flexibility. Ensuring that each batch meets predefined standards is crucial, and the system should be adaptable to changes in task requirements. Regular monitoring of key performance indicators facilitates ongoing optimization. Striking the right balance between batch size and processing time is key to avoiding unnecessary complexity. In essence, batch processing serves as a strategic tool for enhancing efficiency, provided it is implemented with careful consideration of quality, flexibility, and balance."
+    },
+    "Replace underlying resources with eco-friendly alternatives": {
+      "short_description": "Replace underlying resources with eco-friendly alternatives. How can we reduce the environmental impact of a process without altering the original process structure?",
+      "detailed_description": "Organizations are using a multitude of resources for the operation of their business and the corresponding business processes. These resources need to be selected based on both the strategic business and ecological objectives the organization wants to achieve.",
+      "challenges": "A resource is usually chosen by its functional capabilities. Selecting resources based on their environmental impact, however, can significantly influence the corresponding result. Additionally, proper metrics need to be defined and set-up in order to determine the different metric values of each resource.",
+      "solution": "Exchange the underlying resources of certain activities",
+      "results": "Organizations will decrease their environmental impact by exchanging resources used by certain activities. The exchange of underlying resources usually does not affect the process structure. Thus, the process is performed as before, however, possibly with ecological-positive side-effects.",
+      "example": "Resources are used or consumed in many cases. A company could, for example, decide to use green electricity instead of a conventional one. They may also decide to use different raw materials like non-plastic packaging for packaging their goods. Another example would be the use of cloud computing. This decreases the number of machines that an organization needs to hold available (e.g. for rare peak situations) and allows a demand-dependent use of these resources.",
+      "variations": "Some resources display a different ecological impact based on other environmental factors, such as the form of available energy. A supplier of electric energy, for example, may provide greener electricity the windier it is at the location of his wind energy plant. This type of resource does not have to be exchanged but it is merely ensured that the same resource is used during certain time-slots in which its environmental impact is reduced.",
+      "relations_to_other_patterns": "Depending on the type of business process it may also be feasible to use Green Features. This pattern, however, may focus more on the appearance of a service or product rather than on an in-depth green process optimization."
+    },
+    "Work in customer teams": {
+      "short_description": "Form cross-department teams for end-to-end case handling. Compose work teams of people from different departments that will take care of the complete handling of specific sorts of cases.",
+      "detailed_description": "Customer teams are an advantageous method that brings together employees from various departments to handle specific types of process instances or cases. The primary responsibility of the team is to oversee a case, with individual members not necessarily involved in executing the case itself. This collaborative approach allows for easy access to shared and distributed knowledge, departmental resources, and tools, enabling a comprehensive examination of a case from multiple perspectives. By utilizing customer teams, organizations can enhance their problem-solving capabilities and provide more efficient and effective resolutions for their customers.",
+      "performance_considerations": "In summary, customer teams offer a valuable solution for efficiently handling specific cases. By implementing this pattern, organizations can tap into the expertise of multiple workers while also promoting teamwork and enhancing overall quality."
+    },
+    "Workload-based task assignment": {
+      "short_description": "Allocate tasks based on individuals' incomplete workload. Assign tasks to people based on their workload, which refers to the number of task instances started but not yet completed by a person."
+    }
+  },
+  "identified_process_issues": [],
+  "process_improvement_goals": [],
+  "process_compliance_restrictions": [],
+  "process_risk_information": [],
+  "non_categorizable_information": []
+}
+
+
+################################################################################
+# SEKTION 3: PROZESS-METRIKEN
+################################################################################
+
+----------------------------------------
+## Berechnete Metriken (JSON)
+----------------------------------------
+{
+  "activityCosts": [],
+  "activityDurations": [],
+  "caseDurations": [],
+  "costDistribution": {},
+  "overview": {},
+  "resourceHeatmap": [],
+  "reworkStats": [],
+  "variantStats": []
+}
+
+
+################################################################################
+# SEKTION 4: CREWAI TERMINAL-LOGS
+################################################################################
+
+[Keine Terminal-Logs gefunden]
+Hinweis: Um Terminal-Logs zu erfassen, starten Sie das Backend mit:
+python app.py 2>&1 | tee crew_output.log

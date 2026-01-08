@@ -1,0 +1,148 @@
+================================================================================
+ROHDATEN-EXPORT - SWPS AI Agents for BPI
+Export-Zeitpunkt: 2026-01-07 21:19:48
+================================================================================
+
+
+################################################################################
+# SEKTION 1: USER UPLOADS
+################################################################################
+
+----------------------------------------
+## Hochgeladene Dateien
+----------------------------------------
+
+### Datei: .gitkeep
+Größe: 45 Bytes
+Geändert: 2026-01-07T20:05:03.721479
+[Binärdatei - nicht angezeigt]
+
+################################################################################
+# SEKTION 2: AGENTEN-OUTPUTS
+################################################################################
+
+----------------------------------------
+## Haupt-Analyse-Ergebnis
+----------------------------------------
+**Compliance Issues Found:** 0
+---
+## 1. Relevant Legal & Regulatory Norms
+- No company, process, or industry context provided. No legal or regulatory norms can be identified or applied.
+
+## 2. Compliance Assessment (External norms)
+- No process or company information available. No assessment possible against external norms.
+
+## 3. Compliance Assessment (Internal regulations)
+- No internal compliance requirements, policies, or process details provided. No assessment possible.
+
+## 4. Compliance Improvement Recommendations
+- Specify the organization and process to enable targeted compliance analysis and actionable recommendations.
+- Provide explicit internal compliance rules, process documentation, or regulatory requirements for meaningful compliance evaluation.
+- Ensure relevant process KPIs and risk information are available to support comprehensive compliance assessment.
+
+----------------------------------------
+## Agent: COMPLIANCE
+----------------------------------------
+**Compliance Issues Found:** 0
+---
+## 1. Relevant Legal & Regulatory Norms
+- No company, process, or industry context provided. No legal or regulatory norms can be identified or applied.
+
+## 2. Compliance Assessment (External norms)
+- No process or company information available. No assessment possible against external norms.
+
+## 3. Compliance Assessment (Internal regulations)
+- No internal compliance requirements, policies, or process details provided. No assessment possible.
+
+## 4. Compliance Improvement Recommendations
+- Specify the organization and process to enable targeted compliance analysis and actionable recommendations.
+- Provide explicit internal compliance rules, process documentation, or regulatory requirements for meaningful compliance evaluation.
+- Ensure relevant process KPIs and risk information are available to support comprehensive compliance assessment.
+
+----------------------------------------
+## Agent: ECONOMIC
+----------------------------------------
+{
+  "company_overview": {},
+  "financial_posture": {},
+  "strategic_orientation": {},
+  "market_position": {},
+  "regional_macroeconomic_conditions": {},
+  "process_redesign_considerations": [
+    "No company name provided. Please specify the organization to enable a targeted analysis and actionable recommendations."
+  ]
+}
+
+----------------------------------------
+## Agent: FINANCE
+----------------------------------------
+**Cost Drivers Found:** 0
+---
+## 1. Redesigned Process Flow
+- No process flow can be redesigned due to the absence of any process, company, or industry information.
+
+## 2. Major changes
+- No changes are possible as no process information is available.
+
+## 3. Used process redesign patterns
+- None used due to lack of information.
+
+----------------------------------------
+## Agent: PERFORMANCE
+----------------------------------------
+**Performance Issues Found:** 0
+---
+## 1. Redesigned Process Flow
+- No explicit process information, process flow, or performance issues have been provided.
+- No company or industry context is available to target redesign actions.
+- No process KPIs, bottlenecks, delays, rework, or inefficiencies are identified or described.
+- No process steps, activities, or structure are available to apply redesign patterns or best practices.
+
+## 2. Major changes
+- No changes can be proposed as there is no process information or performance issue provided.
+
+## 3. Used process redesign patterns
+- None (no process context or issues to address).
+
+----------------------------------------
+## Agent: REQUIREMENTS
+----------------------------------------
+{
+  "process_name": "",
+  "company_name": "",
+  "company_information": [],
+  "process_information": {},
+  "identified_process_issues": [],
+  "process_improvement_goals": [],
+  "process_compliance_restrictions": [],
+  "process_risk_information": [],
+  "non_categorizable_information": []
+}
+
+
+################################################################################
+# SEKTION 3: PROZESS-METRIKEN
+################################################################################
+
+----------------------------------------
+## Berechnete Metriken (JSON)
+----------------------------------------
+{
+  "activityCosts": [],
+  "activityDurations": [],
+  "caseDurations": [],
+  "costDistribution": {},
+  "overview": {},
+  "resourceHeatmap": [],
+  "reworkStats": [],
+  "variantStats": []
+}
+
+
+################################################################################
+# SEKTION 4: CREWAI TERMINAL-LOGS
+################################################################################
+
+[Keine Terminal-Logs gefunden]
+Hinweis: Um Terminal-Logs zu erfassen, starten Sie das Backend mit:
+python app.py 2>&1 | tee crew_output.log

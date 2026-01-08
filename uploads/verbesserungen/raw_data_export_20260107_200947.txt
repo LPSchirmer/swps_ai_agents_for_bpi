@@ -1,0 +1,867 @@
+================================================================================
+ROHDATEN-EXPORT - SWPS AI Agents for BPI
+Export-Zeitpunkt: 2026-01-07 20:09:47
+================================================================================
+
+
+################################################################################
+# SEKTION 1: USER UPLOADS
+################################################################################
+
+----------------------------------------
+## Hochgeladene Dateien
+----------------------------------------
+
+### Datei: .gitkeep
+Größe: 45 Bytes
+Geändert: 2026-01-07T20:05:03.721479
+[Binärdatei - nicht angezeigt]
+
+################################################################################
+# SEKTION 2: AGENTEN-OUTPUTS
+################################################################################
+
+----------------------------------------
+## Haupt-Analyse-Ergebnis
+----------------------------------------
+**Compliance Issues Found:** 5
+---
+# 1. Relevant Legal & Regulatory Norms
+
+- **ISO 10002:2018/2026 (Customer Satisfaction – Guidelines for Complaints Handling)**
+  - Establishes requirements for a transparent, accessible, and effective complaints-handling process.
+  - Mandates clear roles and responsibilities, impartiality, and segregation of duties.
+  - Requires documentation, traceability, and continuous improvement.
+  - Customers must only need to contact the company once to resolve their complaint.
+  - All necessary information for resolution must be collected at the first encounter.
+
+- **EU Consumer Law (2026 updates)**
+  - Harmonized information requirements for statutory warranty and commercial guarantees.
+  - Legal guarantee of conformity: minimum 2 years; obligation to repair or replace defective goods.
+  - “Right to Repair” Directive: Manufacturers must offer repairs for 5–10 years after purchase, effective July 2026.
+  - Enhanced transparency and documentation for warranty processes.
+
+- **German National Law (BGB, Umsetzung EU-Richtlinien, 2026)**
+  - Transposes EU warranty and repair directives into national law.
+  - Requires clear process documentation and customer communication.
+
+- **Internal Compliance Requirements (as provided)**
+  - The person who handled the request is not allowed to decide what happens with it (segregation of duties).
+  - Only Sara is allowed to make decisions.
+  - Thorough investigation may only be conducted by Sean.
+  - Each ticket must be reviewed before an investigation is initiated.
+  - ISO Norm 10002 must be fulfilled.
+
+# 2. Compliance Assessment (External norms)
+
+- **ISO 10002**
+  - Process variants with repeated “reinitiate request” and multiple “examine” steps indicate customers may need to interact multiple times, violating the “one contact” principle.
+  - Loops and repeated activities suggest possible lack of process transparency and inefficient complaints resolution.
+  - No explicit evidence of continuous improvement or systematic documentation in the process data.
+
+- **EU/German Warranty Law**
+  - No explicit evidence of process steps ensuring minimum legal guarantee period or “Right to Repair” obligations.
+  - Lack of clear process step for informing the customer about statutory rights or offering repair options.
+
+# 3. Compliance Assessment (Internal regulations)
+
+- **Segregation of Duties**
+  - Process data does not show explicit mapping of activities to resources, but with only 6 resources and multiple loops, risk of the same person handling and deciding a request is high.
+  - No evidence of enforced rule that only Sara decides and only Sean investigates thoroughly.
+
+- **Role Restrictions**
+  - No explicit enforcement of “only Sara decides” and “only Sean investigates thoroughly.”
+  - “Each ticket must be reviewed before an investigation is initiated” is at risk: process variants show “examine casually” or “examine thoroughly” sometimes precede “check ticket,” violating this rule.
+
+- **ISO 10002 Fulfillment**
+  - Multiple loops and repeated “reinitiate request” steps indicate process inefficiency and possible lack of customer-centricity.
+  - Documentation and traceability requirements may not be fully met due to variant complexity.
+
+# 4. Compliance Improvement Recommendations
+
+- **Enforce Segregation of Duties**
+  - Implement system-based controls to ensure the person registering or examining a request cannot make the final decision.
+  - Hard-code workflow so only Sara can execute “decide,” and only Sean can execute “examine thoroughly.”
+
+- **Role-Based Task Assignment**
+  - Map each process activity to authorized roles/resources (e.g., only Sean assigned to “examine thoroughly”; only Sara to “decide”).
+  - Automate assignment logic to prevent violations.
+
+- **Resequence Activities**
+  - Redesign process to ensure “check ticket” always precedes any “examine” activity.
+  - Remove or restrict “reinitiate request” loops to ensure single, streamlined customer contact and reduce process duration.
+
+- **ISO 10002 Compliance**
+  - Collect all necessary information at the first customer contact; design process to avoid repeated customer interactions.
+  - Document all process steps and outcomes for traceability and auditability.
+  - Establish a feedback loop for continuous improvement and regular review of complaints-handling effectiveness.
+
+- **Legal Warranty/Repair Compliance**
+  - Add explicit process step to inform customers of their statutory rights and repair options as per EU/German law.
+  - Ensure documentation of warranty period, repair offers, and customer communication per legal requirements.
+
+- **Process Automation and Standardization**
+  - Standardize and automate routine steps (e.g., ticket review, role assignment) to reduce costs and throughput times.
+  - Use digital tools to monitor compliance with segregation of duties and role restrictions.
+
+- **Documentation and Audit Trail**
+  - Ensure all actions, decisions, and handovers are logged with responsible resource/role for compliance verification.
+
+- **Customer Communication**
+  - Implement customer self-service portal for complaint submission and status tracking to minimize manual input and reduce repeated contacts.
+
+----------------------------------------
+## Agent: COMPLIANCE
+----------------------------------------
+**Compliance Issues Found:** 5
+---
+# 1. Relevant Legal & Regulatory Norms
+
+- **ISO 10002:2018/2026 (Customer Satisfaction – Guidelines for Complaints Handling)**
+  - Establishes requirements for a transparent, accessible, and effective complaints-handling process.
+  - Mandates clear roles and responsibilities, impartiality, and segregation of duties.
+  - Requires documentation, traceability, and continuous improvement.
+  - Customers must only need to contact the company once to resolve their complaint.
+  - All necessary information for resolution must be collected at the first encounter.
+
+- **EU Consumer Law (2026 updates)**
+  - Harmonized information requirements for statutory warranty and commercial guarantees.
+  - Legal guarantee of conformity: minimum 2 years; obligation to repair or replace defective goods.
+  - “Right to Repair” Directive: Manufacturers must offer repairs for 5–10 years after purchase, effective July 2026.
+  - Enhanced transparency and documentation for warranty processes.
+
+- **German National Law (BGB, Umsetzung EU-Richtlinien, 2026)**
+  - Transposes EU warranty and repair directives into national law.
+  - Requires clear process documentation and customer communication.
+
+- **Internal Compliance Requirements (as provided)**
+  - The person who handled the request is not allowed to decide what happens with it (segregation of duties).
+  - Only Sara is allowed to make decisions.
+  - Thorough investigation may only be conducted by Sean.
+  - Each ticket must be reviewed before an investigation is initiated.
+  - ISO Norm 10002 must be fulfilled.
+
+# 2. Compliance Assessment (External norms)
+
+- **ISO 10002**
+  - Process variants with repeated “reinitiate request” and multiple “examine” steps indicate customers may need to interact multiple times, violating the “one contact” principle.
+  - Loops and repeated activities suggest possible lack of process transparency and inefficient complaints resolution.
+  - No explicit evidence of continuous improvement or systematic documentation in the process data.
+
+- **EU/German Warranty Law**
+  - No explicit evidence of process steps ensuring minimum legal guarantee period or “Right to Repair” obligations.
+  - Lack of clear process step for informing the customer about statutory rights or offering repair options.
+
+# 3. Compliance Assessment (Internal regulations)
+
+- **Segregation of Duties**
+  - Process data does not show explicit mapping of activities to resources, but with only 6 resources and multiple loops, risk of the same person handling and deciding a request is high.
+  - No evidence of enforced rule that only Sara decides and only Sean investigates thoroughly.
+
+- **Role Restrictions**
+  - No explicit enforcement of “only Sara decides” and “only Sean investigates thoroughly.”
+  - “Each ticket must be reviewed before an investigation is initiated” is at risk: process variants show “examine casually” or “examine thoroughly” sometimes precede “check ticket,” violating this rule.
+
+- **ISO 10002 Fulfillment**
+  - Multiple loops and repeated “reinitiate request” steps indicate process inefficiency and possible lack of customer-centricity.
+  - Documentation and traceability requirements may not be fully met due to variant complexity.
+
+# 4. Compliance Improvement Recommendations
+
+- **Enforce Segregation of Duties**
+  - Implement system-based controls to ensure the person registering or examining a request cannot make the final decision.
+  - Hard-code workflow so only Sara can execute “decide,” and only Sean can execute “examine thoroughly.”
+
+- **Role-Based Task Assignment**
+  - Map each process activity to authorized roles/resources (e.g., only Sean assigned to “examine thoroughly”; only Sara to “decide”).
+  - Automate assignment logic to prevent violations.
+
+- **Resequence Activities**
+  - Redesign process to ensure “check ticket” always precedes any “examine” activity.
+  - Remove or restrict “reinitiate request” loops to ensure single, streamlined customer contact and reduce process duration.
+
+- **ISO 10002 Compliance**
+  - Collect all necessary information at the first customer contact; design process to avoid repeated customer interactions.
+  - Document all process steps and outcomes for traceability and auditability.
+  - Establish a feedback loop for continuous improvement and regular review of complaints-handling effectiveness.
+
+- **Legal Warranty/Repair Compliance**
+  - Add explicit process step to inform customers of their statutory rights and repair options as per EU/German law.
+  - Ensure documentation of warranty period, repair offers, and customer communication per legal requirements.
+
+- **Process Automation and Standardization**
+  - Standardize and automate routine steps (e.g., ticket review, role assignment) to reduce costs and throughput times.
+  - Use digital tools to monitor compliance with segregation of duties and role restrictions.
+
+- **Documentation and Audit Trail**
+  - Ensure all actions, decisions, and handovers are logged with responsible resource/role for compliance verification.
+
+- **Customer Communication**
+  - Implement customer self-service portal for complaint submission and status tracking to minimize manual input and reduce repeated contacts.
+
+----------------------------------------
+## Agent: ECONOMIC
+----------------------------------------
+{
+  "company_overview": {
+    "name": "Siemens AG",
+    "description": "Siemens AG is a global technology powerhouse focusing on industry, infrastructure, transport, and healthcare. The company operates through several segments, including Digital Industries, Smart Infrastructure, Mobility, and Siemens Healthineers. Siemens is recognized for its leadership in industrial digitalization, automation, and electrification solutions.",
+    "headquarters": "Munich, Germany",
+    "global_presence": "Operates in over 190 countries worldwide",
+    "employees": "Approximately 320,000 (2025)",
+    "core_businesses": ["Industrial Automation", "Smart Infrastructure", "Mobility/Rail", "Healthcare Technology (via Siemens Healthineers)"]
+  },
+  "financial_posture": {
+    "revenue_2025": "€78.9 billion",
+    "net_income_2025": "€10.4 billion",
+    "order_backlog_2025": "€138 billion",
+    "revenue_growth_2025": "4% (forecast, S&P Global)",
+    "revenue_growth_2026": "6% (forecast, S&P Global)",
+    "mid_term_growth_target": "6-9% per year (company guidance)",
+    "profit_margin_smart_infrastructure_2026": "18-19%",
+    "free_cash_flow_2026_estimate": "€3.8-4.0 billion",
+    "free_cash_flow_2027_estimate": "€6.0-6.2 billion",
+    "credit_rating": "AA- (S&P Global, affirmed 2025)",
+    "financial_highlights": [
+      "Record annual profit and cash flow in 2025",
+      "Strong book-to-bill ratio (1.36 in Q4 2025)",
+      "Robust order backlog supporting future growth"
+    ]
+  },
+  "strategic_orientation": {
+    "core_strategy": "ONE Tech Company program, focusing on digital transformation, software-defined automation, and expanding total addressable market (TAM) by €50 billion in 2025.",
+    "growth_drivers": [
+      "Industrial digitalization and automation",
+      "Smart infrastructure and grid technologies",
+      "Mobility solutions for urbanization and sustainability",
+      "Healthcare technology expansion through Siemens Healthineers"
+    ],
+    "geographic_focus": "Emphasis on geographic diversification and growth in the Americas, Asia-Pacific, and EMEA regions.",
+    "innovation": "Significant investment in R&D for digital, AI, and automation solutions.",
+    "sustainability": "Commitment to decarbonization, energy efficiency, and supporting the global energy transition."
+  },
+  "market_position": {
+    "industry_leadership": "Market leader in industrial automation, smart infrastructure, and rail mobility.",
+    "competitive_advantage": [
+      "Integrated portfolio across digital and physical infrastructure",
+      "Large, diversified order backlog",
+      "Strong brand and global reach"
+    ],
+    "market_trends": [
+      "Acceleration of digitalization and automation in manufacturing",
+      "Growing demand for resilient and sustainable infrastructure",
+      "Urbanization driving mobility solutions",
+      "Healthcare digital transformation"
+    ],
+    "challenges": [
+      "Currency headwinds impacting reported results",
+      "Supply chain complexities",
+      "Intense competition from global technology and industrial firms"
+    ]
+  },
+  "regional_macroeconomic_conditions": {
+    "eurozone_growth_2025": "1.1%",
+    "eurozone_growth_2026": "1.1%",
+    "eurozone_growth_2027": "1.4%",
+    "global_trends": [
+      "Moderate but stable macroeconomic growth in key markets",
+      "Continued energy transition and infrastructure investment",
+      "Potential for volatility due to geopolitical risks and inflation"
+    ],
+    "industry_outlook": [
+      "Industrial automation and digitalization expected to outpace general economic growth",
+      "Strong infrastructure investment driven by sustainability and urbanization",
+      "Healthcare sector growth supported by digital and diagnostic advancements"
+    ]
+  },
+  "process_redesign_considerations": [
+    "Standardize and automate routine steps in the 'Garantieabwicklung' process to reduce throughput times and costs, leveraging Siemens' strengths in digitalization.",
+    "Introduce customer self-service portals for warranty registration and status tracking to minimize manual input and reduce customer complaints about process duration.",
+    "Implement role-based and quality-based task assignment to ensure compliance (e.g., only Sara decides, only Sean investigates thoroughly) while optimizing resource utilization.",
+    "Reduce process variants and eliminate unnecessary loops (e.g., repeated 'reinitiate request') to streamline workflow and improve compliance with ISO Norm 10002.",
+    "Resequence activities so that 'check ticket' and 'examine' steps are efficiently aligned, reducing wait times and handovers.",
+    "Leverage process analytics to identify bottlenecks and high-cost activities, using Siemens' digital tools for continuous improvement.",
+    "Maintain strict compliance with segregation-of-duties requirements and ISO standards while automating compliance checks.",
+    "Monitor macroeconomic and industry trends to anticipate changes in warranty claim volumes and resource needs, ensuring process scalability."
+  ]
+}
+
+----------------------------------------
+## Agent: FINANCE
+----------------------------------------
+**Cost Drivers Found:** 3
+---
+## 1. Redesigned Process Flow
+
+- Customer submits warranty request via a digital self-service portal, which collects all required information upfront and validates completeness before submission.
+- System automatically performs initial ticket verification (`check ticket`) to ensure eligibility and data integrity, routing only valid claims forward.
+- Based on predefined triage rules, the system assigns cases:
+  - **Low-complexity/standard claims**: Automatically routed to "examine casually" by available generalist resources.
+  - **High-complexity/flagged claims**: Routed directly to "examine thoroughly" by Sean, as per compliance.
+- After examination, the system forwards the case to Sara (the only decision-maker) for the "decide" activity, with all supporting documentation and system-generated recommendations.
+- Sara makes the decision (approve/reject) in the system interface:
+  - If approved, the system triggers "pay compensation" automatically.
+  - If rejected, the system triggers "reject request" and notifies the customer.
+- The process is strictly linear: No reinitiation loops are allowed. If information is missing, the system requests it from the customer before any manual review.
+- All process steps are logged and monitored by the workflow system for transparency and cost analytics.
+
+## 2. Major changes
+
+- Eliminated all process loops and reinitiation steps to prevent unnecessary repeated activities and handovers.
+- Introduced a digital self-service portal for initial request registration and information collection, reducing manual input and errors.
+- Automated ticket verification and triage, ensuring only necessary manual examination steps are performed.
+- Standardized the process flow into two clear tracks (casual and thorough examination) based on claim complexity, minimizing resource usage.
+- Centralized decision-making with Sara, supported by system-generated recommendations and complete documentation.
+- Fully automated payment and rejection notifications, reducing manual administrative work.
+
+## 3. Used process redesign patterns
+
+1. Eliminate activities (removal of reinitiation and unnecessary manual steps)
+2. Apply triage (separate low- and high-complexity claims for resource optimization)
+3. Integral technology (self-service portal, workflow automation, and system-based triage)
+4. Standardize (strictly linear process, reduced variants)
+
+----------------------------------------
+## Agent: PERFORMANCE
+----------------------------------------
+**Performance Issues Found:** 2
+---
+## 1. Redesigned Process Flow
+- Customer submits warranty request via a standardized digital self-service portal.
+- System automatically validates the request for completeness and assigns a unique case ID.
+- The portal routes the request directly to the “check ticket” activity, performed by the next available qualified resource (excluding Sara and Sean for compliance).
+- If the ticket is valid, the system initiates triage:
+    - If the case is straightforward (criteria defined in system, e.g., low value, clear documentation), the process continues with “examine casually” by an available resource (excluding Sara and Sean).
+    - If the case is complex (criteria defined in system, e.g., high value, unclear documentation), the process routes to “examine thoroughly” performed exclusively by Sean.
+- Upon completion of examination:
+    - The system forwards the case to Sara for the “decide” activity, ensuring segregation of duties.
+- Sara makes the decision:
+    - If compensation is approved, the system triggers “pay compensation” and notifies the customer.
+    - If rejected, the system triggers “reject request” and notifies the customer.
+    - If further information is required, the system allows only a single “reinitiate request” loop, after which the case is escalated for manual review.
+- All process steps are tracked in real-time in the workflow management system, with automatic status updates sent to the customer.
+
+## 2. Major changes
+- Introduction of a digital self-service portal with standardized input, eliminating manual registration and reducing errors.
+- Automated triage after “check ticket” to route cases to either “examine casually” or “examine thoroughly” based on predefined criteria.
+- Strict enforcement of a single reinitiation loop to prevent excessive iterations and process loops.
+- Direct, role-based task assignment leveraging system automation and compliance constraints.
+- Real-time process tracking and customer notification at each step.
+
+## 3. Used process redesign patterns
+1. Apply Integral technology
+2. Apply triage
+3. Establish standardized interfaces
+4. Establish a case-based mindset
+5. Experience-based task assignment 1
+
+----------------------------------------
+## Agent: REQUIREMENTS
+----------------------------------------
+{
+  "process_name": "Garantieabwicklung",
+  "company_name": "Siemens",
+  "company_information": [],
+  "process_information": {
+    "number_cases": 6,
+    "variants_frequency": {
+      "register request,examine thoroughly,check ticket,decide,reject request": 1,
+      "register request,check ticket,examine casually,decide,pay compensation": 1,
+      "register request,examine casually,check ticket,decide,reinitiate request,examine thoroughly,check ticket,decide,pay compensation": 1,
+      "register request,check ticket,examine thoroughly,decide,reject request": 1,
+      "register request,examine casually,check ticket,decide,reinitiate request,check ticket,examine casually,decide,reinitiate request,examine casually,check ticket,decide,reject request": 1,
+      "register request,examine casually,check ticket,decide,pay compensation": 1
+    },
+    "number_variants": 6,
+    "number_events": 42,
+    "activities": [
+      "register request",
+      "examine casually",
+      "check ticket",
+      "decide",
+      "reinitiate request",
+      "examine thoroughly",
+      "pay compensation",
+      "reject request"
+    ],
+    "number_activities": 8,
+    "activities_frequency": {
+      "check ticket": 9,
+      "decide": 9,
+      "register request": 6,
+      "examine casually": 6,
+      "reinitiate request": 3,
+      "examine thoroughly": 3,
+      "pay compensation": 3,
+      "reject request": 3
+    },
+    "start_activities": {
+      "register request": 6
+    },
+    "end_activities": {
+      "pay compensation": 3,
+      "reject request": 3
+    },
+    "number_resources": 6,
+    "resources": [
+      "Pete",
+      "Mike",
+      "Ellen",
+      "Sara",
+      "Sean",
+      "Sue"
+    ]
+  },
+  "identified_process_issues": [
+    "The process is too slow.",
+    "Customers complain about the long duration.",
+    "The process seems to be very expensive."
+  ],
+  "process_improvement_goals": [
+    "Reduce throughput times.",
+    "Reduce process costs."
+  ],
+  "process_compliance_restrictions": [
+    "The person who handled the request is not allowed to decide what happens with it.",
+    "Only Sara is allowed to make decisions.",
+    "Thorough investigation may only be conducted by Sean.",
+    "Each ticket must be reviewed before an investigation is initiated.",
+    "ISO Norm 10002 must be fulfilled."
+  ],
+  "process_risk_information": [],
+  "non_categorizable_information": []
+}
+
+
+################################################################################
+# SEKTION 3: PROZESS-METRIKEN
+################################################################################
+
+----------------------------------------
+## Berechnete Metriken (JSON)
+----------------------------------------
+{
+  "activityCosts": [
+    {
+      "activity": "check ticket",
+      "meanCost": 100,
+      "totalCost": 900
+    },
+    {
+      "activity": "decide",
+      "meanCost": 200,
+      "totalCost": 1800
+    },
+    {
+      "activity": "examine casually",
+      "meanCost": 400,
+      "totalCost": 2400
+    },
+    {
+      "activity": "examine thoroughly",
+      "meanCost": 400,
+      "totalCost": 1200
+    },
+    {
+      "activity": "pay compensation",
+      "meanCost": 200,
+      "totalCost": 600
+    },
+    {
+      "activity": "register request",
+      "meanCost": 50,
+      "totalCost": 300
+    },
+    {
+      "activity": "reinitiate request",
+      "meanCost": 200,
+      "totalCost": 600
+    },
+    {
+      "activity": "reject request",
+      "meanCost": 200,
+      "totalCost": 600
+    }
+  ],
+  "activityDurations": [
+    {
+      "activity": "check ticket",
+      "frequency": 9,
+      "meanDuration": 42.36,
+      "totalDuration": 381.23
+    },
+    {
+      "activity": "decide",
+      "frequency": 9,
+      "meanDuration": 68.04,
+      "totalDuration": 612.33
+    },
+    {
+      "activity": "register request",
+      "frequency": 6,
+      "meanDuration": 11.95,
+      "totalDuration": 71.68
+    },
+    {
+      "activity": "examine casually",
+      "frequency": 6,
+      "meanDuration": 43.65,
+      "totalDuration": 261.88
+    },
+    {
+      "activity": "reinitiate request",
+      "frequency": 3,
+      "meanDuration": 30.45,
+      "totalDuration": 91.35
+    },
+    {
+      "activity": "examine thoroughly",
+      "frequency": 3,
+      "meanDuration": 64.35,
+      "totalDuration": 193.04
+    },
+    {
+      "activity": "pay compensation",
+      "frequency": 3,
+      "meanDuration": 0,
+      "totalDuration": 0
+    },
+    {
+      "activity": "reject request",
+      "frequency": 3,
+      "meanDuration": 0,
+      "totalDuration": 0
+    }
+  ],
+  "activityFrequency": [
+    {
+      "name": "check ticket",
+      "value": 9
+    },
+    {
+      "name": "decide",
+      "value": 9
+    },
+    {
+      "name": "register request",
+      "value": 6
+    },
+    {
+      "name": "examine casually",
+      "value": 6
+    },
+    {
+      "name": "reinitiate request",
+      "value": 3
+    },
+    {
+      "name": "examine thoroughly",
+      "value": 3
+    },
+    {
+      "name": "pay compensation",
+      "value": 3
+    },
+    {
+      "name": "reject request",
+      "value": 3
+    }
+  ],
+  "caseDurationStats": {
+    "max": 437.9,
+    "mean": 268.58,
+    "median": 226.65,
+    "min": 144.7,
+    "standardDeviation": 104.53,
+    "variance": 10926.45
+  },
+  "caseDurations": [
+    {
+      "count": 1,
+      "range": "174.0-203.3"
+    },
+    {
+      "count": 1,
+      "range": "203.3-232.7"
+    },
+    {
+      "count": 1,
+      "range": "379.3-408.6"
+    },
+    {
+      "count": 1,
+      "range": "144.7-174.0"
+    },
+    {
+      "count": 1,
+      "range": "437.9-467.2"
+    },
+    {
+      "count": 1,
+      "range": "232.7-262.0"
+    }
+  ],
+  "costDistribution": {
+    "caseCount": 6,
+    "max": 2750,
+    "mean": 1400,
+    "median": 950,
+    "min": 950,
+    "standardDeviation": 687.39,
+    "total": 8400,
+    "variance": 472500
+  },
+  "overview": {
+    "activities": 8,
+    "cases": 6,
+    "events": 42,
+    "resources": 6,
+    "top_activities": {
+      "check ticket": 9,
+      "decide": 9,
+      "examine casually": 6,
+      "examine thoroughly": 3,
+      "pay compensation": 3,
+      "register request": 6,
+      "reinitiate request": 3,
+      "reject request": 3
+    },
+    "variants": 6
+  },
+  "resourceHeatmap": [
+    {
+      "activity": "check ticket",
+      "count": 2,
+      "resource": "Ellen"
+    },
+    {
+      "activity": "pay compensation",
+      "count": 2,
+      "resource": "Ellen"
+    },
+    {
+      "activity": "examine casually",
+      "count": 1,
+      "resource": "Ellen"
+    },
+    {
+      "activity": "register request",
+      "count": 1,
+      "resource": "Ellen"
+    },
+    {
+      "activity": "reject request",
+      "count": 1,
+      "resource": "Ellen"
+    },
+    {
+      "activity": "examine casually",
+      "count": 3,
+      "resource": "Mike"
+    },
+    {
+      "activity": "register request",
+      "count": 2,
+      "resource": "Mike"
+    },
+    {
+      "activity": "check ticket",
+      "count": 4,
+      "resource": "Mike"
+    },
+    {
+      "activity": "pay compensation",
+      "count": 1,
+      "resource": "Mike"
+    },
+    {
+      "activity": "reject request",
+      "count": 1,
+      "resource": "Mike"
+    },
+    {
+      "activity": "register request",
+      "count": 3,
+      "resource": "Pete"
+    },
+    {
+      "activity": "check ticket",
+      "count": 3,
+      "resource": "Pete"
+    },
+    {
+      "activity": "reject request",
+      "count": 1,
+      "resource": "Pete"
+    },
+    {
+      "activity": "decide",
+      "count": 7,
+      "resource": "Sara"
+    },
+    {
+      "activity": "reinitiate request",
+      "count": 3,
+      "resource": "Sara"
+    },
+    {
+      "activity": "examine thoroughly",
+      "count": 2,
+      "resource": "Sean"
+    },
+    {
+      "activity": "examine casually",
+      "count": 1,
+      "resource": "Sean"
+    },
+    {
+      "activity": "decide",
+      "count": 1,
+      "resource": "Sean"
+    },
+    {
+      "activity": "examine thoroughly",
+      "count": 1,
+      "resource": "Sue"
+    },
+    {
+      "activity": "decide",
+      "count": 1,
+      "resource": "Sue"
+    },
+    {
+      "activity": "examine casually",
+      "count": 1,
+      "resource": "Sue"
+    }
+  ],
+  "reworkStats": [
+    {
+      "activity": "check ticket",
+      "reworkCases": 2
+    },
+    {
+      "activity": "decide",
+      "reworkCases": 2
+    },
+    {
+      "activity": "examine casually",
+      "reworkCases": 1
+    },
+    {
+      "activity": "reinitiate request",
+      "reworkCases": 1
+    },
+    {
+      "activity": "register request",
+      "reworkCases": 0
+    },
+    {
+      "activity": "examine thoroughly",
+      "reworkCases": 0
+    },
+    {
+      "activity": "pay compensation",
+      "reworkCases": 0
+    },
+    {
+      "activity": "reject request",
+      "reworkCases": 0
+    }
+  ],
+  "variantStats": [
+    {
+      "frequency": 1,
+      "fullPath": [
+        "register request",
+        "examine thoroughly",
+        "check ticket",
+        "decide",
+        "reject request"
+      ],
+      "meanDuration": 195.37,
+      "variant": "Variante 1"
+    },
+    {
+      "frequency": 1,
+      "fullPath": [
+        "register request",
+        "check ticket",
+        "examine casually",
+        "decide",
+        "pay compensation"
+      ],
+      "meanDuration": 216.55,
+      "variant": "Variante 2"
+    },
+    {
+      "frequency": 1,
+      "fullPath": [
+        "register request",
+        "examine casually",
+        "check ticket",
+        "decide",
+        "reinitiate request",
+        "examine thoroughly",
+        "check ticket",
+        "decide",
+        "pay compensation"
+      ],
+      "meanDuration": 380.22,
+      "variant": "Variante 3"
+    },
+    {
+      "frequency": 1,
+      "fullPath": [
+        "register request",
+        "check ticket",
+        "examine thoroughly",
+        "decide",
+        "reject request"
+      ],
+      "meanDuration": 144.7,
+      "variant": "Variante 4"
+    },
+    {
+      "frequency": 1,
+      "fullPath": [
+        "register request",
+        "examine casually",
+        "check ticket",
+        "decide",
+        "reinitiate request",
+        "check ticket",
+        "examine casually",
+        "decide",
+        "reinitiate request",
+        "examine casually",
+        "check ticket",
+        "decide",
+        "reject request"
+      ],
+      "meanDuration": 437.9,
+      "variant": "Variante 5"
+    },
+    {
+      "frequency": 1,
+      "fullPath": [
+        "register request",
+        "examine casually",
+        "check ticket",
+        "decide",
+        "pay compensation"
+      ],
+      "meanDuration": 236.75,
+      "variant": "Variante 6"
+    }
+  ]
+}
+
+
+################################################################################
+# SEKTION 4: CREWAI TERMINAL-LOGS
+################################################################################
+
+[Keine Terminal-Logs gefunden]
+Hinweis: Um Terminal-Logs zu erfassen, starten Sie das Backend mit:
+python app.py 2>&1 | tee crew_output.log
