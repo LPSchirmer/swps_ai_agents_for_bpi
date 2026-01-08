@@ -751,6 +751,19 @@ def export_raw_data():
         export_content.append("#" * 80)
         export_content.append("")
         
+        # HAUPTQUELLE: Erfasster Terminal-Output während Agenten-Ausführung
+        from ai_analysis import last_crew_terminal_output
+        if last_crew_terminal_output:
+            export_content.append("-" * 40)
+            export_content.append("## KOMPLETTER AGENTEN-TERMINAL-OUTPUT")
+            export_content.append("## (Tool Inputs, Executions, Agent-Aktionen)")
+            export_content.append("-" * 40)
+            export_content.append(last_crew_terminal_output)
+            export_content.append("")
+            logs_found = True
+        else:
+            logs_found = False
+        
         # Versuche die Log-Datei zu lesen, falls vorhanden
         backend_dir = os.path.dirname(__file__)
         log_files_to_check = [
@@ -759,7 +772,6 @@ def export_raw_data():
             os.path.join(backend_dir, '..', 'crew_output.log'),
         ]
         
-        logs_found = False
         for log_file in log_files_to_check:
             if os.path.exists(log_file):
                 try:

@@ -8,6 +8,7 @@ import os
 from pathlib import Path
 from datetime import datetime
 import json
+import io
 from typing import Optional, Dict, Any
 
 # Setup paths
@@ -53,6 +54,12 @@ try:
 except Exception as e:
     print(f"⚠️  ETL Pipeline Import Warning: {e}")
     ETL_AVAILABLE = False
+
+
+# ============================================================
+# GLOBALE VARIABLE FÜR TERMINAL-OUTPUT
+# ============================================================
+last_crew_terminal_output = ""
 
 
 def extract_visualizable_metrics(kpis: Dict[str, Optional[str]]) -> Dict[str, Any]:
@@ -465,9 +472,40 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
         print("\n🚀 Starte CrewAI Multi-Agenten-System...")
         print("   (Dies kann 30-60 Sekunden dauern...)\n")
         
+        # Erfasse ALLES aus dem Terminal während die Agenten laufen
+        original_stdout = sys.stdout
+        original_stderr = sys.stderr
+        captured_output = io.StringIO()
+        
+        # Wrapper um sowohl zu schreiben als auch zu erfassen
+        class TeeOutput:
+            def __init__(self, *outputs):
+                self.outputs = outputs
+            def write(self, data):
+                for output in self.outputs:
+                    output.write(data)
+                    output.flush()
+            def flush(self):
+                for output in self.outputs:
+                    output.flush()
+        
+        # Leite stdout und stderr um
+        tee_stdout = TeeOutput(original_stdout, captured_output)
+        tee_stderr = TeeOutput(original_stderr, captured_output)
+        sys.stdout = tee_stdout
+        sys.stderr = tee_stderr
+        
         crew_instance = SwpsAiAgentsForBpi()
         crew = crew_instance.crew()
         result = crew.kickoff(inputs=crew_inputs)
+        
+        # Stelle stdout/stderr wieder her
+        sys.stdout = original_stdout
+        sys.stderr = original_stderr
+        
+        # Speichere den erfassten Output global
+        global last_crew_terminal_output
+        last_crew_terminal_output = captured_output.getvalue()
         
         print("\n✅ KI-Analyse abgeschlossen!")
         print("="*80 + "\n")
