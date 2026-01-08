@@ -225,3 +225,189 @@ h1, h2, h3, .headline {
   background-color: rgba(59, 130, 246, 0.3);
   color: var(--text-primary);
 }
+
+/* ============================================================
+   BPMN-JS CUSTOM DARK THEME STYLING
+   Moderne, technische Darstellung mit dunklem Hintergrund
+   ============================================================ */
+
+/* Container-Hintergrund */
+.bpmn-container {
+  background: linear-gradient(180deg, #0B0F14 0%, #111827 100%);
+}
+
+/* BPMN Viewer Canvas */
+.djs-container {
+  background: transparent !important;
+}
+
+/* BPMN Shapes - Allgemein */
+.djs-visual > rect,
+.djs-visual > circle,
+.djs-visual > polygon,
+.djs-visual > path {
+  fill: var(--bg-surface) !important;
+  stroke: var(--accent) !important;
+  stroke-width: 2px !important;
+}
+
+/* BPMN Tasks (Aktivitäten) - Rechteckige Boxen */
+.bpmn-shape[data-element^="Activity"],
+.bpmn-shape[data-element^="Task"],
+.djs-group .djs-visual rect:not([data-marker]) {
+  fill: #151F2E !important;
+  stroke: var(--accent) !important;
+  stroke-width: 2px !important;
+  rx: 8px !important;
+  ry: 8px !important;
+  filter: drop-shadow(0 4px 12px rgba(59, 130, 246, 0.15));
+}
+
+/* Start Events - Grün */
+.bpmn-shape[data-element*="StartEvent"] .djs-visual > circle,
+[data-element*="start" i] .djs-visual > circle {
+  fill: #0B1C14 !important;
+  stroke: var(--success) !important;
+  stroke-width: 2.5px !important;
+}
+
+/* End Events - Rot */
+.bpmn-shape[data-element*="EndEvent"] .djs-visual > circle,
+[data-element*="end" i] .djs-visual > circle {
+  fill: #1C0B0B !important;
+  stroke: var(--error) !important;
+  stroke-width: 3px !important;
+}
+
+/* Intermediate Events */
+.bpmn-shape[data-element*="IntermediateEvent"] .djs-visual > circle {
+  fill: #1C1B0B !important;
+  stroke: var(--warning) !important;
+  stroke-width: 2px !important;
+}
+
+/* Gateways - Amber/Gold */
+.bpmn-shape[data-element*="Gateway"] .djs-visual > polygon,
+.bpmn-shape[data-element*="Gateway"] .djs-visual > path:first-child {
+  fill: #1C1910 !important;
+  stroke: var(--warning) !important;
+  stroke-width: 2.5px !important;
+}
+
+/* Gateway Marker (X, +, O) - alle inneren Pfade */
+.bpmn-shape[data-element*="Gateway"] .djs-visual path:not(:first-child),
+.bpmn-shape[data-element*="Gateway"] .djs-visual > g > path,
+.bpmn-shape[data-element*="Gateway"] .djs-visual g path {
+  fill: var(--warning) !important;
+  stroke: var(--warning) !important;
+  stroke-width: 3px !important;
+}
+
+/* Exclusive Gateway (X) Marker - sichtbar machen */
+[data-element*="Exclusive"] .djs-visual path:not(:first-child),
+[data-element*="exclusive"] .djs-visual path:not(:first-child) {
+  stroke: var(--warning) !important;
+  stroke-width: 4px !important;
+  fill: none !important;
+}
+
+/* Parallel Gateway (+) Marker - sichtbar machen */
+[data-element*="Parallel"] .djs-visual path:not(:first-child),
+[data-element*="parallel"] .djs-visual path:not(:first-child) {
+  stroke: var(--warning) !important;
+  stroke-width: 4px !important;
+  fill: none !important;
+}
+
+/* Inclusive Gateway (O) Marker - sichtbar machen */
+[data-element*="Inclusive"] .djs-visual path:not(:first-child),
+[data-element*="inclusive"] .djs-visual circle:not(:first-child) {
+  stroke: var(--warning) !important;
+  stroke-width: 3px !important;
+  fill: none !important;
+}
+
+/* Sequence Flows (Verbindungslinien) */
+.djs-connection .djs-visual > path,
+.bpmn-connection .djs-visual > path {
+  stroke: var(--border-subtle) !important;
+  stroke-width: 2px !important;
+  fill: none !important;
+}
+
+/* Sequence Flow Arrows */
+.djs-connection .djs-visual > path[data-marker="end"],
+.djs-connection marker path {
+  fill: var(--border-subtle) !important;
+  stroke: var(--border-subtle) !important;
+}
+
+/* Hover-Effekte */
+.djs-element:hover .djs-visual > rect,
+.djs-element:hover .djs-visual > circle,
+.djs-element:hover .djs-visual > polygon {
+  stroke-width: 3px !important;
+  filter: drop-shadow(0 4px 16px rgba(59, 130, 246, 0.3));
+}
+
+/* Labels/Text */
+.djs-label,
+.djs-direct-editing-content,
+.djs-group text,
+.bpmn-label text,
+tspan {
+  fill: var(--text-secondary) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+
+/* Task Labels (in den Boxen) */
+.djs-element .djs-label {
+  fill: var(--text-primary) !important;
+  font-weight: 500 !important;
+}
+
+/* Lanes und Pools */
+.djs-group [data-element*="Lane"] .djs-visual > rect,
+.djs-group [data-element*="Pool"] .djs-visual > rect {
+  fill: #0D1117 !important;
+  stroke: var(--border-default) !important;
+  stroke-width: 1.5px !important;
+}
+
+/* Data Objects */
+.bpmn-shape[data-element*="DataObject"] .djs-visual > path {
+  fill: #111827 !important;
+  stroke: var(--accent-highlight) !important;
+}
+
+/* Subprocess Marker */
+.djs-visual .sub-process-marker {
+  stroke: var(--text-muted) !important;
+}
+
+/* Message/Signal Icons */
+.djs-visual > g > path[fill] {
+  fill: var(--text-muted) !important;
+}
+
+/* Outline bei Selektion */
+.djs-element.selected .djs-outline,
+.djs-element.hover .djs-outline {
+  stroke: var(--accent) !important;
+  stroke-width: 2px !important;
+  stroke-dasharray: 4 !important;
+}
+
+/* Minimap Styling (falls vorhanden) */
+.djs-minimap {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-default) !important;
+  border-radius: 8px !important;
+}
+
+/* Grid Pattern Override */
+.djs-palette, .djs-context-pad {
+  display: none !important;
+}

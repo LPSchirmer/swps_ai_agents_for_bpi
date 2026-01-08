@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm';
 import axios from 'axios';
 import { ProcessMetrics } from './MetricsVisualization';
 import ProcessVisualization from './ProcessVisualization';
+import ErrorBoundary from './ErrorBoundary';
 
 interface UploadedFile {
   filename: string;
@@ -41,6 +42,7 @@ interface ProcessVisualizationData {
     metadata: Record<string, unknown>;
   };
   image?: string;
+  bpmn_xml?: string;  // NEU: Rohes BPMN-XML für native BPMN-Visualisierung
   statistics?: {
     activities?: number;
     variants?: number;
@@ -362,11 +364,13 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                 <>
                   {/* Prozess-Graph */}
                   <div className="p-6">
-                    <ProcessVisualization 
-                      visualizationData={processVisualization}
-                      processMetrics={processMetrics}
-                      mode="graph"
-                    />
+                    <ErrorBoundary fallbackMessage="Die Prozessvisualisierung konnte nicht geladen werden.">
+                      <ProcessVisualization 
+                        visualizationData={processVisualization}
+                        processMetrics={processMetrics}
+                        mode="graph"
+                      />
+                    </ErrorBoundary>
                   </div>
                   
                   {/* Diagramme mit "Mehr erfahren" Button - DIREKT UNTER DEM GRAPH */}
@@ -394,29 +398,52 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                     
                     {showDetailedCharts && (
                       <div className="border-t border-border animate-fadeIn">
-                        <ProcessVisualization 
-                          visualizationData={processVisualization}
-                          processMetrics={processMetrics}
-                          mode="charts"
-                        />
+                        <ErrorBoundary fallbackMessage="Die KPI-Charts konnten nicht geladen werden.">
+                          <ProcessVisualization 
+                            visualizationData={processVisualization}
+                            processMetrics={processMetrics}
+                            mode="charts"
+                          />
+                        </ErrorBoundary>
                       </div>
                     )}
                   </div>
                 </>
               ) : (
-                /* Fallback: Statische Platzhalter-Visualisierung */
+                /* Fallback: Statische Platzhalter-Visualisierung oder Fehleranzeige */
                 <div className="p-10">
                   <div className="mb-8 text-center">
                     <h3 className="text-2xl font-semibold mb-2 font-display">Prozess-Visualisierung</h3>
-                    <p className="text-text-secondary">Laden Sie eine BPMN, XES oder CSV Datei hoch</p>
+                    {processVisualization?.error ? (
+                      <p className="text-semantic-warning">Visualisierung nicht möglich</p>
+                    ) : (
+                      <p className="text-text-secondary">Laden Sie eine BPMN, XES oder CSV Datei hoch</p>
+                    )}
                   </div>
                   
                   <div className="bg-background-elevated rounded-card p-16 min-h-[400px] flex flex-col items-center justify-center border border-border">
-                    <Activity className="w-16 h-16 text-text-muted mb-4" />
-                    <p className="text-text-secondary text-center text-lg">Keine Prozessdaten verfügbar</p>
-                    <p className="text-text-muted text-sm text-center mt-2">
-                      Unterstützte Formate: XES, BPMN, CSV
-                    </p>
+                    {processVisualization?.error ? (
+                      <>
+                        <AlertCircle className="w-16 h-16 text-semantic-warning mb-4" />
+                        <p className="text-text-primary text-center text-lg font-medium">
+                          Prozessvisualisierung fehlgeschlagen
+                        </p>
+                        <p className="text-text-secondary text-sm text-center mt-2 max-w-md">
+                          {processVisualization.error}
+                        </p>
+                        <p className="text-text-muted text-xs text-center mt-4">
+                          Die KI-Analyse ist weiterhin verfügbar
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <Activity className="w-16 h-16 text-text-muted mb-4" />
+                        <p className="text-text-secondary text-center text-lg">Keine Prozessdaten verfügbar</p>
+                        <p className="text-text-muted text-sm text-center mt-2">
+                          Unterstützte Formate: XES, BPMN, CSV
+                        </p>
+                      </>
+                    )}
                   </div>
                 </div>
               )}
@@ -425,20 +452,26 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
 
           {/* RECHTS: KPIs - Untereinander angeordnet (1/3 Breite) */}
           <div className="flex flex-col h-full">
-            {processVisualization && processVisualization.success && processVisualization.graph ? (
+            {/* Zeige KPIs wenn entweder processVisualization.statistics oder processMetrics vorhanden */}
+            {(processVisualization?.success && processVisualization?.statistics) || (processMetrics && Object.keys(processMetrics).length > 0) ? (
               <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card h-full">
-                <ProcessVisualization 
-                  visualizationData={processVisualization}
-                  processMetrics={processMetrics}
-                  mode="kpis"
-                />
+                <ErrorBoundary fallbackMessage="Die KPIs konnten nicht geladen werden.">
+                  <ProcessVisualization 
+                    visualizationData={processVisualization}
+                    processMetrics={processMetrics}
+                    mode="kpis"
+                  />
+                </ErrorBoundary>
               </div>
             ) : (
-              <div className="bg-background-surface border border-border rounded-panel p-6 h-full flex flex-col items-center justify-center">
+              <div className="bg-background-surface border border-border rounded-panel p-6 h-full flex flex-col items-center justify-center min-h-[300px]">
                 <BarChart3 className="w-12 h-12 text-text-muted mb-4" />
                 <p className="text-text-secondary text-center">Keine KPIs verfügbar</p>
                 <p className="text-text-muted text-sm text-center mt-2">
-                  Laden Sie eine Prozessdatei hoch
+                  {processVisualization?.error 
+                    ? 'Die Prozessdatei konnte nicht verarbeitet werden'
+                    : 'Laden Sie eine Prozessdatei hoch'
+                  }
                 </p>
               </div>
             )}
@@ -751,10 +784,12 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                                 <p className="text-text-secondary">Lade Prozess-Visualisierung...</p>
                               </div>
                             ) : optimizedVisualization && optimizedVisualization.success && optimizedVisualization.graph ? (
-                              <ProcessVisualization 
-                                visualizationData={optimizedVisualization}
-                                mode="graph"
-                              />
+                              <ErrorBoundary fallbackMessage="Die optimierte Prozess-Visualisierung konnte nicht geladen werden.">
+                                <ProcessVisualization 
+                                  visualizationData={optimizedVisualization}
+                                  mode="graph"
+                                />
+                              </ErrorBoundary>
                             ) : (
                               <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
                                 <Activity className="w-12 h-12 text-text-muted" />

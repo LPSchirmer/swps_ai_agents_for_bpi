@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { 
   Activity, 
@@ -6,7 +7,6 @@ import {
   Download, 
   RefreshCw,
   AlertCircle,
-  Layers,
   Zap,
   Clock,
   DollarSign,
@@ -15,6 +15,7 @@ import {
   BarChart3,
   Users
 } from 'lucide-react';
+import BpmnViewer from './BpmnViewer';
 import {
   BarChart,
   Bar,
@@ -121,11 +122,29 @@ interface ProcessMetrics {
   };
 }
 
+interface EstimatedMetrics {
+  activityDurations?: Array<{
+    activity: string;
+    meanDuration: number;
+    totalDuration: number;
+    frequency: number;
+  }>;
+  activityCosts?: Array<{
+    activity: string;
+    totalCost: number;
+    meanCost: number;
+  }>;
+  isEstimated: boolean;
+  note: string;
+}
+
 interface VisualizationResult {
   success: boolean;
   graph?: ProcessGraph;
   image?: string;
+  bpmn_xml?: string;  // NEU: Rohes BPMN-XML für native BPMN-Visualisierung
   statistics?: ProcessStatistics;
+  estimated_metrics?: EstimatedMetrics;  // NEU: Geschätzte Metriken für BPMN
   file_type?: string;
   file_name?: string;
   error?: string;
@@ -537,6 +556,24 @@ const InteractiveGraph = ({
 };
 
 // ============================================================
+// HELPER: Safe number formatting
+// ============================================================
+const safeFormatNumber = (value: number | undefined | null, fallback: number = 0): string => {
+  const num = typeof value === 'number' && !isNaN(value) ? value : fallback;
+  return num.toLocaleString('de-DE');
+};
+
+const safeFormatCurrency = (value: number | undefined | null, fallback: number = 0): string => {
+  const num = typeof value === 'number' && !isNaN(value) ? value : fallback;
+  return num.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+};
+
+const safeFixed = (value: number | undefined | null, decimals: number = 1, fallback: number = 0): string => {
+  const num = typeof value === 'number' && !isNaN(value) ? value : fallback;
+  return num.toFixed(decimals);
+};
+
+// ============================================================
 // MAIN COMPONENT
 // ============================================================
 
@@ -671,30 +708,47 @@ const ProcessVisualization = ({
     );
   }
 
-  // No Data State
-  if (!result || !result.graph) {
+  // No Data State - auch wenn result.success === false
+  // ABER: Wenn mode 'kpis' oder 'charts' ist und processMetrics vorhanden, zeige trotzdem die Daten an
+  const hasMetricsData = processMetrics && Object.keys(processMetrics).length > 0;
+  const needsGraph = mode === 'graph' || mode === 'all';
+  
+  if ((!result || !result.success || !result.graph) && (needsGraph || !hasMetricsData)) {
+    // Wenn ein Fehler vorhanden ist, zeige Fehlermeldung
+    const errorMessage = result?.error;
+    
     return (
       <div className="bg-background-surface border border-border rounded-panel p-8 text-center min-h-[400px] flex flex-col items-center justify-center">
-        <Activity className="w-12 h-12 text-text-muted mx-auto mb-4" />
-        <p className="text-text-secondary">Keine Prozessvisualisierung verfügbar</p>
-        <p className="text-text-muted text-sm mt-2">
-          Laden Sie eine BPMN, XES oder CSV Datei hoch
-        </p>
+        {errorMessage ? (
+          <>
+            <AlertCircle className="w-12 h-12 text-semantic-warning mx-auto mb-4" />
+            <p className="text-text-primary font-medium font-display">Prozessvisualisierung nicht möglich</p>
+            <p className="text-text-secondary text-sm mt-2 max-w-md">{errorMessage}</p>
+          </>
+        ) : (
+          <>
+            <Activity className="w-12 h-12 text-text-muted mx-auto mb-4" />
+            <p className="text-text-secondary">Keine Prozessvisualisierung verfügbar</p>
+            <p className="text-text-muted text-sm mt-2">
+              Laden Sie eine BPMN, XES oder CSV Datei hoch
+            </p>
+          </>
+        )}
       </div>
     );
   }
 
   return (
     <div className={`bg-background-surface ${mode !== 'metrics' ? 'border border-border rounded-panel shadow-card' : ''} overflow-hidden`}>
-      {/* Header - nur anzeigen wenn mode 'graph' oder 'all' */}
-      {(mode === 'graph' || mode === 'all') && (
+      {/* Header - nur anzeigen wenn mode 'graph' oder 'all' und result vorhanden */}
+      {(mode === 'graph' || mode === 'all') && result && result.graph && (
         <div className="border-b border-border px-5 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Activity className="w-5 h-5 text-accent" />
             <div>
               <h3 className="text-text-primary font-semibold font-display">Prozessvisualisierung</h3>
               <p className="text-text-muted text-sm">
-                {result.file_name} • {result.file_type?.toUpperCase()}
+                {result.file_name || 'Prozess'} • {result.file_type?.toUpperCase() || 'DATEI'}
               </p>
             </div>
           </div>
@@ -714,15 +768,53 @@ const ProcessVisualization = ({
         </div>
       )}
 
-      {/* Visualization Area - nur anzeigen wenn mode 'graph' oder 'all' */}
-      {(mode === 'graph' || mode === 'all') && (
+      {/* Visualization Area - nur anzeigen wenn mode 'graph' oder 'all' und graph vorhanden */}
+      {(mode === 'graph' || mode === 'all') && result && result.graph && (
         <div className="relative" style={{ height: '500px' }}>
-          <InteractiveGraph graph={result.graph} width={1200} height={500} />
+          {/* Wenn BPMN-XML vorhanden, zeige nativen BPMN-Viewer */}
+          {result.file_type === 'bpmn' && result.bpmn_xml ? (
+            <BpmnViewer 
+              bpmnXml={result.bpmn_xml} 
+              fallbackImage={result.image}
+              height="100%"
+              className="w-full h-full"
+            />
+          ) : result.file_type === 'bpmn' ? (
+            /* BPMN ohne XML - zeige Fallback mit Bild */
+            <div className="w-full h-full flex items-center justify-center bg-background-elevated relative">
+              <div 
+                className="absolute inset-0 pointer-events-none z-0"
+                style={{
+                  backgroundImage: `
+                    linear-gradient(to right, rgba(31, 41, 55, 0.3) 1px, transparent 1px),
+                    linear-gradient(to bottom, rgba(31, 41, 55, 0.3) 1px, transparent 1px)
+                  `,
+                  backgroundSize: '40px 40px'
+                }}
+              />
+              {result.image ? (
+                <img 
+                  src={`data:image/png;base64,${result.image}`} 
+                  alt="BPMN Prozess" 
+                  className="max-w-full max-h-full object-contain relative z-10"
+                  style={{ filter: 'brightness(0.9) contrast(1.1)' }}
+                />
+              ) : (
+                <div className="text-center relative z-10">
+                  <AlertCircle className="w-12 h-12 text-text-muted mx-auto mb-3" />
+                  <p className="text-text-secondary">BPMN-Visualisierung nicht verfügbar</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Fallback: DFG-Style Visualisierung für XES/CSV */
+            <InteractiveGraph graph={result.graph} width={1200} height={500} />
+          )}
         </div>
       )}
 
       {/* KPI Statistics - Premium Design - nur anzeigen wenn mode 'kpis', 'metrics' oder 'all' */}
-      {(mode === 'kpis' || mode === 'metrics' || mode === 'all') && (result.statistics || processMetrics?.overview) && (
+      {(mode === 'kpis' || mode === 'metrics' || mode === 'all') && (result?.statistics || processMetrics?.overview) && (
         <div className={mode === 'kpis' ? 'p-4' : 'border-t border-border p-5'}>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
@@ -748,7 +840,7 @@ const ProcessVisualization = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-semantic-warning text-lg font-display">
-                    {(processMetrics?.overview?.activities ?? result.statistics?.activities ?? 0).toLocaleString('de-DE')}
+                    {safeFormatNumber(processMetrics?.overview?.activities ?? result?.statistics?.activities)}
                   </span>
                   <ChevronDown className={`w-4 h-4 text-semantic-warning/70 transition-transform duration-200 ${expandedKpi === 'activities' ? 'rotate-180' : ''}`} />
                 </div>
@@ -774,7 +866,7 @@ const ProcessVisualization = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-purple-400 text-lg font-display">
-                    {(processMetrics?.overview?.variants ?? result.statistics?.variants ?? 0).toLocaleString('de-DE')}
+                    {safeFormatNumber(processMetrics?.overview?.variants ?? result?.statistics?.variants)}
                   </span>
                   <ChevronDown className={`w-4 h-4 text-purple-400/70 transition-transform duration-200 ${expandedKpi === 'variants' ? 'rotate-180' : ''}`} />
                 </div>
@@ -800,7 +892,7 @@ const ProcessVisualization = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-semibold text-accent-highlight text-lg font-display">
-                    {(processMetrics?.overview?.resources ?? 0).toLocaleString('de-DE')}
+                    {safeFormatNumber(processMetrics?.overview?.resources)}
                   </span>
                   <ChevronDown className={`w-4 h-4 text-accent-highlight/70 transition-transform duration-200 ${expandedKpi === 'resources' ? 'rotate-180' : ''}`} />
                 </div>
@@ -827,9 +919,9 @@ const ProcessVisualization = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-semantic-success text-lg font-display">
-                      {processMetrics.caseDurationStats.mean >= 24 
-                        ? `${(processMetrics.caseDurationStats.mean / 24).toFixed(1)} Tage`
-                          : `${processMetrics.caseDurationStats.mean.toFixed(0)} Stunden`
+                      {(processMetrics.caseDurationStats.mean ?? 0) >= 24 
+                        ? `${safeFixed((processMetrics.caseDurationStats.mean ?? 0) / 24, 1)} Tage`
+                        : `${safeFixed(processMetrics.caseDurationStats.mean, 0)} Stunden`
                       }
                     </span>
                     <ChevronDown className={`w-4 h-4 text-semantic-success/70 transition-transform duration-200 ${expandedKpi === 'duration' ? 'rotate-180' : ''}`} />
@@ -839,12 +931,12 @@ const ProcessVisualization = ({
                   <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface space-y-1 animate-fadeIn">
                     <p>Durchschnittliche Durchlaufzeit einer Prozessinstanz.</p>
                     <div className="flex justify-between text-text-muted mt-1">
-                      <span>Min: {processMetrics.caseDurationStats.min.toFixed(1)} Stunden</span>
-                      <span>Max: {processMetrics.caseDurationStats.max.toFixed(1)} Stunden</span>
+                      <span>Min: {safeFixed(processMetrics.caseDurationStats.min)} Stunden</span>
+                      <span>Max: {safeFixed(processMetrics.caseDurationStats.max)} Stunden</span>
                     </div>
                     <div className="flex justify-between text-text-muted">
-                      <span>Median: {processMetrics.caseDurationStats.median.toFixed(1)} Stunden</span>
-                      <span>Std: {processMetrics.caseDurationStats.standardDeviation.toFixed(1)} Stunden</span>
+                      <span>Median: {safeFixed(processMetrics.caseDurationStats.median)} Stunden</span>
+                      <span>Std: {safeFixed(processMetrics.caseDurationStats.standardDeviation)} Stunden</span>
                     </div>
                   </div>
                 )}
@@ -866,7 +958,7 @@ const ProcessVisualization = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-semantic-error text-lg font-display">
-                      {processMetrics.costDistribution.mean.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}
+                      {safeFormatCurrency(processMetrics.costDistribution.mean)}
                     </span>
                     <ChevronDown className={`w-4 h-4 text-semantic-error/70 transition-transform duration-200 ${expandedKpi === 'costs' ? 'rotate-180' : ''}`} />
                   </div>
@@ -875,12 +967,12 @@ const ProcessVisualization = ({
                   <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface space-y-1 animate-fadeIn">
                     <p>Durchschnittliche Kosten einer Prozessinstanz.</p>
                     <div className="flex justify-between text-text-muted mt-1">
-                      <span>Min: {processMetrics.costDistribution.min.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
-                      <span>Max: {processMetrics.costDistribution.max.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
+                      <span>Min: {safeFormatCurrency(processMetrics.costDistribution.min)}</span>
+                      <span>Max: {safeFormatCurrency(processMetrics.costDistribution.max)}</span>
                     </div>
                     <div className="flex justify-between text-text-muted">
-                      <span>Median: {processMetrics.costDistribution.median.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
-                      <span>Std: {processMetrics.costDistribution.standardDeviation.toLocaleString('de-DE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 })}</span>
+                      <span>Median: {safeFormatCurrency(processMetrics.costDistribution.median)}</span>
+                      <span>Std: {safeFormatCurrency(processMetrics.costDistribution.standardDeviation)}</span>
                     </div>
                   </div>
                 )}
@@ -955,45 +1047,110 @@ const ProcessVisualization = ({
             )}
 
             {/* Performance - Aktivitätsdauern */}
-            {activeMetricTab === 'performance' && processMetrics.activityDurations && (
+            {activeMetricTab === 'performance' && (
               <div>
                 <h3 className="text-lg font-semibold text-text-primary mb-4 font-display">⏱️ Aktivitätsdauern</h3>
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={processMetrics.activityDurations.slice(0, 10)} layout="vertical">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis type="number" tick={{ fill: '#9CA3AF', fontSize: 11 }} />
-                    <YAxis dataKey="activity" type="category" tick={{ fill: '#9CA3AF', fontSize: 11 }} width={120} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                    <Bar dataKey="meanDuration" name="Ø Dauer (Std)" fill="#3B82F6" radius={[0, 4, 4, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                
+                {/* Zeige Warnung wenn geschätzte Daten */}
+                {visualizationData?.estimated_metrics?.isEstimated && (
+                  <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm text-amber-200 font-medium">⚠️ Geschätzte Daten</p>
+                      <p className="text-xs text-amber-300/80 mt-1">
+                        {visualizationData.estimated_metrics.note}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {(processMetrics?.activityDurations && processMetrics.activityDurations.length > 0) || 
+                 (visualizationData?.estimated_metrics?.activityDurations && visualizationData.estimated_metrics.activityDurations.length > 0) ? (
+                  <ResponsiveContainer width="100%" height={350}>
+                    <BarChart 
+                      data={
+                        processMetrics?.activityDurations?.slice(0, 10) || 
+                        visualizationData?.estimated_metrics?.activityDurations?.slice(0, 10) || 
+                        []
+                      } 
+                      layout="vertical"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis type="number" tick={{ fill: '#9CA3AF', fontSize: 11 }} />
+                      <YAxis dataKey="activity" type="category" tick={{ fill: '#9CA3AF', fontSize: 11 }} width={120} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar dataKey="meanDuration" name="Ø Dauer (Std)" fill="#3B82F6" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[350px] flex flex-col items-center justify-center text-center">
+                    <Clock className="w-12 h-12 text-text-muted mb-4" />
+                    <p className="text-text-secondary font-medium">Keine Aktivitätsdauern verfügbar</p>
+                    <p className="text-text-muted text-sm mt-2 max-w-md">
+                      Für BPMN-Dateien werden keine Zeitdaten berechnet. 
+                      Laden Sie eine XES-Datei hoch für detaillierte Performance-Metriken.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Kosten */}
-            {activeMetricTab === 'costs' && processMetrics.activityCosts && (
+            {activeMetricTab === 'costs' && (
               <div>
                 <h3 className="text-lg font-semibold text-text-primary mb-4 font-display">💰 Kosten pro Aktivität</h3>
-                <ResponsiveContainer width="100%" height={350}>
-                  <BarChart data={processMetrics.activityCosts.slice(0, 10)}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-                    <XAxis dataKey="activity" tick={{ fill: '#9CA3AF', fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
-                    <YAxis tick={{ fill: '#9CA3AF', fontSize: 11 }} />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Legend />
-                    <Bar dataKey="totalCost" name="Gesamtkosten (€)" fill="#22C55E" radius={[4, 4, 0, 0]} />
-                    <Bar dataKey="meanCost" name="Ø Kosten (€)" fill="#F59E0B" radius={[4, 4, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
+                
+                {/* Zeige Warnung wenn geschätzte Daten */}
+                {visualizationData?.estimated_metrics?.isEstimated && (
+                  <div className="mb-4 bg-amber-500/10 border border-amber-500/30 rounded-lg p-3 flex items-start space-x-3">
+                    <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm text-amber-200 font-medium">⚠️ Geschätzte Daten</p>
+                      <p className="text-xs text-amber-300/80 mt-1">
+                        {visualizationData.estimated_metrics.note}
+                      </p>
+                    </div>
+                  </div>
+                )}
+                
+                {(processMetrics?.activityCosts && processMetrics.activityCosts.length > 0) ||
+                 (visualizationData?.estimated_metrics?.activityCosts && visualizationData.estimated_metrics.activityCosts.length > 0) ? (
+                  <ResponsiveContainer width="100%" height={350}>
+                    <BarChart 
+                      data={
+                        processMetrics?.activityCosts?.slice(0, 10) || 
+                        visualizationData?.estimated_metrics?.activityCosts?.slice(0, 10) || 
+                        []
+                      }
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
+                      <XAxis dataKey="activity" tick={{ fill: '#9CA3AF', fontSize: 10 }} angle={-45} textAnchor="end" height={80} />
+                      <YAxis tick={{ fill: '#9CA3AF', fontSize: 11 }} />
+                      <Tooltip content={<CustomTooltip />} />
+                      <Legend />
+                      <Bar dataKey="totalCost" name="Gesamtkosten (€)" fill="#22C55E" radius={[4, 4, 0, 0]} />
+                      <Bar dataKey="meanCost" name="Ø Kosten (€)" fill="#F59E0B" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-[350px] flex flex-col items-center justify-center text-center">
+                    <DollarSign className="w-12 h-12 text-text-muted mb-4" />
+                    <p className="text-text-secondary font-medium">Keine Kostendaten verfügbar</p>
+                    <p className="text-text-muted text-sm mt-2 max-w-md">
+                      Für BPMN-Dateien werden keine Kostendaten berechnet. 
+                      Laden Sie eine XES-Datei mit Kosteninformationen hoch.
+                    </p>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Nacharbeit */}
-            {activeMetricTab === 'rework' && processMetrics.reworkStats && (
+            {activeMetricTab === 'rework' && (
               <div>
                 <h3 className="text-lg font-semibold text-text-primary mb-4 font-display">🔄 Nacharbeit pro Aktivität</h3>
-                {processMetrics.reworkStats.filter(r => r.reworkCases > 0).length > 0 ? (
+                {processMetrics?.reworkStats && processMetrics.reworkStats.filter(r => r.reworkCases > 0).length > 0 ? (
                   <ResponsiveContainer width="100%" height={350}>
                     <BarChart data={processMetrics.reworkStats.filter(r => r.reworkCases > 0)} layout="vertical">
                       <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
@@ -1004,9 +1161,15 @@ const ProcessVisualization = ({
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="text-center py-8 text-slate-500">
-                    <RefreshCw className="w-10 h-10 mx-auto mb-3 opacity-50" />
-                    <p>Keine Nacharbeit erkannt</p>
+                  <div className="h-[350px] flex flex-col items-center justify-center text-center">
+                    <RefreshCw className="w-12 h-12 text-text-muted mb-4" />
+                    <p className="text-text-secondary font-medium">Keine Nacharbeitsdaten verfügbar</p>
+                    <p className="text-text-muted text-sm mt-2 max-w-md">
+                      {processMetrics?.reworkStats 
+                        ? 'Keine Nacharbeit in diesem Prozess erkannt - sehr gut!'
+                        : 'Für BPMN-Dateien werden keine Nacharbeitsdaten berechnet. Laden Sie eine XES-Datei hoch.'
+                      }
+                    </p>
                   </div>
                 )}
               </div>

@@ -3,6 +3,7 @@ import axios from 'axios';
 import UploadView from './components/UploadView';
 import ProcessingScreen from './components/ProcessingScreen';
 import Dashboard from './components/Dashboard';
+import ErrorBoundary from './components/ErrorBoundary';
 import { ProcessMetrics } from './components/MetricsVisualization';
 
 type ViewType = 'upload' | 'processing' | 'dashboard';
@@ -42,6 +43,7 @@ interface ProcessVisualizationData {
     metadata: Record<string, unknown>;
   };
   image?: string;
+  bpmn_xml?: string;  // NEU: Rohes BPMN-XML für native BPMN-Visualisierung
   statistics?: {
     cases?: number;
     events?: number;
@@ -161,12 +163,19 @@ function App() {
               setProcessMetrics(null);
             }
             
-            // 📊 Prozessvisualisierung speichern
+            // 📊 Prozessvisualisierung speichern (auch wenn success: false, für Fehleranzeige)
             if (aiAnalysis.process_visualization) {
-              console.log('🎨 Prozessvisualisierung vorhanden');
+              console.log('🎨 Prozessvisualisierung vorhanden, success:', aiAnalysis.process_visualization.success);
+              if (!aiAnalysis.process_visualization.success) {
+                console.warn('⚠️ Prozessvisualisierung fehlgeschlagen:', aiAnalysis.process_visualization.error);
+              }
               setProcessVisualization(aiAnalysis.process_visualization);
             } else {
-              setProcessVisualization(null);
+              // Setze explizit ein "nicht verfügbar" Objekt statt null
+              setProcessVisualization({
+                success: false,
+                error: 'Keine Prozessdatei für Visualisierung verfügbar'
+              });
             }
           } else if (aiAnalysis.error) {
             console.warn('⚠️ KI-Analyse Fehler:', aiAnalysis.error);
@@ -268,16 +277,18 @@ function App() {
       )}
       
       {currentView === 'dashboard' && (
-        <Dashboard
-          uploadedFile={uploadedFile}
-          uploadedFiles={uploadedFiles}
-          processDescription={processDescription}
-          onNewAnalysis={handleNewAnalysis}
-          aiAnalysisResult={aiAnalysisResult}
-          agentOutputs={agentOutputs}
-          processMetrics={processMetrics}
-          processVisualization={processVisualization}
-        />
+        <ErrorBoundary fallbackMessage="Das Dashboard konnte nicht geladen werden. Bitte versuchen Sie es mit einer neuen Analyse.">
+          <Dashboard
+            uploadedFile={uploadedFile}
+            uploadedFiles={uploadedFiles}
+            processDescription={processDescription}
+            onNewAnalysis={handleNewAnalysis}
+            aiAnalysisResult={aiAnalysisResult}
+            agentOutputs={agentOutputs}
+            processMetrics={processMetrics}
+            processVisualization={processVisualization}
+          />
+        </ErrorBoundary>
       )}
     </div>
   );

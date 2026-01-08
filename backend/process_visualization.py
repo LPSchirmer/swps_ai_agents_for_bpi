@@ -122,25 +122,47 @@ class ProcessVisualizer:
         path = Path(file_path)
         
         if not path.exists():
-            raise FileNotFoundError(f"Datei nicht gefunden: {file_path}")
+            return {
+                "success": False,
+                "error": f"Datei nicht gefunden: {file_path}",
+                "file_name": path.name
+            }
         
         ext = path.suffix.lower()
         
         if ext not in self.supported_extensions:
-            raise ValueError(f"Nicht unterstütztes Dateiformat: {ext}. "
-                           f"Unterstützt: {self.supported_extensions}")
+            return {
+                "success": False,
+                "error": f"Nicht unterstütztes Dateiformat: {ext}. Unterstützt: {self.supported_extensions}",
+                "file_name": path.name
+            }
         
-        if ext == '.xes':
-            return self._visualize_xes(file_path)
-        elif ext == '.bpmn':
-            return self._visualize_bpmn(file_path)
-        elif ext == '.csv':
-            return self._visualize_csv(file_path)
-        elif ext == '.xml':
-            # XML könnte BPMN oder XES sein
-            return self._detect_and_visualize_xml(file_path)
+        try:
+            if ext == '.xes':
+                return self._visualize_xes(file_path)
+            elif ext == '.bpmn':
+                return self._visualize_bpmn(file_path)
+            elif ext == '.csv':
+                return self._visualize_csv(file_path)
+            elif ext == '.xml':
+                # XML könnte BPMN oder XES sein
+                return self._detect_and_visualize_xml(file_path)
+        except Exception as e:
+            print(f"❌ Fehler beim Visualisieren von {path.name}: {e}")
+            import traceback
+            traceback.print_exc()
+            return {
+                "success": False,
+                "error": f"Fehler beim Verarbeiten der Datei: {str(e)}",
+                "file_name": path.name,
+                "file_type": ext.replace('.', '')
+            }
         
-        raise ValueError(f"Unbekanntes Format: {ext}")
+        return {
+            "success": False,
+            "error": f"Unbekanntes Format: {ext}",
+            "file_name": path.name
+        }
     
     def _visualize_xes(self, file_path: str) -> Dict[str, Any]:
         """Visualisiert ein XES Event Log"""
@@ -170,20 +192,34 @@ class ProcessVisualizer:
     
     def _visualize_bpmn(self, file_path: str) -> Dict[str, Any]:
         """Visualisiert ein BPMN Modell"""
-        # BPMN laden
+        # BPMN-XML Inhalt lesen für Frontend-Visualisierung
+        bpmn_xml = None
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                bpmn_xml = f.read()
+            print(f"📄 BPMN-XML gelesen: {len(bpmn_xml)} Zeichen")
+            print(f"   Preview: {bpmn_xml[:200]}...")
+        except Exception as e:
+            print(f"⚠️ Konnte BPMN-XML nicht lesen: {e}")
+            bpmn_xml = None
+        
+        # BPMN laden mit pm4py
         bpmn_graph = pm4py.read_bpmn(file_path)
         
-        # Prozessgraph extrahieren
+        # Prozessgraph extrahieren (für Fallback-Visualisierung)
         graph = self._bpmn_to_process_graph(bpmn_graph)
         
-        # Bild generieren
+        # Bild generieren (für Fallback)
         image_base64 = self._generate_bpmn_image(bpmn_graph)
         
         return {
             "success": True,
             "graph": graph.to_dict(),
             "image": image_base64,
+            "bpmn_xml": bpmn_xml,  # NEU: Rohes BPMN-XML für bpmn-js Viewer
             "statistics": {
+                "activities": len([n for n in graph.nodes if n.type == ProcessNodeType.ACTIVITY]),
+                "variants": 1,  # BPMN hat nur eine Variante (das Modell selbst)
                 "nodes": len(graph.nodes),
                 "edges": len(graph.edges)
             },
