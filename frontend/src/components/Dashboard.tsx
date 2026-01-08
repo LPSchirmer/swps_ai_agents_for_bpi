@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect, useRef } from 'react';
-import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Database, Loader2, Wand2, FileCode, CheckCircle2, AlertCircle } from 'lucide-react';
+import { ChevronDown, Sparkles, Zap, DollarSign, Shield, Activity, BarChart3, Building2, GitBranch, Database, AlertCircle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import axios from 'axios';
 import { ProcessMetrics } from './MetricsVisualization';
 import ProcessVisualization from './ProcessVisualization';
 import ErrorBoundary from './ErrorBoundary';
+import ExplainabilitySection from './ExplainabilitySection';
 
 interface UploadedFile {
   filename: string;
@@ -65,26 +66,11 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', onNewAnalysis, aiAnalysisResult, agentOutputs, processMetrics, processVisualization }: DashboardProps) => {
-  const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set());
+  // Alle Agenten-Tabs sind standardmäßig OFFEN
+  const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set(['compliance', 'performance', 'finance', 'economic', 'requirements']));
   const [showDetailedCharts, setShowDetailedCharts] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
   const [exportStatus, setExportStatus] = useState<{ success: boolean; message: string; filename?: string } | null>(null);
-  
-  // Prozess-Optimierung States
-  const [isOptimizing, setIsOptimizing] = useState(false);
-  const [optimizationResult, setOptimizationResult] = useState<{
-    success: boolean;
-    explanation?: string;
-    xes_content?: string;
-    xes_filename?: string;
-    error?: string;
-    warning?: string;
-  } | null>(null);
-  const [showOptimizationDetails, setShowOptimizationDetails] = useState(false);
-  
-  // State für die Visualisierung des optimierten Prozesses
-  const [optimizedVisualization, setOptimizedVisualization] = useState<ProcessVisualizationData | null>(null);
-  const [isLoadingOptimizedVisualization, setIsLoadingOptimizedVisualization] = useState(false);
   
   // Ref um zu verhindern, dass der Export mehrfach ausgeführt wird
   const hasExportedRef = useRef(false);
@@ -593,257 +579,8 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
           </div>
         </div>
 
-        {/* PROZESS-OPTIMIERUNG MIT KI SEKTION */}
-        <div className="mt-10 mb-8">
-          <div className="relative overflow-hidden bg-gradient-to-br from-slate-800/50 via-slate-700/30 to-slate-800/50 border border-slate-600/40 rounded-panel p-10 shadow-card backdrop-blur-sm">
-            {/* Animierter Hintergrund-Effekt */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-gradient-to-br from-cyan-500/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-              <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-gradient-to-tl from-teal-500/10 via-transparent to-transparent rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-            </div>
-            
-            {/* Zentrierter Inhalt */}
-            <div className="relative z-10 flex flex-col items-center text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-cyan-500/20 to-teal-500/20 border border-cyan-500/30 rounded-xl flex items-center justify-center mb-6">
-                <Wand2 className="w-8 h-8 text-cyan-400" />
-              </div>
-              
-              <h3 className="text-2xl font-display font-semibold text-text-primary mb-3">
-                KI-Gestützte Prozess-Optimierung
-              </h3>
-              
-              {/* Zeige Stichpunkte und Button NUR wenn noch keine erfolgreiche Optimierung */}
-              {!optimizationResult?.success && (
-                <>
-                  <p className="text-text-secondary mb-6 max-w-xl">
-                    Lassen Sie GPT-4 basierend auf den Agenten-Analysen einen optimierten Prozess erstellen
-                  </p>
-                  
-                  <ul className="text-sm text-text-secondary mb-8 space-y-3">
-                    <li className="flex items-center justify-center space-x-3">
-                      <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span>Analysiert alle Erkenntnisse aus Compliance, Performance & Finance Agenten</span>
-                    </li>
-                    <li className="flex items-center justify-center space-x-3">
-                      <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span>Erstellt einen optimierten Prozess im XES-Format (IEEE 1849)</span>
-                    </li>
-                    <li className="flex items-center justify-center space-x-3">
-                      <div className="w-5 h-5 bg-cyan-500/20 rounded-full flex items-center justify-center">
-                        <svg className="w-3 h-3 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                      <span>Detaillierte Erklärung aller vorgenommenen Verbesserungen</span>
-                    </li>
-                  </ul>
-                  
-                  <div className="flex flex-col items-center space-y-4">
-                    <button
-                      onClick={async () => {
-                        setIsOptimizing(true);
-                        setOptimizationResult(null);
-                        setOptimizedVisualization(null);
-                        
-                        try {
-                          const response = await axios.post('http://localhost:5001/api/optimize-process');
-                          
-                          if (response.data.success) {
-                            setOptimizationResult({
-                              success: true,
-                              explanation: response.data.explanation,
-                              xes_content: response.data.xes_content,
-                              xes_filename: response.data.xes_filename,
-                              warning: response.data.warning
-                            });
-                            setShowOptimizationDetails(true);
-                            
-                            // Automatisch die Visualisierung des optimierten Prozesses laden
-                            if (response.data.xes_content) {
-                              setIsLoadingOptimizedVisualization(true);
-                              try {
-                                const vizResponse = await axios.get('http://localhost:5001/api/visualize-optimized-process');
-                                if (vizResponse.data.success) {
-                                  setOptimizedVisualization(vizResponse.data);
-                                  console.log('✅ Optimierte Prozessvisualisierung geladen');
-                                }
-                              } catch (vizError) {
-                                console.error('Fehler beim Laden der Visualisierung:', vizError);
-                              } finally {
-                                setIsLoadingOptimizedVisualization(false);
-                              }
-                            }
-                          } else {
-                            setOptimizationResult({
-                              success: false,
-                              error: response.data.error
-                            });
-                          }
-                        } catch (error) {
-                          console.error('Optimization error:', error);
-                          setOptimizationResult({
-                            success: false,
-                            error: error instanceof Error ? error.message : 'Unbekannter Fehler bei der Optimierung'
-                          });
-                        } finally {
-                          setIsOptimizing(false);
-                        }
-                      }}
-                      disabled={isOptimizing}
-                      className={`flex items-center justify-center space-x-3 px-10 py-4 rounded-button font-medium text-lg transition-all duration-300 ${
-                        isOptimizing 
-                          ? 'bg-slate-600/50 cursor-not-allowed' 
-                          : 'bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-0.5'
-                      } text-white shadow-button`}
-                    >
-                      {isOptimizing ? (
-                        <>
-                          <Loader2 className="w-6 h-6 animate-spin" />
-                          <span>KI analysiert und optimiert Prozess...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="w-6 h-6" />
-                          <span>Optimierten Prozess mit GPT-4 generieren</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-              
-              {/* Optimierung Ergebnis */}
-              {optimizationResult && (
-                <div className="mt-8 w-full">
-                  {optimizationResult.success ? (
-                    <div className="space-y-6">
-                      {/* Erfolgs-Header */}
-                      <div className="flex items-center justify-center space-x-3 p-4 bg-semantic-success/10 border border-semantic-success/30 rounded-card max-w-2xl mx-auto">
-                        <CheckCircle2 className="w-6 h-6 text-semantic-success" />
-                        <div className="text-left">
-                          <p className="text-semantic-success font-medium">
-                            Prozess-Optimierung erfolgreich abgeschlossen!
-                          </p>
-                          {optimizationResult.warning && (
-                            <p className="text-semantic-warning text-sm mt-1">
-                              {optimizationResult.warning}
-                            </p>
-                          )}
-                        </div>
-                      </div>
-                      
-                      {/* XES Download Button - Dezent gestaltet */}
-                      {optimizationResult.xes_content && (
-                        <button
-                          onClick={() => {
-                            const blob = new Blob([optimizationResult.xes_content!], { type: 'application/xml;charset=utf-8' });
-                            const url = window.URL.createObjectURL(blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = optimizationResult.xes_filename || 'optimized_process.xes';
-                            document.body.appendChild(link);
-                            link.click();
-                            document.body.removeChild(link);
-                            window.URL.revokeObjectURL(url);
-                          }}
-                          className="max-w-md mx-auto flex items-center justify-center space-x-3 px-5 py-2.5 bg-slate-700/50 hover:bg-slate-600/60 border border-slate-500/30 text-text-secondary hover:text-text-primary rounded-button text-sm font-medium transition-all duration-150"
-                        >
-                          <FileCode className="w-4 h-4" />
-                          <span>XES-Datei herunterladen</span>
-                          <span className="text-xs text-text-muted">({optimizationResult.xes_filename})</span>
-                        </button>
-                      )}
-                      
-                      {/* 2-Spalten Layout: Visualisierung LINKS (breiter), Erklärung RECHTS (schmaler) */}
-                      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mt-6">
-                        {/* LINKS: Optimierte Prozess-Visualisierung - 3/5 Breite */}
-                        <div className="lg:col-span-3 bg-background-surface border border-cyan-500/30 rounded-panel overflow-hidden shadow-card">
-                          <div className="px-4 py-3 bg-cyan-500/10 border-b border-cyan-500/20 flex items-center space-x-3">
-                            <Activity className="w-5 h-5 text-cyan-400" />
-                            <h4 className="font-semibold text-text-primary font-display">Optimierter Prozess</h4>
-                            {optimizationResult.xes_filename && (
-                              <span className="text-xs text-text-muted bg-slate-700/50 px-2 py-1 rounded">
-                                {optimizationResult.xes_filename}
-                              </span>
-                            )}
-                          </div>
-                          
-                          <div className="p-4">
-                            {isLoadingOptimizedVisualization ? (
-                              <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-                                <Loader2 className="w-10 h-10 text-cyan-400 animate-spin" />
-                                <p className="text-text-secondary">Lade Prozess-Visualisierung...</p>
-                              </div>
-                            ) : optimizedVisualization && optimizedVisualization.success && optimizedVisualization.graph ? (
-                              <ErrorBoundary fallbackMessage="Die optimierte Prozess-Visualisierung konnte nicht geladen werden.">
-                                <ProcessVisualization 
-                                  visualizationData={optimizedVisualization}
-                                  mode="graph"
-                                />
-                              </ErrorBoundary>
-                            ) : (
-                              <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
-                                <Activity className="w-12 h-12 text-text-muted" />
-                                <p className="text-text-secondary text-center">
-                                  {optimizedVisualization?.error || 'Visualisierung wird vorbereitet...'}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* RECHTS: KI-Erklärung - 2/5 Breite */}
-                        <div className="lg:col-span-2 bg-background-surface border border-slate-600/40 rounded-panel overflow-hidden shadow-card flex flex-col">
-                          <button
-                            onClick={() => setShowOptimizationDetails(!showOptimizationDetails)}
-                            className="w-full px-4 py-3 flex items-center justify-between hover:bg-slate-700/30 transition-colors duration-150 bg-slate-800/30 border-b border-slate-600/30"
-                          >
-                            <div className="flex items-center space-x-3">
-                              <Sparkles className="w-5 h-5 text-cyan-400" />
-                              <span className="font-semibold text-text-primary font-display">KI-Erklärung der Optimierungen</span>
-                            </div>
-                            <ChevronDown className={`w-5 h-5 text-text-secondary transition-transform duration-200 ${showOptimizationDetails ? 'rotate-180' : ''}`} />
-                          </button>
-                          
-                          {showOptimizationDetails && optimizationResult.explanation && (
-                            <div className="p-5 flex-1 overflow-y-auto max-h-[500px]">
-                              <ReactMarkdown remarkPlugins={[remarkGfm]} components={markdownComponents}>
-                                {optimizationResult.explanation}
-                              </ReactMarkdown>
-                            </div>
-                          )}
-                          
-                          {!showOptimizationDetails && (
-                            <div className="p-5 flex-1 flex items-center justify-center text-text-muted">
-                              <p className="text-sm">Klicken Sie oben, um die detaillierte KI-Analyse anzuzeigen</p>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="flex items-center justify-center space-x-3 p-4 bg-semantic-error/10 border border-semantic-error/30 rounded-card max-w-2xl mx-auto">
-                      <AlertCircle className="w-6 h-6 text-semantic-error" />
-                      <div className="text-left">
-                        <p className="text-semantic-error font-medium">Optimierung fehlgeschlagen</p>
-                        <p className="text-semantic-error/80 text-sm mt-1">{optimizationResult.error}</p>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        {/* EXPLAINABILITY SEKTION - Zeigt wie die Agenten denken */}
+        <ExplainabilitySection />
 
         {/* ROHDATEN DOWNLOAD BUTTON */}
         {exportStatus && exportStatus.success && (

@@ -1051,6 +1051,48 @@ def download_raw_data(filename):
         }), 500
 
 
+@app.route('/api/explainability-data', methods=['GET'])
+def get_explainability_data():
+    """
+    Extrahiert Explainability-Daten (Thoughts, Tools, Knowledge) aus der aktuellsten raw_data_export Datei.
+    Zeigt transparent, wie jeder Agent zu seinen Ergebnissen kommt.
+    """
+    try:
+        from explainability_extractor import extract_explainability_data
+        
+        # Finde die aktuellste raw_data_export Datei
+        verbesserungen_folder = app.config['VERBESSERUNGEN_FOLDER']
+        raw_data_files = [
+            f for f in os.listdir(verbesserungen_folder) 
+            if f.startswith('raw_data_export_') and f.endswith('.txt')
+        ]
+        
+        if not raw_data_files:
+            return jsonify({
+                'success': False,
+                'error': 'Keine raw_data_export Datei gefunden'
+            }), 404
+        
+        # Sortiere nach Dateiname (enthält Timestamp)
+        raw_data_files.sort(reverse=True)
+        latest_file = raw_data_files[0]
+        filepath = os.path.join(verbesserungen_folder, latest_file)
+        
+        # Extrahiere Explainability-Daten
+        result = extract_explainability_data(filepath)
+        result['source_file'] = latest_file
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        import traceback
+        print(f"Explainability extraction error: {traceback.format_exc()}")
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        }), 500
+
+
 # ============================================================
 # PROZESS-OPTIMIERUNG MIT OPENAI
 # ============================================================
