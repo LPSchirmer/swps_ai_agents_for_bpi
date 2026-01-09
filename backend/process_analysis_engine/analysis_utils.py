@@ -154,11 +154,6 @@ def get_rework_stats(event_log: pd.DataFrame) -> dict:
             rework_cases_per_activity[get_basic_information(event_log)["activities"][i]] = 0
     return rework_cases_per_activity
 
-def get_process_paths(event_log: pd.DataFrame) -> pd.DataFrame:
-    """Returns a DataFrame with all process paths along with their corresponding variant."""
-
-    return pm4py.get_variants_paths_duration(event_log)[["concept:name", "concept:name_2", "@@variant_column"]].reset_index(drop=True)
-
 def get_activities_per_resources(event_log: pd.DataFrame):
     """Returns a DataFrame with activities per resource."""
 
