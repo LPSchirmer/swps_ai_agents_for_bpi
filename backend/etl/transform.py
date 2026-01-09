@@ -1,6 +1,7 @@
 import pandas as pd
 import pm4py
 
+# Mapping von kanonischen PM4Py-Spaltennamen auf mögliche alternative Bezeichnungen im Input-Datensatz
 column_map = {
     "case:concept:name":["case_id", "case", "caseid", "case id", "instance_id", "instance", "instanceid", "instance id"],
     "concept:name":["activity", "activity_name", "event", "event_name", "task", "operation", "step"],
@@ -11,7 +12,8 @@ column_map = {
 }
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
-    # df = pm4py.format_dataframe(df) funktioniert nur bedingt
+    """Vereinheitlicht Spaltennamen eines DataFrames auf die von PM4Py erwarteten kanonischen Namen."""
+
     mapped = {}
     for canonical_col, synonyms in column_map.items():
         for column in df.columns:
@@ -22,14 +24,17 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
+    """Konvertiert Datentypen in ein für die Process Analysis Engine geeignetes Format."""
+
     df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="ignore")
     if "cost:amount" in df.columns:
         df["cost:amount"] = pd.to_numeric(df["cost:amount"], errors="ignore")
-    # Be careful with sorting, don't know if we really need that
     df.sort_values(by=["case:concept:name", "time:timestamp"], ascending=[True, True])
     return df
     
 def bpmn_to_df(bpmn_model: pm4py.BPMN) -> pd.DataFrame:
+    """Simuliert ein BPMN-Modell und erzeugt daraus ein Event-Log im DataFrame-Format."""
+
     pn, im, fm = pm4py.convert_to_petri_net(bpmn_model)
     simulated_event_log = pm4py.sim.play_out(pn, im, fm)
     rows = []
@@ -39,4 +44,5 @@ def bpmn_to_df(bpmn_model: pm4py.BPMN) -> pd.DataFrame:
             row.update(event)
             rows.append(row)
     event_log = pd.DataFrame(rows)
+    event_log["case:concept:name"] = event_log["case:concept:name"].astype(str)
     return event_log
