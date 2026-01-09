@@ -175,6 +175,16 @@ const getNodeColor = (type: string): string => {
   }
 };
 
+const formatDuration = (hours?: number, decimalsHours = 0, decimalsDays = 1) => {
+  const value = hours ?? 0;
+
+  if (value >= 24) {
+    return `${safeFixed(value / 24, decimalsDays)} Tage`;
+  }
+
+  return `${safeFixed(value, decimalsHours)} Stunden`;
+};
+
 // ============================================================
 // INTERACTIVE GRAPH COMPONENT
 // ============================================================
@@ -919,10 +929,7 @@ const ProcessVisualization = ({
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="font-semibold text-semantic-success text-lg font-display">
-                      {(processMetrics.caseDurationStats.mean ?? 0) >= 24 
-                        ? `${safeFixed((processMetrics.caseDurationStats.mean ?? 0) / 24, 1)} Tage`
-                        : `${safeFixed(processMetrics.caseDurationStats.mean, 0)} Stunden`
-                      }
+                      {formatDuration(processMetrics.caseDurationStats.mean)}
                     </span>
                     <ChevronDown className={`w-4 h-4 text-semantic-success/70 transition-transform duration-200 ${expandedKpi === 'duration' ? 'rotate-180' : ''}`} />
                   </div>
@@ -931,12 +938,12 @@ const ProcessVisualization = ({
                   <div className="px-3 pb-3 text-xs text-text-secondary bg-background-surface space-y-1 animate-fadeIn">
                     <p>Durchschnittliche Durchlaufzeit einer Prozessinstanz.</p>
                     <div className="flex justify-between text-text-muted mt-1">
-                      <span>Min: {safeFixed(processMetrics.caseDurationStats.min)} Stunden</span>
-                      <span>Max: {safeFixed(processMetrics.caseDurationStats.max)} Stunden</span>
+                      <span>Min: {formatDuration(processMetrics.caseDurationStats.min)}</span>
+                      <span>Max: {formatDuration(processMetrics.caseDurationStats.max)}</span>
                     </div>
                     <div className="flex justify-between text-text-muted">
-                      <span>Median: {safeFixed(processMetrics.caseDurationStats.median)} Stunden</span>
-                      <span>Std: {safeFixed(processMetrics.caseDurationStats.standardDeviation)} Stunden</span>
+                      <span>Median: {formatDuration(processMetrics.caseDurationStats.median)}</span>
+                      <span>Std: {formatDuration(processMetrics.caseDurationStats.standardDeviation)}</span>
                     </div>
                   </div>
                 )}
