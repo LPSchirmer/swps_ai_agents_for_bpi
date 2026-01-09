@@ -424,7 +424,10 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
     # WICHTIG: Kürze textuelle Daten um Token-Limits einzuhalten
     # OpenAI gpt-4.1 hat ein TPM Limit von 30000 Tokens
     MAX_TEXT_CHARS = 8000  # ~2000 Tokens
-    MAX_KPI_CHARS = 3000   # ~750 Tokens pro KPI
+    MAX_KPI_CHARS_BASIC = 2000
+    MAX_KPI_CHARS_PERFORMANCE = 5000
+    MAX_KPI_CHARS_FINANCE = 5000
+    MAX_KPI_CHARS_COMPLIANCE = 2000
     
     textual_input = extracted_data['textual_data'] or "Keine textuellen Eingaben vorhanden."
     if isinstance(textual_input, dict):
@@ -437,7 +440,7 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
         textual_input = textual_input[:MAX_TEXT_CHARS] + "\n... [GEKÜRZT]"
     
     # Kürze KPIs falls nötig
-    def truncate_kpi(kpi_data, max_chars=MAX_KPI_CHARS):
+    def truncate_kpi(kpi_data, max_chars):
         if kpi_data and len(str(kpi_data)) > max_chars:
             return str(kpi_data)[:max_chars] + "... [GEKÜRZT]"
         return kpi_data
@@ -445,10 +448,10 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
     crew_inputs = {
         'topic': 'Process',
         'textual_user_input': textual_input,
-        'process_data_basic': truncate_kpi(kpis.get('basic')),
-        'process_kpis_performance': truncate_kpi(kpis.get('performance')),
-        'process_kpis_finance': truncate_kpi(kpis.get('finance')),
-        'process_kpis_compliance': truncate_kpi(kpis.get('compliance')),
+        'process_data_basic': truncate_kpi(kpis.get('basic'), MAX_KPI_CHARS_BASIC),
+        'process_kpis_performance': truncate_kpi(kpis.get('performance'), MAX_KPI_CHARS_PERFORMANCE),
+        'process_kpis_finance': truncate_kpi(kpis.get('finance'), MAX_KPI_CHARS_FINANCE),
+        'process_kpis_compliance': truncate_kpi(kpis.get('compliance'), MAX_KPI_CHARS_COMPLIANCE),
         'current_year': current_year,
         'last_year': current_year - 1,
         'next_year': current_year + 1
