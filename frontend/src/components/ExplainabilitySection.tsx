@@ -32,18 +32,8 @@ interface ExplainabilityData {
 }
 
 // Agent-Konfiguration für Reihenfolge und Styling
-// Reihenfolge: Economic → Requirements → Compliance → Performance → Finance
+// Reihenfolge: Requirements → Economic Context → Compliance → Performance → Finance
 const AGENT_CONFIG = [
-  {
-    key: 'economic',
-    label: 'Economic Agent',
-    icon: Globe,
-    color: 'purple',
-    bgColor: 'bg-purple-500/10',
-    borderColor: 'border-purple-500/30',
-    iconColor: 'text-purple-400',
-    description: 'Bewertet makroökonomischen Kontext'
-  },
   {
     key: 'requirements',
     label: 'Requirements Agent',
@@ -53,6 +43,16 @@ const AGENT_CONFIG = [
     borderColor: 'border-blue-500/30',
     iconColor: 'text-blue-400',
     description: 'Extrahiert & strukturiert Anforderungen'
+  },
+  {
+    key: 'economic',
+    label: 'Economic Agent',
+    icon: Globe,
+    color: 'purple',
+    bgColor: 'bg-purple-500/10',
+    borderColor: 'border-purple-500/30',
+    iconColor: 'text-purple-400',
+    description: 'Bewertet makroökonomischen, industriespezifischen und organisationalen Kontext'
   },
   {
     key: 'compliance',
