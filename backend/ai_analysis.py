@@ -424,10 +424,10 @@ def run_ai_analysis(upload_dir: str) -> Dict[str, Any]:
     # WICHTIG: Kürze textuelle Daten um Token-Limits einzuhalten
     # OpenAI gpt-4.1 hat ein TPM Limit von 30000 Tokens
     MAX_TEXT_CHARS = 8000  # ~2000 Tokens
-    MAX_KPI_CHARS_BASIC = 2000
-    MAX_KPI_CHARS_PERFORMANCE = 5000
-    MAX_KPI_CHARS_FINANCE = 5000
-    MAX_KPI_CHARS_COMPLIANCE = 2000
+    MAX_KPI_CHARS_BASIC = 4000 # ~1000 Tokens
+    MAX_KPI_CHARS_PERFORMANCE = 6000 # ~1500 Tokens
+    MAX_KPI_CHARS_FINANCE = 6000 # ~1500 Tokens
+    MAX_KPI_CHARS_COMPLIANCE = 3000 # ~750 Tokens
     
     textual_input = extracted_data['textual_data'] or "Keine textuellen Eingaben vorhanden."
     if isinstance(textual_input, dict):
