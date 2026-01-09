@@ -11,6 +11,7 @@ analyze_user_input_task:
     If Process data is given, process_information should include all that data.
   expected_output: >
     A structured JSON object (language: english) containing all explicitly provided information.
+    Provide all output-data in English, even if the user input was in German.
     
 # Phase 1.2: Provided company name -> Enrich the given input with publicly available maxroeconomic data, industry context, and company information
 analyze_economic_context_task:
@@ -31,10 +32,9 @@ performance_analysis_task:
     Use the process redesign patterns available in the Knowledge Repository as the primary
     structuring foundation for the redesign.
     Select, adapt, and combine suitable patterns to best address the identified performance issues.
-    In addition, actively use targeted web searches to identify industry-specific best practices, or reference process
-    structures that are applicable to the given process, company context, and industry.
-    Web research is an explicit and expected step whenever it helps to identify stronger
-    or more suitable redesign options than those already provided.
+    In addition, actively perform targeted web searches to identify industry-specific best practices and reference process structures that are applicable
+    to the given process, company context, and industry, and that demonstrably improve the performance of the process.
+    Web research is an explicit and required step that has to be done to enrich the given input with external information.
     Base all redesign decisions strictly on explicitly available information, including
     structured data, KPIs, extracted textual inputs, supplied redesign options, knowledge
     repository patterns, and researched external best-practices.
@@ -70,10 +70,13 @@ performance_analysis_task:
     ## 1. Redesigned Process Flow
     Describe the optimized process flow with concrete, implementable changes. Structure this text in detailed bullet points.
 
-    ## 2. Major changes
+    ## 2. Assigned resources
+    List (as an enumeration) the resources with its newly assigned responsibilities and activitites.
+
+    ## 3. Major changes
     Briefly describe the most important changes in the new process compared to the previous process.
     
-    ## 3. Used process redesign patterns
+    ## 4. Used process redesign patterns
     List (as an enumeration) the names of the process redesign patterns used.
     
     REMINDER: Do NOT skip the metadata header. The first line must be **Performance Issues Found:**
@@ -84,10 +87,9 @@ finance_analysis_task:
     Use the process redesign patterns available in the Knowledge Repository as the primary
     structuring foundation for the redesign.
     Select, adapt, and combine suitable patterns to best address the identified cost issues.
-    In addition, actively use targeted web searches to identify industry-specific best practices, or reference process
-    structures that are applicable to the given process, company context, and industry.
-    Web research is an explicit and expected step whenever it helps to identify stronger
-    or more suitable redesign options than those already provided.
+    In addition, actively perform targeted web searches to identify industry-specific best practices and reference process structures that are applicable
+    to the given process, company context, and industry, and that demonstrably improve the financial efficiency of the process.
+    Web research is an explicit and required step that has to be done to enrich the given input with external information.
     Base all redesign decisions strictly on explicitly available information, including
     structured data, KPIs, extracted textual inputs, supplied redesign options, knowledge
     repository patterns, and researched external best-practices.
@@ -125,10 +127,13 @@ finance_analysis_task:
     ## 1. Redesigned Process Flow
     Describe the optimized process flow with concrete, implementable changes. Structure this text in detailed bullet points.
 
-    ## 2. Major changes
+    ## 2. Assigned resources
+    List (as an enumeration) the resources with its newly assigned responsibilities and activitites.
+
+    ## 3. Major changes
     Briefly describe the most important changes in the new process compared to the previous process.
     
-    ## 3. Used process redesign patterns
+    ## 4. Used process redesign patterns
     List (as an enumeration) the names of the process redesign patterns used.
     
     REMINDER: Do NOT skip the metadata header. The first line must be **Cost Drivers Found:**
@@ -143,6 +148,7 @@ compliance_analysis_task:
     online and assess the process against them. In addition, always research other potentially
     relevant external laws, regulations, or standards applicable to the given process, company,
     and industry context in the year {current_year}, even if some norms are already provided.
+    This web research is an explicit and required step that has to be done.
     Based on internal and external requirements, identify rule-violations, non-compliant activities and structural
     compliance gaps in the process. Propose concrete, directly implementable compliance
     improvements. The knowledge repository of process redesign patterns may be used as an
