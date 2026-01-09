@@ -17,7 +17,7 @@ llm_openai = LLM(
     model=os.getenv("BASE_MODEL_OPENAI"),
     api_key= os.getenv("API_KEY_OPENAI"),
     temperature=0.4,
-    max_tokens=4096  # Erhöht von 1500 für vollständige Agenten-Ausgaben
+    max_tokens=4096
 )
 
 # Instantiate tools - Make SerperDevTool optional
@@ -27,17 +27,21 @@ try:
 except:
     web_search_tool = None
 
+class ProcessInformation(BaseModel):
+    process_description: str = Field(description="Textual description of the process.")
+    process_data: dict = Field(description="Data/KPI's about the process.")
+
 # Structuring Output of Requirements Agent
 class Requirements(BaseModel):
     process_name: str = Field(description="Name of the given business process (e.g., Order to Cash, Warranty Handling, etc.)")
     company_name: str = Field(description="Name of the company in which the process is embedded.")
     company_information: List[str] = Field(description="Relevant information about the company in which the process is embedded.")
-    process_information: dict
-    identified_process_issues: List[str]
-    process_improvement_goals: List[str]
-    process_compliance_restrictions: List[str]
-    process_risk_information: List[str]
-    non_categorizable_information: List[str]
+    process_information: ProcessInformation
+    identified_process_issues: List[str] = Field(description="List of given or identified performance/finance/compliance issues.")
+    process_improvement_goals: List[str] = Field(description="List of given or identified process improvement goals.")
+    process_compliance_restrictions: List[str] = Field(description="Internal or external compliance restrictions that the process need to comply with.")
+    process_risk_information: List[str] = Field(description="Information about the risk tolerance of the user.")
+    non_categorizable_information: List[str] = Field(description="Given data or information that can't be categorized in one of the previous categories.")
 
 # Structuring Output of Economic Context Agent
 class EconomicContext(BaseModel):
