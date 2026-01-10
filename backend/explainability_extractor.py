@@ -82,8 +82,10 @@ def extract_explainability_from_raw_data(raw_data_content: str) -> Dict[str, Age
     # Agent-Mapping für die Reihenfolge
     agent_mapping = {
         "Senior Process Compliance Analyst": "compliance",
-        "Senior Process Performance Analyst": "performance", 
+        "Senior Process Performance Analyst": "performance",
+        "Senior Process Performance Designer": "performance",  # Neuer Name
         "Senior Process Finance Analyst": "finance",
+        "Senior Process Finance Designer": "finance",  # Neuer Name
         "Senior Corporate & Macroeconomic Research Analyst": "economic",
         "Senior Requirements Analyst": "requirements"
     }
