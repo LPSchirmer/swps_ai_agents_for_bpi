@@ -5,27 +5,30 @@ description = "SWPS_AI_Agents_for_BPI using crewAI"
 authors = [{ name = "Your Name", email = "you@example.com" }]
 requires-python = ">=3.10,<3.14"
 dependencies = [
-    "crewai==0.203.1",
     "crewai[tools]>=0.203.1,<1.0.0",
     "psycopg[binary] == 3.2.13",
-    "python-dotenv >= 1.2",
+    "python-dotenv>=1.0.0",
     "pymongo >= 4.6",
     "langchain-community == 0.4.1",
     "langchain-openai",
-    "pandas>=2.3.3",
-    "pm4py>=2.7.19.1",
+    "pandas>=2.0.0",
+    "pm4py>=2.7.0",
     "docx2txt>=0.9",
     "humanlayer>=0.7.9",
-    "flask>=3.1.2",
-    "flask-cors>=6.0.2",
-    "werkzeug>=3.1.4",
+    "flask==3.0.0",
+    "flask-cors==4.0.0",
+    "werkzeug==3.0.1",
     "docling>=2.66.0",
     "numpy==2.1.1",
-    "openai==1.109.1",
+    "openai>=1.0.0",
     "psycopg==3.2.13",
     "pydantic==2.12.2",
     "pypdf==6.1.1",
-    "SQLAlchemy==2.0.44"
+    "SQLAlchemy==2.0.44",
+    "graphviz>=0.20",
+    "lxml",
+    "psycopg2-binary",
+    "rustxes>=0.2.11",
 ]
 
 [project.scripts]
