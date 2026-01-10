@@ -447,9 +447,25 @@ class ProcessVisualizer:
                 parameters={
                     dfg_visualization.Variants.FREQUENCY.value.Parameters.START_ACTIVITIES: start_activities,
                     dfg_visualization.Variants.FREQUENCY.value.Parameters.END_ACTIVITIES: end_activities,
-                    dfg_visualization.Variants.FREQUENCY.value.Parameters.FORMAT: "png"
+                    dfg_visualization.Variants.FREQUENCY.value.Parameters.FORMAT: "png",
+                    "bgcolor": "transparent",
+                    "rankdir": "LR",  # Left to Right Layout
                 }
             )
+            
+            # Fix für fehlende Pfeilspitzen: Graphviz-Attribute explizit setzen
+            if hasattr(gviz, 'graph_attr'):
+                gviz.graph_attr.update({
+                    'splines': 'ortho',  # Orthogonale Kanten für bessere Pfeildarstellung
+                    'nodesep': '1.0',
+                    'ranksep': '1.5'
+                })
+            if hasattr(gviz, 'edge_attr'):
+                gviz.edge_attr.update({
+                    'arrowhead': 'vee',  # Explizite Pfeilspitze
+                    'arrowsize': '1.0',
+                    'penwidth': '2.0'
+                })
             
             # In BytesIO speichern
             tmp_file = "/tmp/process_dfg.png"
