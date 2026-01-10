@@ -19,24 +19,24 @@ Feel free to explore the repository, experiment with the provided features, and 
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
-  - [Backend Setup](#backend-setup)
-  - [Frontend Setup](#frontend-setup)
-  - [Credentials Setupt](#credentials-setup)
+  - [Backend Setup](#🔧-backend-setup)
+  - [Frontend Setup](#🎨-frontend-setup)
+  - [Credentials Setup](#🔒-credentials-setup)
 - [Running the System](#running-the-system)
   - [Option 1](#option-1)
   - [Option 2](#option-2)
   - [Troubleshooting](#troubleshooting)
-- [System Functionality](#system-functionality)
+- [System Workflow](#system-workflow)
   - [Input](#input)
     - [Input best practices](#input-best-practices)
-    - [Input processing - structured data]
-    - [Input processing - unstructured data]
+    - [Input processing - structured data](#input-processing---structured-data)
+    - [Input processing - unstructured data](#input-processing---unstructured-data)
   - [AI Agents](#ai-agents)
-    - [Requirements Agent](#requirements-agent)
-    - [Economic Context Agent](#economic-context-agent)
-    - [Performance Agent](#performance-agent)
-    - [Finance Agent](#finance-agent)
-    - [Compliance Agent](#compliance-agent)
+    - [Requirements Agent](#📋-requirements-agent)
+    - [Economic Context Agent](#📊-economic-context-agent)
+    - [Performance Agent](#⚡-performance-agent)
+    - [Finance Agent](#💰-finance-agent)
+    - [Compliance Agent](#✓-compliance-agent)
   - [System Output](#system-output)
   - [System Limitations](#system-limitations)
 - [References](#references)
@@ -122,7 +122,7 @@ Before you begin, ensure that the following software is installed on your system
 
 ## Getting Started
 
-### Clone the repository
+**Clone the repository**
 
 ```bash
 git clone https://github.com/LPSchirmer/swps_ai_agents_for_bpi.git
@@ -136,7 +136,7 @@ git clone https://github.com/LPSchirmer/swps_ai_agents_for_bpi.git
 uv venv
 ```
 
-#### 2. Install all dependencies
+#### 2. Install all dependencies and packages
 
 ```bash
 uv sync
@@ -193,7 +193,7 @@ SERPER_API_KEY: Obtain a free API Key from [Serper](https://serper.dev/) (includ
 
 ## Running the System
 
-### Option 1: Mit den bereitgestellten Skripten (empfohlen)
+### Option 1
 
 #### Terminal 1 - Start Backend:
 
@@ -213,7 +213,7 @@ chmod +x start-frontend.sh  # Nur beim ersten Mal nötig
 
 The frontend is running on: **http://localhost:5173** (Vite Dev Server)
 
-### Option 2: Starting manually
+### Option 2
 
 #### Terminal 1 - Start Backend manually:
 
