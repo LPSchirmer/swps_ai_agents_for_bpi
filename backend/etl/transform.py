@@ -27,6 +27,7 @@ def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
     """Konvertiert Datentypen in ein für die Process Analysis Engine geeignetes Format."""
 
     df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="ignore")
+    df["case:concept:name"] = df["case:concept:name"].astype(str)
     if "cost:amount" in df.columns:
         df["cost:amount"] = pd.to_numeric(df["cost:amount"], errors="ignore")
     df.sort_values(by=["case:concept:name", "time:timestamp"], ascending=[True, True])
