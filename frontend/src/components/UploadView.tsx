@@ -106,7 +106,7 @@ const UploadView = ({ onFileUpload, onTextSubmit, onCombinedSubmit }: UploadView
     <div className="min-h-screen bg-background flex flex-col p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
-        <span className="text-xl font-display font-bold text-text-primary">ProcessAI</span>
+        <span className="text-xl font-display font-bold text-text-primary">AgenticFlow</span>
       </div>
 
       {/* Main Content - ChatGPT Style */}

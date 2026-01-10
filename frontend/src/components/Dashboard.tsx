@@ -285,7 +285,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
       {/* Header */}
       <div className="border-b border-border px-8 py-5">
         <div className="flex items-center justify-between max-w-[1600px] mx-auto">
-          <span className="text-xl font-semibold font-display">ProcessAI</span>
+          <span className="text-xl font-semibold font-display">AgenticFlow</span>
           <button 
             onClick={onNewAnalysis}
             className="px-5 py-2.5 bg-accent hover:bg-accent-hover text-white rounded-button font-medium transition-all duration-150 shadow-button hover:-translate-y-0.5"
