@@ -75,6 +75,9 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
   // Ref um zu verhindern, dass der Export mehrfach ausgeführt wird
   const hasExportedRef = useRef(false);
   
+  // Prüfe ob BPMN-Datei hochgeladen wurde (für Layout-Anpassung)
+  const isBPMNFile = processVisualization?.file_type === 'bpmn';
+  
   // Automatischer Export der Rohdaten beim Laden des Dashboards
   useEffect(() => {
     const autoExportRawData = async () => {
@@ -342,9 +345,10 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
         </div>
 
         {/* 2. HAUPT-LAYOUT: Prozess-Visualisierung LINKS + KPIs RECHTS */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* LINKS: Prozess-Visualisierung (2/3 Breite) - GRAPH + DIAGRAMME */}
-          <div className="lg:col-span-2">
+        {/* Bei BPMN: Volle Breite, sonst 2/3 + 1/3 Layout */}
+        <div className={`grid grid-cols-1 gap-6 mb-8 ${isBPMNFile ? '' : 'lg:grid-cols-3'}`}>
+          {/* LINKS: Prozess-Visualisierung - Bei BPMN volle Breite, sonst 2/3 */}
+          <div className={isBPMNFile ? '' : 'lg:col-span-2'}>
             <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card">
               {processVisualization && processVisualization.success && processVisualization.graph ? (
                 <>
@@ -360,40 +364,43 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
                   </div>
                   
                   {/* Diagramme mit "Mehr erfahren" Button - DIREKT UNTER DEM GRAPH */}
-                  <div className="border-t border-border">
-                    <button
-                      onClick={() => setShowDetailedCharts(!showDetailedCharts)}
-                      className="w-full p-4 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
-                          <BarChart3 className="w-5 h-5 text-accent" />
+                  {/* Bei BPMN-Dateien KEINE Diagramme anzeigen (keine Performance-Daten) */}
+                  {!isBPMNFile && (
+                    <div className="border-t border-border">
+                      <button
+                        onClick={() => setShowDetailedCharts(!showDetailedCharts)}
+                        className="w-full p-4 flex items-center justify-between hover:bg-background-elevated transition-colors duration-150"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 bg-accent/15 border border-accent/40 rounded-card flex items-center justify-center">
+                            <BarChart3 className="w-5 h-5 text-accent" />
+                          </div>
+                          <div className="text-left">
+                            <h3 className="font-semibold text-base text-text-primary font-display">Detaillierte KPI-Analyse</h3>
+                            <p className="text-text-muted text-xs">Performance, Kosten & Nacharbeit visualisiert</p>
+                          </div>
                         </div>
-                        <div className="text-left">
-                          <h3 className="font-semibold text-base text-text-primary font-display">Detaillierte KPI-Analyse</h3>
-                          <p className="text-text-muted text-xs">Performance, Kosten & Nacharbeit visualisiert</p>
+                        <div className="flex items-center space-x-2">
+                          <span className="px-3 py-1.5 bg-accent/10 text-accent text-sm rounded-button font-medium">
+                            {showDetailedCharts ? 'Ausblenden' : 'Mehr erfahren'}
+                          </span>
+                          <ChevronDown className={`w-5 h-5 text-accent transition-transform duration-200 ${showDetailedCharts ? 'rotate-180' : ''}`} />
                         </div>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <span className="px-3 py-1.5 bg-accent/10 text-accent text-sm rounded-button font-medium">
-                          {showDetailedCharts ? 'Ausblenden' : 'Mehr erfahren'}
-                        </span>
-                        <ChevronDown className={`w-5 h-5 text-accent transition-transform duration-200 ${showDetailedCharts ? 'rotate-180' : ''}`} />
-                      </div>
-                    </button>
-                    
-                    {showDetailedCharts && (
-                      <div className="border-t border-border animate-fadeIn">
-                        <ErrorBoundary fallbackMessage="Die KPI-Charts konnten nicht geladen werden.">
-                          <ProcessVisualization 
-                            visualizationData={processVisualization}
-                            processMetrics={processMetrics}
-                            mode="charts"
-                          />
-                        </ErrorBoundary>
-                      </div>
-                    )}
-                  </div>
+                      </button>
+                      
+                      {showDetailedCharts && (
+                        <div className="border-t border-border animate-fadeIn">
+                          <ErrorBoundary fallbackMessage="Die KPI-Charts konnten nicht geladen werden.">
+                            <ProcessVisualization 
+                              visualizationData={processVisualization}
+                              processMetrics={processMetrics}
+                              mode="charts"
+                            />
+                          </ErrorBoundary>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </>
               ) : (
                 /* Fallback: Statische Platzhalter-Visualisierung oder Fehleranzeige */
@@ -437,31 +444,34 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
           </div>
 
           {/* RECHTS: KPIs - Untereinander angeordnet (1/3 Breite) */}
-          <div className="flex flex-col h-full">
-            {/* Zeige KPIs wenn entweder processVisualization.statistics oder processMetrics vorhanden */}
-            {(processVisualization?.success && processVisualization?.statistics) || (processMetrics && Object.keys(processMetrics).length > 0) ? (
-              <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card h-full">
-                <ErrorBoundary fallbackMessage="Die KPIs konnten nicht geladen werden.">
-                  <ProcessVisualization 
-                    visualizationData={processVisualization}
-                    processMetrics={processMetrics}
-                    mode="kpis"
-                  />
-                </ErrorBoundary>
-              </div>
-            ) : (
-              <div className="bg-background-surface border border-border rounded-panel p-6 h-full flex flex-col items-center justify-center min-h-[300px]">
-                <BarChart3 className="w-12 h-12 text-text-muted mb-4" />
-                <p className="text-text-secondary text-center">Keine KPIs verfügbar</p>
-                <p className="text-text-muted text-sm text-center mt-2">
-                  {processVisualization?.error 
-                    ? 'Die Prozessdatei konnte nicht verarbeitet werden'
-                    : 'Laden Sie eine Prozessdatei hoch'
-                  }
-                </p>
-              </div>
-            )}
-          </div>
+          {/* Bei BPMN-Dateien KEINE KPIs anzeigen (keine Performance-Daten) */}
+          {!isBPMNFile && (
+            <div className="flex flex-col h-full">
+              {/* Zeige KPIs wenn entweder processVisualization.statistics oder processMetrics vorhanden */}
+              {(processVisualization?.success && processVisualization?.statistics) || (processMetrics && Object.keys(processMetrics).length > 0) ? (
+                <div className="bg-background-surface border border-border rounded-panel overflow-hidden shadow-card h-full">
+                  <ErrorBoundary fallbackMessage="Die KPIs konnten nicht geladen werden.">
+                    <ProcessVisualization 
+                      visualizationData={processVisualization}
+                      processMetrics={processMetrics}
+                      mode="kpis"
+                    />
+                  </ErrorBoundary>
+                </div>
+              ) : (
+                <div className="bg-background-surface border border-border rounded-panel p-6 h-full flex flex-col items-center justify-center min-h-[300px]">
+                  <BarChart3 className="w-12 h-12 text-text-muted mb-4" />
+                  <p className="text-text-secondary text-center">Keine KPIs verfügbar</p>
+                  <p className="text-text-muted text-sm text-center mt-2">
+                    {processVisualization?.error 
+                      ? 'Die Prozessdatei konnte nicht verarbeitet werden'
+                      : 'Laden Sie eine Prozessdatei hoch'
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         {/* 3. AGENTEN-SEKTION: Compliance, Performance, Finance - Horizontal über volle Breite - TOGGLE */}
