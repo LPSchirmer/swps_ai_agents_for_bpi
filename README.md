@@ -37,7 +37,7 @@ Feel free to explore the repository, experiment with the provided features, and 
     - [Economic Context Agent](#economic-context-agent)
     - [Performance Agent](#performance-agent)
     - [Finance Agent](#finance-agent)
-    - [Compliance Agent](#✓-compliance-agent)
+    - [Compliance Agent](#compliance-agent)
   - [System Output](#system-output)
   - [System Limitations](#system-limitations)
     - [API Limitations](#api-limitations)
@@ -59,8 +59,7 @@ swps_ai_agents_for_bpi/
 │   |   └── transform.py                    # Methods for transforming strucured data into a coherent format
 │   ├── process_analysis_engine/
 │   |    ├── analysis_utils.py              # Methods for calculating process KPI's from event logs
-│   |    ├── analysis_workflow.py           # Methods for structuring calculated process KPI's for agents
-│   |    └── visual_utils.py                # Method for converting event log to BPMN
+│   |    └── analysis_workflow.py           # Methods for structuring calculated process KPI's for agents
 │   ├── ai_analysis.py
 │   ├── app.py
 │   ├── clean_terminal_logs.py
@@ -362,7 +361,8 @@ The system provides comprehensive outputs depending on the supplied input data:
 
 #### API Limitations
 
-Wir haben Plan 1 von OpenAI also sind die Token innerhalb des Codes restriktiert.
+Our current OpenAI subscription (Plan 1) is limited to **30,000 tokens per minute (TPM)**.  
+Therefore, token usage within the codebase is restricted and optimized to stay within these API limits.
 
 ---
 
