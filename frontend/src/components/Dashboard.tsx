@@ -78,6 +78,19 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
   // Prüfe ob BPMN-Datei hochgeladen wurde (für Layout-Anpassung)
   const isBPMNFile = processVisualization?.file_type === 'bpmn';
   
+  // Prüfe ob nur Textdateien hochgeladen wurden (keine BPMN/XES/CSV)
+  // Wenn nur Text: Visualisierung, KPIs und Diagramme ausblenden
+  const isOnlyTextFile = useMemo(() => {
+    if (!uploadedFiles || uploadedFiles.length === 0) return false;
+    
+    const processDataFormats = ['.bpmn', '.xes', '.csv'];
+    const hasProcessDataFile = uploadedFiles.some(file => 
+      processDataFormats.some(ext => file.filename.toLowerCase().endsWith(ext))
+    );
+    
+    return !hasProcessDataFile;
+  }, [uploadedFiles]);
+  
   // Automatischer Export der Rohdaten beim Laden des Dashboards
   useEffect(() => {
     const autoExportRawData = async () => {
@@ -346,6 +359,8 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
 
         {/* 2. HAUPT-LAYOUT: Prozess-Visualisierung LINKS + KPIs RECHTS */}
         {/* Bei BPMN: Volle Breite, sonst 2/3 + 1/3 Layout */}
+        {/* Bei nur Textdateien: Komplett ausblenden */}
+        {!isOnlyTextFile && (
         <div className={`grid grid-cols-1 gap-6 mb-8 ${isBPMNFile ? '' : 'lg:grid-cols-3'}`}>
           {/* LINKS: Prozess-Visualisierung - Bei BPMN volle Breite, sonst 2/3 */}
           <div className={isBPMNFile ? '' : 'lg:col-span-2'}>
@@ -473,6 +488,7 @@ const Dashboard = ({ uploadedFile, uploadedFiles = [], processDescription = '', 
             </div>
           )}
         </div>
+        )}
 
         {/* 3. AGENTEN-SEKTION: Compliance, Performance, Finance - Horizontal über volle Breite - TOGGLE */}
         <div className="mb-8">
