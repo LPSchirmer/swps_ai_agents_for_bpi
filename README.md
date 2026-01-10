@@ -19,12 +19,13 @@ Feel free to explore the repository, experiment with the provided features, and 
 - [Project Structure](#project-structure)
 - [Requirements](#requirements)
 - [Getting Started](#getting-started)
-  - [Backend Setup](#🔧-backend-setup)
-  - [Frontend Setup](#🎨-frontend-setup)
-  - [Credentials Setup](#🔒-credentials-setup)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+  - [Credentials Setup](#credentials-setup)
 - [Running the System](#running-the-system)
-  - [Option 1](#option-1)
-  - [Option 2](#option-2)
+  - [Terminal 1 - Start Backend manually](#terminal-1---start-backend-manually)
+  - [Terminal 2 - Start Frontend manually](#terminal-2---start-frontend-manually)
+  - [Access to System](#access-to-system)
   - [Troubleshooting](#troubleshooting)
 - [System Workflow](#system-workflow)
   - [Input](#input)
@@ -32,13 +33,14 @@ Feel free to explore the repository, experiment with the provided features, and 
     - [Input processing - structured data](#input-processing---structured-data)
     - [Input processing - unstructured data](#input-processing---unstructured-data)
   - [AI Agents](#ai-agents)
-    - [Requirements Agent](#📋-requirements-agent)
-    - [Economic Context Agent](#📊-economic-context-agent)
-    - [Performance Agent](#⚡-performance-agent)
-    - [Finance Agent](#💰-finance-agent)
+    - [Requirements Agent](#requirements-agent)
+    - [Economic Context Agent](#economic-context-agent)
+    - [Performance Agent](#performance-agent)
+    - [Finance Agent](#finance-agent)
     - [Compliance Agent](#✓-compliance-agent)
   - [System Output](#system-output)
   - [System Limitations](#system-limitations)
+    - [API Limitations](#api-limitations)
 - [References](#references)
 - [Contact](#contact)
 
@@ -48,6 +50,7 @@ Feel free to explore the repository, experiment with the provided features, and 
 
 ```
 swps_ai_agents_for_bpi/
+├── .venv                                   # Virtual Environment (after the setup)
 ├── backend/
 │   ├── etl/
 │   |   ├── extract.py                      # Methods for extracting structured and unstructured data
@@ -69,8 +72,6 @@ swps_ai_agents_for_bpi/
 │   ├── src/
 │   ├── package.json                        # Node.js Dependencies
 │   └── node_modules/                       # Node Dependencies (wird erstellt)
-│── init/
-│   └── init.sql
 │── knowledge/
 │    └── process_redesign_patterns.json     # 52 process redesign pattern in JSON Format as agent knowledge source
 │── src/swps_ai_agents_for_bpi/
@@ -79,11 +80,10 @@ swps_ai_agents_for_bpi/
          └── tasks.yaml                     # Task definitions (description, expected output)
 │     ├── crew.py                           # Crew definition (agents, tasks, tools, knowledge)
 │     └── main.py                           # Running the Crew with inputs
-│── tests/
-│── uploads/
-├── .env.example
-├── .gitignore                                # Upload Directory
-├── docker-compose.yml                      # Docker database configuration
+│── tests/                                  # Test files
+│── uploads/                                # Upload Directory
+├── .env.example                            # Example .env file (rename and modify it with your credentials)
+├── .gitignore                              # Files and directories to be ignored by git              
 ├── start-backend.sh                        # Backend-Startskript
 └── start-frontend.sh                       # Frontend-Startskript
 ```
@@ -128,7 +128,7 @@ Before you begin, ensure that the following software is installed on your system
 git clone https://github.com/LPSchirmer/swps_ai_agents_for_bpi.git
 ```
 
-### 🔧 Backend Setup
+### Backend Setup
 
 #### 1. Create a virtual environment
 
@@ -142,7 +142,7 @@ uv venv
 uv sync
 ```
 
-### 🎨 Frontend Setup
+### Frontend Setup
 
 #### 1. Navigieren Sie zum Frontend-Verzeichnis
 
@@ -175,7 +175,7 @@ Dies installiert alle in `package.json` definierten Abhängigkeiten:
 - autoprefixer (^10.4.17)
 - eslint und Plugins
 
-### 🔒 Credentials Setup
+### Credentials Setup
 
 Rename the .env.example file to .env and add your API keys accordingly.
 In general, any model can be used; however, this project was tested using GPT-4.1.
@@ -193,29 +193,7 @@ SERPER_API_KEY: Obtain a free API Key from [Serper](https://serper.dev/) (includ
 
 ## Running the System
 
-### Option 1
-
-#### Terminal 1 - Start Backend:
-
-```bash
-chmod +x start-backend.sh  # Nur beim ersten Mal nötig
-./start-backend.sh
-```
-
-The backend is running on: **http://localhost:5001**
-
-#### Terminal 2 - Start Frontend:
-
-```bash
-chmod +x start-frontend.sh  # Nur beim ersten Mal nötig
-./start-frontend.sh
-```
-
-The frontend is running on: **http://localhost:5173** (Vite Dev Server)
-
-### Option 2
-
-#### Terminal 1 - Start Backend manually:
+### Terminal 1 - Start Backend manually
 
 ```bash
 .venv\Scripts\activate
@@ -223,14 +201,73 @@ cd backend
 python app.py
 ```
 
-#### Terminal 2 - Start Frontend manually:
+### Terminal 2 - Start Frontend manually
 
 ```bash
 cd frontend
 npm run dev
 ```
 
+### Access to System
+
+After successful start:
+
+- **Frontend:** http://localhost:5173
+- **Backend API:** http://localhost:5001
+- **Backend Health Check:** http://localhost:5001/api/health
+
 ### Troubleshooting
+
+#### Problem: "Port already in use"
+
+**Backend (Port 5001):**
+
+```bash
+# Prozess finden
+lsof -i :5001
+# Prozess beenden
+kill -9 <PID>
+```
+
+**Frontend (Port 5173):**
+
+```bash
+# Prozess finden
+lsof -i :5173
+# Prozess beenden
+kill -9 <PID>
+```
+
+#### Problem: "Cannot find module" im Frontend
+
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+```
+
+#### Problem: CORS-Fehler
+
+Stellen Sie sicher, dass:
+
+- Das Backend läuft (`flask_cors` installiert ist)
+- Die Frontend-Anfragen an `http://localhost:5001` gehen
+- Im Backend `CORS(app)` aktiviert ist
+
+#### Problem: Python-Version
+
+Stellen Sie sicher, dass Sie Python 3.10+ verwenden:
+
+```bash
+python3 --version
+```
+
+Falls eine ältere Version installiert ist, aktualisieren Sie Python oder verwenden Sie `pyenv`:
+
+```bash
+# Mit Homebrew (macOS)
+brew install python@3.13
+```
 
 ---
 
@@ -287,27 +324,27 @@ BPMN data is simulated and processed as simulated event logs. These simulated ev
 
 ### AI-Agents
 
-#### 📋 Requirements Agent
+#### Requirements Agent
 
 Once the input has been processed, the **Requirements Agent** is initiated. It structures the unstructured input into a JSON format, enabling the subsequent agents to continue working with the prepared and standardized information.
 
-#### 📊 Economic Context Agent
+#### Economic Context Agent
 
 Subsequently, the **Economic Context Agent** enriches the input data on an external level based on the provided company name. It incorporates macroeconomic data, industry-specific insights, and company-specific information that are relevant for informed process redesign and optimization.
 
-#### ⚡ Performance Agent
+#### Performance Agent
 
 The **Performance Agent** receives the structured input data, the externally enriched information, and, if an event log is provided, the performance related KPIs. It further enriches these data in a layered manner similar to an onion model to incorporate deeper insights, such as best practices for the given process within the specific industry obtained via web searches.
 
 Using this enriched dataset in combination with its knowledge repository, a collection of 52 process redesign patterns stored in JSON format, the Performance Agent generates textual process improvement recommendations and redesign options. Its focus is exclusively on improving the performance of the process.
 
-#### 💰 Finance Agent
+#### Finance Agent
 
 The **Finance Agent** receives the structured input data, the externally enriched information, and, if an event log is provided, the finance related KPIs. It further enriches these data in a layered manner similar to an onion model to incorporate deeper insights, such as best practices for the given process within the specific industry obtained via web searches.
 
 Using this enriched dataset in combination with its knowledge repository, a collection of 52 process redesign patterns stored in JSON format, the Finance Agent generates textual process improvement recommendations and redesign options. Its focus is exclusively on improving the financial efficiency of the process.
 
-#### ✓ Compliance Agent
+#### Compliance Agent
 
 Der Compliance Agent bekommt dann sowohl die strukturierten Inputdaten, als auch die extern angereicherten Information und falls Event Log, dann auch compliance-relevante KPI's.
 
