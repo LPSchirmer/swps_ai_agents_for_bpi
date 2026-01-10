@@ -17,11 +17,20 @@ Feel free to explore the repository, experiment with the provided features, and 
 ## Table of Contents
 
 - [Project Structure](#project-structure)
+- [Requirements](#requirements)
 - [Getting Started](#getting-started)
+  - [Backend Setup](#backend-setup)
+  - [Frontend Setup](#frontend-setup)
+  - [Credentials Setupt](#credentials-setup)
 - [Running the System](#running-the-system)
+  - [Option 1](#option-1)
+  - [Option 2](#option-2)
+  - [Troubleshooting](#troubleshooting)
 - [System Functionality](#system-functionality)
-  - Input
-  - Input processing
+  - [Input](#input)
+    - [Input best practices](#input-best-practices)
+    - [Input processing - structured data]
+    - [Input processing - unstructured data]
   - [AI Agents](#ai-agents)
     - [Requirements Agent](#requirements-agent)
     - [Economic Context Agent](#economic-context-agent)
@@ -29,6 +38,7 @@ Feel free to explore the repository, experiment with the provided features, and 
     - [Finance Agent](#finance-agent)
     - [Compliance Agent](#compliance-agent)
   - [System Output](#system-output)
+  - [System Limitations](#system-limitations)
 - [References](#references)
 - [Contact](#contact)
 
@@ -50,6 +60,8 @@ swps_ai_agents_for_bpi/
 │   |    └── visual_utils.py                # Method for converting event log to BPMN
 │   ├── ai_analysis.py
 │   ├── app.py
+│   ├── clean_terminal_logs.py
+│   ├── explainability_extractor.py
 │   ├── process_visualization.py            # Hauptanwendung
 │   ├── requirements.txt                    # Python Dependencies
 │   └── venv/                               # Virtuelles Environment (wird erstellt)
@@ -68,7 +80,9 @@ swps_ai_agents_for_bpi/
 │     ├── crew.py                           # Crew definition (agents, tasks, tools, knowledge)
 │     └── main.py                           # Running the Crew with inputs
 │── tests/
-│── uploads/                                # Upload Directory
+│── uploads/
+├── .env.example
+├── .gitignore                                # Upload Directory
 ├── docker-compose.yml                      # Docker database configuration
 ├── start-backend.sh                        # Backend-Startskript
 └── start-frontend.sh                       # Frontend-Startskript
@@ -76,16 +90,147 @@ swps_ai_agents_for_bpi/
 
 ---
 
+## Requirements
+
+Before you begin, ensure that the following software is installed on your system:
+
+**Required Software**:
+
+1. **Python 3.10+** (ideally Python 3.13)
+
+   ```bash
+   python3 --version
+   ```
+2. **Node.js (v18+)** and **npm**
+
+   ```bash
+   node --version
+   npm --version
+   ```
+3. **Git** (to clone the repository)
+
+   ```bash
+   git --version
+   ```
+4. **uv** (for dependency management and package handling)
+
+   ```bash
+   uv --version
+   ```
+
+---
+
 ## Getting Started
 
+### Clone the repository
+
+```bash
+git clone https://github.com/LPSchirmer/swps_ai_agents_for_bpi.git
+```
+
+### 🔧 Backend Setup
+
+#### 1. Create a virtual environment
+
+```bash
+uv venv
+```
+
+#### 2. Install all dependencies
+
+```bash
+uv sync
+```
+
+### 🎨 Frontend Setup
+
+#### 1. Navigieren Sie zum Frontend-Verzeichnis
+
+```bash
+cd frontend
+```
+
+#### 2. Installieren Sie die Node.js-Dependencies
+
+```bash
+npm install
+```
+
+Dies installiert alle in `package.json` definierten Abhängigkeiten:
+
+**Haupt-Dependencies:**
+
+- react (^18.3.1)
+- react-dom (^18.3.1)
+- lucide-react (^0.344.0)
+- axios (^1.6.7)
+
+**Dev-Dependencies:**
+
+- @vitejs/plugin-react (^4.2.1)
+- vite (^7.1.7)
+- typescript (^5.9.3)
+- tailwindcss (^3.4.17)
+- postcss (^8.4.35)
+- autoprefixer (^10.4.17)
+- eslint und Plugins
+
+### 🔒 Credentials Setup
+
+Rename the .env.example file to .env and add your API keys accordingly.
+In general, any model can be used; however, this project was tested using GPT-4.1.
+
+You are responsible for managing and securing your API keys.
+
+Add the following entries to your .env file:
+
+BASE_MODEL_OPENAI: The OpenAI model to be used
+API_KEY_OPENAI: Your OpenAI API key
+CHROMA_OPENAI_API_KEY: Use the same OpenAI API key as above
+SERPER_API_KEY: Obtain a free API Key from [Serper](https://serper.dev/) (includes 2,500 free requests)
 
 ---
 
 ## Running the System
 
----
+### Option 1: Mit den bereitgestellten Skripten (empfohlen)
 
-## Troubleshooting
+#### Terminal 1 - Start Backend:
+
+```bash
+chmod +x start-backend.sh  # Nur beim ersten Mal nötig
+./start-backend.sh
+```
+
+The backend is running on: **http://localhost:5001**
+
+#### Terminal 2 - Start Frontend:
+
+```bash
+chmod +x start-frontend.sh  # Nur beim ersten Mal nötig
+./start-frontend.sh
+```
+
+The frontend is running on: **http://localhost:5173** (Vite Dev Server)
+
+### Option 2: Starting manually
+
+#### Terminal 1 - Start Backend manually:
+
+```bash
+.venv\Scripts\activate
+cd backend
+python app.py
+```
+
+#### Terminal 2 - Start Frontend manually:
+
+```bash
+cd frontend
+npm run dev
+```
+
+### Troubleshooting
 
 ---
 
@@ -122,7 +267,7 @@ For enhanced analysis, the following optional columns are recommended:
 - Resource
 - Costs
 
-### Input - best practices
+### Input best practices
 
 As a best practice, the company name should always be provided, as it enables the enrichment of relevant contextual information. Supplying event logs is strongly recommended, since they are essential for analyzing processes and calculating meaningful process KPIs. Clearly defined process optimization goals help to focus the analysis and improve the quality of the results. Overall, providing comprehensive and high-quality input data leads to better insights and more effective process optimization outcomes.
 
@@ -176,15 +321,21 @@ The system provides comprehensive outputs depending on the supplied input data:
 - Agent explainability, including insights into the agents’ reasoning processes and the tools they utilized.
 - A complete execution log documenting the interactions and outputs of all agents involved.
 
-### API Limitations
+### System Limitations
+
+#### API Limitations
+
+Wir haben Plan 1 von OpenAI also sind die Token innerhalb des Codes restriktiert.
 
 ---
 
 ## References
 
-ℹ️ We used the [process pattern app](https://process-pattern.app/) as collection of patterns for primary source
+ℹ️ We used the [process pattern app](https://process-pattern.app/) as collection of patterns for the crew's knowledge source
+
 ℹ️ The agents are built using the [CrewAI framework](https://www.crewai.com/)
-ℹ️ The Process Analysis Engine is largely based on the [pm4py library](https://processintelligence.solutions/)
+
+ℹ️ The Process Analysis Engine is largely based on the [pm4Py library](https://processintelligence.solutions/)
 
 ---
 
