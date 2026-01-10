@@ -16,8 +16,8 @@ def get_basic_information(event_log: pd.DataFrame) -> dict:
         "activities_frequency" : event_log["concept:name"].value_counts().to_dict(),
         "start_activities" : pm4py.get_start_activities(event_log),
         "end_activities" : pm4py.get_end_activities(event_log),
-        "number_resources" : event_log["org:resource"].nunique(),
-        "resources" : list(event_log["org:resource"].unique())
+        "number_resources" : event_log["org:resource"].nunique() if "org:resource" in event_log.columns else None,
+        "resources" : list(event_log["org:resource"].unique()) if "org:resource" in event_log.columns else None
     }
 
 def get_case_durations(event_log: pd.DataFrame) -> pd.DataFrame:
@@ -109,9 +109,6 @@ def get_activity_duration(event_log: pd.DataFrame) -> pd.DataFrame:
         df = pd.merge(activities_df, activities_durations_frequency_agg, on="concept:name", how="inner")
         df["mean_activity_duration_hours"] = (df["overall_activity_duration_hours"]/df["frequency"]).round(2)
         return df
-    
-def get_waiting_times(event_log: pd.DataFrame) -> pd.DataFrame:
-    pass
 
 def get_costs_per_case(event_log: pd.DataFrame) -> pd.DataFrame:
 
