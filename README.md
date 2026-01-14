@@ -32,7 +32,7 @@ Feel free to explore the repository, experiment with the provided features, and 
     - [Input best practices](#input-best-practices)
     - [Input processing - structured data](#input-processing---structured-data)
     - [Input processing - unstructured data](#input-processing---unstructured-data)
-  - [AI Agents](#ai-agents)
+  - [Agent Crew](#agent-crew)
     - [Requirements Agent](#requirements-agent)
     - [Economic Context Agent](#economic-context-agent)
     - [Performance Agent](#performance-agent)
@@ -50,23 +50,22 @@ Feel free to explore the repository, experiment with the provided features, and 
 
 ```
 swps_ai_agents_for_bpi/
-├── .venv                                   # Virtual Environment (after the setup)
-├── backend/
-│   ├── etl/
+├── .venv                                   # Virtual Environment (automatically created after the setup)
+├── backend/                                # Backend of the System
+│   ├── etl/                                # ETL-Pipeline
 │   |   ├── extract.py                      # Methods for extracting structured and unstructured data
 │   |   ├── load.py                         # Methods for loading structured and unstructured data into PostgreSQL
-│   |   ├── pipeline.py                     # Methodes for starting the ETL-Process
+│   |   ├── pipeline.py                     # Methods for starting the ETL-Process
 │   |   └── transform.py                    # Methods for transforming strucured data into a coherent format
-│   ├── process_analysis_engine/
+│   ├── process_analysis_engine/            # Processing of event logs
 │   |    ├── analysis_utils.py              # Methods for calculating process KPI's from event logs
 │   |    └── analysis_workflow.py           # Methods for structuring calculated process KPI's for agents
 │   ├── ai_analysis.py
 │   ├── app.py
 │   ├── clean_terminal_logs.py
 │   ├── explainability_extractor.py
-│   ├── process_visualization.py            # Hauptanwendung
-│   ├── requirements.txt                    # Python Dependencies
-│   └── venv/                               # Virtuelles Environment (wird erstellt)
+│   ├── process_visualization.py            
+│   └── test_ai_analysis.py                 
 ├── frontend/                               # React Frontend
 │   ├── src/
 │   ├── package.json                        # Node.js Dependencies
@@ -75,16 +74,18 @@ swps_ai_agents_for_bpi/
 │    └── process_redesign_patterns.json     # 52 process redesign pattern in JSON Format as agent knowledge source
 │── src/swps_ai_agents_for_bpi/
 │    ├── config/
-│        ├── agents.yaml                    # Agent definitions (roal, goal, backstory)
-         └── tasks.yaml                     # Task definitions (description, expected output)
-│     ├── crew.py                           # Crew definition (agents, tasks, tools, knowledge)
-│     └── main.py                           # Running the Crew with inputs
+│    │    ├── agents.yaml                   # Agent definitions (roal, goal, backstory)
+│    │    └── tasks.yaml                    # Task definitions (description, expected output)
+│    ├── crew.py                            # Crew definition (agents, tasks, tools, knowledge)
+│    └── main.py                            # Running the Crew with inputs
 │── tests/                                  # Test files
 │── uploads/                                # Upload Directory
 ├── .env.example                            # Example .env file (rename and modify it with your credentials)
 ├── .gitignore                              # Files and directories to be ignored by git              
-├── start-backend.sh                        # Backend-Startskript
-└── start-frontend.sh                       # Frontend-Startskript
+├── package-lock.json
+├── pyproject.toml
+├── README.md
+└── uv.lock
 ```
 
 ---
@@ -95,7 +96,7 @@ Before you begin, ensure that the following software is installed on your system
 
 **Required Software**:
 
-1. **Python 3.10+** (ideally Python 3.13)
+1. **3.10 <= Python < 3.14**
 
    ```bash
    python3 --version
@@ -121,11 +122,13 @@ Before you begin, ensure that the following software is installed on your system
 
 ## Getting Started
 
-**Clone the repository**
+#### Clone the repository
 
 ```bash
 git clone https://github.com/LPSchirmer/swps_ai_agents_for_bpi.git
 ```
+
+---
 
 ### Backend Setup
 
@@ -140,6 +143,8 @@ uv venv
 ```bash
 uv sync
 ```
+
+---
 
 ### Frontend Setup
 
@@ -174,6 +179,8 @@ Dies installiert alle in `package.json` definierten Abhängigkeiten:
 - autoprefixer (^10.4.17)
 - eslint und Plugins
 
+---
+
 ### Credentials Setup
 
 Rename the .env.example file to .env and add your API keys accordingly.
@@ -184,8 +191,11 @@ You are responsible for managing and securing your API keys.
 Add the following entries to your .env file:
 
 BASE_MODEL_OPENAI: The OpenAI model to be used
+
 API_KEY_OPENAI: Your OpenAI API key
+
 CHROMA_OPENAI_API_KEY: Use the same OpenAI API key as above
+
 SERPER_API_KEY: Obtain a free API Key from [Serper](https://serper.dev/) (includes 2,500 free requests)
 
 ---
@@ -207,6 +217,8 @@ cd frontend
 npm run dev
 ```
 
+---
+
 ### Access to System
 
 After successful start:
@@ -214,6 +226,8 @@ After successful start:
 - **Frontend:** http://localhost:5173
 - **Backend API:** http://localhost:5001
 - **Backend Health Check:** http://localhost:5001/api/health
+
+---
 
 ### Troubleshooting
 
@@ -291,7 +305,7 @@ In addition to unstructured data, the following structured input formats are sup
 - .csv for event logs
 - .bpmn
 
-Event Log Requirements:
+**Event Log Requirements:**
 Event logs must contain the following mandatory columns:
 
 - Case ID
@@ -303,33 +317,45 @@ For enhanced analysis, the following optional columns are recommended:
 - Resource
 - Costs
 
+---
+
 ### Input best practices
 
 As a best practice, the company name should always be provided, as it enables the enrichment of relevant contextual information. Supplying event logs is strongly recommended, since they are essential for analyzing processes and calculating meaningful process KPIs. Clearly defined process optimization goals help to focus the analysis and improve the quality of the results. Overall, providing comprehensive and high-quality input data leads to better insights and more effective process optimization outcomes.
 
+---
+
 ### Input processing - Unstructured Data
 
-Unstructured data is extracted from the uploaded files, parsed, and passed to the agents as a dictionary.
+Unstructured data is extracted from the uploaded files, parsed, and passed to the Requirements Agent as plain text.
+
+---
 
 ### Input processing - Structured Data
 
 #### Event Logs
 
-Event Logs im xes oder csv Format werden von unserer Process Analysis Engine verarbeitet. Hier werden generelle Sachen gemacht.
+Event logs in XES or CSV format are first processed by our ETL pipeline. Subsequently, the Process Analysis Engine calculates process-relevant KPIs, which are then provided as input to the respective agents depending on the domain.
 
-### BPMN Data
+#### BPMN Data
 
-BPMN data is simulated and processed as simulated event logs. These simulated event logs are used as input for the analysis in the same way as real event logs, enabling process evaluation and KPI calculation based on the modeled process behavior.
+BPMN data is simulated and processed as simulated event logs. These simulated event logs are used as input for the Requirements Agent.
 
-### AI-Agents
+---
+
+### Agent-Crew
 
 #### Requirements Agent
 
 Once the input has been processed, the **Requirements Agent** is initiated. It structures the unstructured input into a JSON format, enabling the subsequent agents to continue working with the prepared and standardized information.
 
+---
+
 #### Economic Context Agent
 
 Subsequently, the **Economic Context Agent** enriches the input data on an external level based on the provided company name. It incorporates macroeconomic data, industry-specific insights, and company-specific information that are relevant for informed process redesign and optimization.
+
+---
 
 #### Performance Agent
 
@@ -337,25 +363,39 @@ The **Performance Agent** receives the structured input data, the externally enr
 
 Using this enriched dataset in combination with its knowledge repository, a collection of 52 process redesign patterns stored in JSON format, the Performance Agent generates textual process improvement recommendations and redesign options. Its focus is exclusively on improving the performance of the process.
 
+---
+
 #### Finance Agent
 
 The **Finance Agent** receives the structured input data, the externally enriched information, and, if an event log is provided, the finance related KPIs. It further enriches these data in a layered manner similar to an onion model to incorporate deeper insights, such as best practices for the given process within the specific industry obtained via web searches.
 
 Using this enriched dataset in combination with its knowledge repository, a collection of 52 process redesign patterns stored in JSON format, the Finance Agent generates textual process improvement recommendations and redesign options. Its focus is exclusively on improving the financial efficiency of the process.
 
+---
+
 #### Compliance Agent
 
-Der Compliance Agent bekommt dann sowohl die strukturierten Inputdaten, als auch die extern angereicherten Information und falls Event Log, dann auch compliance-relevante KPI's.
+The **Compliance Agent** receives the structured input data, the externally enriched information, and, if an event log is provided, the compliance related KPIs. When external standards or regulations are specified as input, the agent performs a deep search to identify and extract the most relevant information. Regardless of input, the agent always considers the given industry, organizational, and process context to identify potentially relevant regulations. The process is then evaluated against these standards. If internal compliance rules are provided, the process is also assessed against them. Finally, based on this evaluation and compliance analysis, the process is improved to ensure it is compliant.
+
+---
 
 ### System Output
 
 The system provides comprehensive outputs depending on the supplied input data:
 
-- If an event log or BPMN file is provided, the process is visualized.
-- If an event log is provided, relevant process KPIs are calculated and illustrated.
-- Textual improvement recommendations generated by the Performance, Finance, and Compliance Agents.
-- Agent explainability, including insights into the agents’ reasoning processes and the tools they utilized.
-- A complete execution log documenting the interactions and outputs of all agents involved.
+**If an event log is provided:**
+  - The process is visualized as a directly-follows graph.
+  - Relevant process KPIs are calculated and visualized.
+
+**If BPMN data is provided:**
+  - The process is visualized as a BPMN diagram.
+
+**Provided independently of the input:**
+  - Textual process improvements and -redesigns generated by the Performance, Finance, and Compliance Agents.
+  - Agent explainability, including insights into the agents’ goals, tasks, reasoning processes and the tools they utilized.
+  - A complete execution log documenting the interactions and outputs of all agents involved.
+
+---
 
 ### System Limitations
 
