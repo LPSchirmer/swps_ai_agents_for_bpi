@@ -8,30 +8,11 @@ import docx2txt
 def extract_process_data(file_path: str) -> pd.DataFrame | pm4py.BPMN:
     """
     Extract process-related data from a file.
-
     Depending on the file extension, this function reads and returns
     process data in different formats:
     - ".xes": Event log read via pm4py
     - ".csv": CSV file loaded into a pandas DataFrame with automatic delimiter detection
     - ".bpmn": BPMN model read via pm4py
-
-    Parameters
-    ----------
-    file_path : str
-        Path to the process data file.
-
-    Returns
-    -------
-    pandas.DataFrame or pm4py.BPMN
-        The extracted process data as a DataFrame (CSV)
-        or a BPMN / event log object (XES, BPMN).
-
-    Raises
-    ------
-    FileNotFoundError
-        If the specified file does not exist.
-    ValueError
-        If the file format is not supported.
     """
     path = Path(file_path)
 
@@ -51,26 +32,16 @@ def extract_process_data(file_path: str) -> pd.DataFrame | pm4py.BPMN:
     
 def get_delimiter(file_path: str) -> str:
     """
-    Detect the delimiter used in a CSV file.
-
-    This function uses Python's csv.Sniffer to automatically
-    determine the delimiter of a given CSV file.
-
-    Parameters
-    ----------
-    file_path : str
-        Path to the CSV file.
-
-    Returns
-    -------
-    str
-        The detected delimiter character.
+    Detect the delimiter used in a CSV file
     """
     with open(file_path, 'r') as csv_file:
         delimiter = str(csv.Sniffer().sniff(csv_file.read()).delimiter)
         return delimiter
     
 def extract_textual_data(file_path: str) -> str:
+    """
+    Extracts and returns text content from a .txt, .pdf, or .docx file based on its extension
+    """
     path = Path(file_path)
 
     if not path.exists():

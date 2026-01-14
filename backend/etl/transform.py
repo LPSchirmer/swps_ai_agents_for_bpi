@@ -1,7 +1,7 @@
 import pandas as pd
 import pm4py
 
-# Mapping von kanonischen PM4Py-Spaltennamen auf mögliche alternative Bezeichnungen im Input-Datensatz
+# Mapping of canonical PM4Py column names to possible alternative labels in the input dataset
 column_map = {
     "case:concept:name":["case_id", "case", "caseid", "case id", "instance_id", "instance", "instanceid", "instance id"],
     "concept:name":["activity", "activity_name", "event", "event_name", "task", "operation", "step"],
@@ -12,8 +12,9 @@ column_map = {
 }
 
 def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
-    """Vereinheitlicht Spaltennamen eines DataFrames auf die von PM4Py erwarteten kanonischen Namen."""
-
+    """
+    Standardizes DataFrame column names to the canonical names expected by PM4Py
+    """
     mapped = {}
     for canonical_col, synonyms in column_map.items():
         for column in df.columns:
@@ -24,8 +25,9 @@ def rename_columns(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
-    """Konvertiert Datentypen in ein für die Process Analysis Engine geeignetes Format."""
-
+    """
+    Converts data types into a format suitable for the process analysis engine
+    """
     df["time:timestamp"] = pd.to_datetime(df["time:timestamp"], errors="ignore")
     df["case:concept:name"] = df["case:concept:name"].astype(str)
     if "cost:amount" in df.columns:
@@ -34,8 +36,9 @@ def transform_data_types(df: pd.DataFrame) -> pd.DataFrame:
     return df
     
 def bpmn_to_df(bpmn_model: pm4py.BPMN) -> pd.DataFrame:
-    """Simuliert ein BPMN-Modell und erzeugt daraus ein Event-Log im DataFrame-Format."""
-
+    """
+    Simulates a BPMN model and generates an event log in DataFrame format
+    """
     pn, im, fm = pm4py.convert_to_petri_net(bpmn_model)
     simulated_event_log = pm4py.sim.play_out(pn, im, fm)
     rows = []

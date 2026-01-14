@@ -29,11 +29,6 @@ if event_log is not None:
 from swps_ai_agents_for_bpi.crew import SwpsAiAgentsForBpi
 warnings.filterwarnings("ignore", category=SyntaxWarning, module="pysbd")
 
-# This main file is intended to be a way for you to run your
-# crew locally, so refrain from adding unnecessary logic into this file.
-# Replace with inputs you want to test with, it will automatically
-# interpolate any tasks and agents information
-
 # Get current, last and next year
 current_year = datetime.now().year
 last_year = current_year-1

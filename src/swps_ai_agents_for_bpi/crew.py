@@ -27,11 +27,11 @@ try:
 except:
     web_search_tool = None
 
+# Structuring Output of Requirements Agent
 class ProcessInformation(BaseModel):
     process_description: str = Field(description="Textual description of the process.")
     process_data: dict = Field(description="Data/KPI's about the process.")
 
-# Structuring Output of Requirements Agent
 class Requirements(BaseModel):
     process_name: str = Field(description="Name of the given business process (e.g., Order to Cash, Warranty Handling, etc.)")
     company_name: str = Field(description="Name of the company in which the process is embedded.")
@@ -150,7 +150,6 @@ class SwpsAiAgentsForBpi():
             agent=self.performance_agent(),
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()],
             markdown=True
-            # async_execution=True # Task is performed in parallel with finance and compliance analysis
         )
     
     @task
@@ -160,7 +159,6 @@ class SwpsAiAgentsForBpi():
             agent=self.finance_agent(), 
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()], 
             markdown=True
-            # async_execution=True # Task is performed in parallel with performance and compliance analysis
         )
     
     @task
@@ -170,7 +168,6 @@ class SwpsAiAgentsForBpi():
             agent=self.compliance_agent(),
             context=[self.analyze_user_input_task(), self.analyze_economic_context_task()],
             markdown=True
-            # async_execution=True # Task is performed in parallel with performance and finance analysis
         )
 
     @crew
