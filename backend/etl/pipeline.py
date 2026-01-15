@@ -5,24 +5,6 @@ import pandas as pd
 from pathlib import Path
 import os
 
-def run_etl(dir_path: str) -> None:
-    load_chat_data_to_database(dir_path)
-    for file in os.listdir(dir_path):
-        file_path = dir_path + "/" + file
-        ext = Path(file_path).suffix.lower()
-        if ext in [".xes", ".csv", ".bpmn"]:
-            if ext == ".bpmn":
-                bpmn_model = extract_process_data(file_path)
-                df = bpmn_to_df(bpmn_model)
-            else:
-                df = extract_process_data(file_path)
-            df = rename_columns(df)
-            df = transform_data_types(df)
-            load_event_log_to_database(file_path, df)
-        elif ext in [".txt", ".pdf", ".docx"]:
-            text = extract_textual_data(file_path)
-            load_textual_process_data_to_database(text)
-
 def get_event_log(dir_path: str) -> pd.DataFrame:
     for file in os.listdir(dir_path):
         file_path = dir_path + "/" + file
@@ -53,9 +35,11 @@ def get_textual_data(dir_path: str) -> str:
     else:
         return textual_data
 
-# Alias functions for compatibility with app.py
 def run_etl_event_log(file_path: str) -> None:
-    """Process a single event log file (XES, CSV, BPMN)"""
+    """
+    Process a single event log file (XES, CSV, BPMN).
+    Needed for ai_analysis.py
+    """
     ext = Path(file_path).suffix.lower()
     if ext in [".xes", ".csv", ".bpmn"]:
         if ext == ".bpmn":
@@ -68,7 +52,10 @@ def run_etl_event_log(file_path: str) -> None:
         load_event_log_to_database(file_path, df)
 
 def run_etl_textual_process_data(file_path: str) -> None:
-    """Process a single textual file (TXT, PDF, DOCX)"""
+    """
+    Process a single textual file (TXT, PDF, DOCX).
+    Needed for ai_analysis.py
+    """
     ext = Path(file_path).suffix.lower()
     if ext in [".txt", ".pdf", ".docx"]:
         text = extract_textual_data(file_path)
