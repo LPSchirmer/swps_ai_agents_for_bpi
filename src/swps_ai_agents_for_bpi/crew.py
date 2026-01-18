@@ -54,7 +54,7 @@ class EconomicContext(BaseModel):
 
 @CrewBase
 class SwpsAiAgentsForBpi():
-    """SwpsAiAgentsForBpi crew"""
+    """Agent crew"""
 
     agents: List[BaseAgent]
     tasks: List[Task]
@@ -66,6 +66,8 @@ class SwpsAiAgentsForBpi():
 
     @agent
     def requirements_agent(self) -> Agent:
+        """Creation of Requirements Agent"""
+
         return Agent(
             config=self.agents_config['requirements_agent'],
             llm=llm_openai,
@@ -76,6 +78,8 @@ class SwpsAiAgentsForBpi():
     
     @agent
     def economic_context_agent(self) -> Agent:
+        """Creation of Economic Context Agent"""
+
         agent_config = {
             'config': self.agents_config['economic_context_agent'],
             'llm': llm_openai,
@@ -89,6 +93,8 @@ class SwpsAiAgentsForBpi():
     
     @agent
     def performance_agent(self) -> Agent:
+        """Creation of Performance Agent"""
+
         agent_config = {
             'config': self.agents_config['performance_agent'],
             'llm': llm_openai,
@@ -102,6 +108,8 @@ class SwpsAiAgentsForBpi():
     
     @agent
     def finance_agent(self) -> Agent:
+        """Creation of Finance Agent"""
+
         agent_config = {
             'config': self.agents_config['finance_agent'],
             'llm': llm_openai,
@@ -115,6 +123,8 @@ class SwpsAiAgentsForBpi():
     
     @agent
     def compliance_agent(self) -> Agent:
+        """Creation of Compliance Agent"""
+
         agent_config = {
             'config': self.agents_config['compliance_agent'],
             'llm': llm_openai,
@@ -128,6 +138,8 @@ class SwpsAiAgentsForBpi():
 
     @task
     def analyze_user_input_task(self) -> Task:
+        """Task of Requirements Agent"""
+
         return Task(
             config=self.tasks_config['analyze_user_input_task'],
             agent=self.requirements_agent(),
@@ -136,6 +148,8 @@ class SwpsAiAgentsForBpi():
     
     @task
     def analyze_economic_context_task(self) -> Task:
+        """Task of Economic Context Agent"""
+
         return Task(
             config=self.tasks_config['analyze_economic_context_task'],
             agent=self.economic_context_agent(),
@@ -145,6 +159,8 @@ class SwpsAiAgentsForBpi():
     
     @task
     def performance_analysis_task(self) -> Task:
+        """Task of Performance Agent"""
+
         return Task(
             config=self.tasks_config['performance_analysis_task'],
             agent=self.performance_agent(),
@@ -154,6 +170,8 @@ class SwpsAiAgentsForBpi():
     
     @task
     def finance_analysis_task(self) -> Task:
+        """Task of Finance Agent"""
+
         return Task(
             config=self.tasks_config['finance_analysis_task'],
             agent=self.finance_agent(), 
@@ -163,6 +181,8 @@ class SwpsAiAgentsForBpi():
     
     @task
     def compliance_analysis_task(self) -> Task:
+        """Task of Compliance Agent"""
+
         return Task(
             config=self.tasks_config['compliance_analysis_task'],
             agent=self.compliance_agent(),
@@ -172,13 +192,13 @@ class SwpsAiAgentsForBpi():
 
     @crew
     def crew(self) -> Crew:
-        """Creates the SwpsAiAgentsForBpi crew"""
+        """Creates the whole crew"""
 
         return Crew(
             agents=self.agents,
             tasks=self.tasks,
             process=Process.sequential,
             verbose=True,
-            knowledge_sources=[self.bpi_json_source]
-            # memory=True
+            knowledge_sources=[self.bpi_json_source],
+            memory=True
         )
