@@ -56,6 +56,7 @@ swps_ai_agents_for_bpi/
 ├── backend/                                # Backend of the System
 │   ├── etl/                                # ETL-Pipeline
 │   |   ├── extract.py                      # Methods for extracting structured and unstructured data
+│   │   ├── load.py                         # Initial Methods for loading the Input Data into PostgreSQL
 │   |   ├── pipeline.py                     # Methods for starting the ETL-Process
 │   |   └── transform.py                    # Methods for transforming strucured data into a coherent format
 │   ├── process_analysis_engine/            # Processing of event logs
@@ -84,7 +85,6 @@ swps_ai_agents_for_bpi/
 │── uploads/                                # Upload Directory
 ├── .env.example                            # Example .env file (rename and modify it with your credentials)
 ├── .gitignore                              # Files and directories to be ignored by git  
-├── package-lock.json
 ├── pyproject.toml                          # Required packages and dependencies
 ├── README.md                               # This file
 └── uv.lock                                 # Detailed file of required packages and dependencies
