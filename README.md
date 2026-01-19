@@ -56,23 +56,22 @@ swps_ai_agents_for_bpi/
 ├── backend/                                # Backend of the System
 │   ├── etl/                                # ETL-Pipeline
 │   |   ├── extract.py                      # Methods for extracting structured and unstructured data
-│   |   ├── load.py                         # Methods for loading structured and unstructured data into PostgreSQL
 │   |   ├── pipeline.py                     # Methods for starting the ETL-Process
 │   |   └── transform.py                    # Methods for transforming strucured data into a coherent format
 │   ├── process_analysis_engine/            # Processing of event logs
 │   |    ├── analysis_utils.py              # Methods for calculating process KPI's from event logs
 │   |    └── analysis_workflow.py           # Methods for structuring calculated process KPI's for agents
-│   ├── ai_analysis.py
-│   ├── app.py
-│   ├── clean_terminal_logs.py
-│   ├── explainability_extractor.py
-│   ├── process_visualization.py  
-│   └── test_ai_analysis.py     
+│   ├── ai_analysis.py                      # Script for connecting Frontend, ETL-Pipeline, Process Analysis Engine and Crew-Agents
+│   ├── app.py                              # API for connecting Frontend and Backend
+│   ├── clean_terminal_logs.py              # Methods for cleaning the terminal of agent-ouptuts
+│   ├── explainability_extractor.py         # Methods for extracting data for UI-Explainability-Section
+│   ├── process_visualization.py            # Visualizing Process via Directly-Follows Graphs and BPMN models
+│   └── test_ai_analysis.py                 # File for enabling testing and logging of AI Agents     
 ├── frontend/                               # React Frontend
-│   ├── src/
+│   ├── src/                                # Main Frontend Code
 │   ├── package.json                        # Node.js Dependencies
-│   └── node_modules/                       # Node Dependencies (wird erstellt)
-├── image/README                            # Preview pictures of the Frontend
+│   └── node_modules/                       # Node Dependencies (automatically created after the setup)
+├── image/README                            # Preview pictures of the Frontend for README
 │── knowledge/
 │    └── process_redesign_patterns.json     # 52 process redesign pattern in JSON Format as agent knowledge source
 │── src/swps_ai_agents_for_bpi/
@@ -86,9 +85,9 @@ swps_ai_agents_for_bpi/
 ├── .env.example                            # Example .env file (rename and modify it with your credentials)
 ├── .gitignore                              # Files and directories to be ignored by git  
 ├── package-lock.json
-├── pyproject.toml
-├── README.md
-└── uv.lock
+├── pyproject.toml                          # Required packages and dependencies
+├── README.md                               # This file
+└── uv.lock                                 # Detailed file of required packages and dependencies
 ```
 
 ---
